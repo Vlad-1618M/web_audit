@@ -1,4 +1,4 @@
-# Web Audit.
+# Web Audit
 
 **Zero Install external security hygiene checks for public websites** — one shell script, `curl` + `openssl` only.
 
@@ -283,10 +283,13 @@ POST rate-limit probes send **real invalid login traffic** — use responsibly.
 | `site_configs/` | Auto-generated per-host configs (gitignored; interactive create) |
 
 ---
+## Report Sample View
+![sample_0](/png/wiki_audit_preview.png) <br><br>
+![sample_1](/png/zillo_view.png)
 
-## Legal
 
-For **authorized security assessment only**. Unauthorized scanning may violate terms of service or local law.
+#### Legal
+##### For **authorized security assessment only**. <br>Unauthorized scanning may violate terms of service or local law.
 
 ---
 

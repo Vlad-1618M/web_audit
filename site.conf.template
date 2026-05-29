@@ -1,0 +1,387 @@
+# =============================================================================
+# web_audit.sh — site configuration template (v2.5)
+# =============================================================================
+#
+# Copy to a real config and uncomment/customize lines you need:
+#
+#   cp site.conf.template my-site.conf
+#
+# Interactive runs also auto-create site_configs/<hostname>.conf (homepage +
+# sitemap discovery). Edit those files or use --config explicitly:
+#
+#   OPEN_BROWSER=0 zsh ./web_audit.sh \
+#     --config ./my-site.conf \
+#     --framework django \
+#     https://example.com
+#
+#   --no-site-config   skip site_configs/ entirely
+#
+# CLI framework values: django | wordpress | laravel | rails | php | auto
+#   auto     = detect stack from headers/cookies/body, then probe that stack
+#   unknown  = detection inconclusive — all built-in path lists (noisier)
+#
+# ---------------------------------------------------------------------------
+# IMPLEMENTED SECTIONS (read by web_audit.sh)
+# ---------------------------------------------------------------------------
+#   [paths]           extra=PATH          Add paths to GET probes + misc sampling
+#                                         (reported as site_config under Internal URLs)
+#   [expected_open]   PATH=LABEL          Mark intentional 200s (not Exposure leaks)
+#   [rate_limit_post] PATH=PROBE_TYPE     Extra POST abuse / throttle probes
+#   [misc]            show/max/bytes      URL list display + HTML scan limits for links/images
+#
+# expected_open labels:
+#   app_surface   — Public app routes (sidebar pages, APIs meant for visitors)
+#                   Only label with dedicated report wording ("App surface").
+#   public_seo    — SEO / share / discovery files (robots, sitemap, icons, manifest)
+#   login_surface — Custom login URLs not covered by built-in framework rules
+#   staging       — Staging-only routes that are OK on that host
+#   internal      — Other intentional public endpoints (document in run notes)
+#
+# Built-in "expected" without config (no label needed):
+#   /robots.txt, /sitemap.xml, /feed/, /.well-known/security.txt
+#   Framework login paths: Django /admin/login/, WP /wp-login.php, etc.
+#
+# rate_limit_post PROBE_TYPE values:
+#   django_admin  — CSRF-aware POST to Django admin login
+#   wordpress     — POST wp-login.php
+#   laravel       — POST /login with _token
+#   rails         — POST /users/sign_in with authenticity_token
+#   json          — POST application/json body (API/chat endpoints)
+#   form          — Generic application/x-www-form-urlencoded POST
+#
+# Framework login POST is always probed once; [rate_limit_post] adds more targets.
+#
+# ---------------------------------------------------------------------------
+# REFERENCE SECTIONS (comments only — not parsed by web_audit.sh)
+#   Use them as checklists when building a real config, or when hardening
+#   Django / WordPress / CDN / SEO outside the audit tool.
+# =============================================================================
+
+
+# =============================================================================
+# [paths] — Extra URLs to probe (GET)
+# =============================================================================
+# Syntax:  extra=/path/
+#   • Leading slash optional; tool normalizes to /path/
+#   • Trailing slash recommended for directory-style routes
+#   • Duplicates vs built-in lists are de-duped automatically
+#   • Each extra= path is GET-probed, sampled for link/image discovery (max 8
+#     pages total with homepage), and listed in the report as site_config under
+#     Discovered Internal URLs — not under Security Probe URLs
+#   • Use real server paths (/about/), not hash anchors (/#section) — fragments
+#     are not sent in HTTP requests
+#
+# --- Agnostic (any stack) ---
+# extra=/.well-known/security.txt
+# extra=/humans.txt
+# extra=/ads.txt
+# extra=/favicon.ico
+# extra=/apple-touch-icon.png
+# extra=/apple-touch-icon-precomposed.png
+# extra=/site.webmanifest
+# extra=/manifest.json
+# extra=/browserconfig.xml
+# extra=/crossdomain.xml
+# extra=/health
+# extra=/healthz
+# extra=/ready
+# extra=/status
+# extra=/metrics          # Often should be 401/403 — do NOT mark expected_open on prod
+# extra=/actuator/health  # Spring — same caution
+#
+# --- SEO / sitemap variants (beyond built-in /sitemap.xml) ---
+# extra=/sitemap_index.xml
+# extra=/sitemap-index.xml
+# extra=/sitemap/sitemap.xml
+# extra=/post-sitemap.xml
+# extra=/page-sitemap.xml
+# extra=/news-sitemap.xml
+#
+# --- Social / OG image paths (rename to match your static layout) ---
+# extra=/static/images/favicon.png
+# extra=/static/images/og-image.png
+# extra=/static/images/og-image.jpg
+# extra=/static/images/twitter-card.png
+# extra=/static/images/logo.png
+# extra=/media/og-image.png
+#
+# --- Bot / crawler / discovery (probe + decide expected vs blocked) ---
+# extra=/llms.txt
+# extra=/ai.txt
+# extra=/openapi.json
+# extra=/schema.json
+#
+# --- Django (also probed when --framework django) ---
+# Built-in includes: /admin/login/, /api/, /swagger/, /static/, /media/,
+#   /settings.py, /__debug__/, /silk/, /accounts/login/, etc.
+# extra=/app/
+# extra=/app/chat/
+# extra=/portal/
+# extra=/tests/
+# extra=/api/status/
+# extra=/contact/
+# extra=/download/
+#
+# --- WordPress (also probed when --framework wordpress) ---
+# Built-in includes: /wp-admin/, /wp-login.php, /wp-json/, /xmlrpc.php,
+#   /wp-content/uploads/, /readme.html, /?author=1, etc.
+# extra=/wp-sitemap.xml
+# extra=/wp-sitemap-posts-post-1.xml
+# extra=/wp-sitemap-pages-1.xml
+# extra=/wp-sitemap-users-1.xml
+#
+# --- Laravel ---
+# extra=/horizon
+# extra=/telescope
+# extra=/log-viewer
+# extra=/_debugbar/
+#
+# --- Rails ---
+# extra=/rails/info
+# extra=/sidekiq
+# extra=/cable
+
+
+[paths]
+# Uncomment lines above into this section, or add site-specific routes:
+# extra=/my-public-app/
+
+
+# =============================================================================
+# [expected_open] — Intentional public 200s (Exposure score ignores these)
+# =============================================================================
+# Syntax:  /path/=label
+#
+# Use when a probed path returns 200 by design on this host.
+# Wrong use hides real leaks — only list routes you deliberately expose.
+#
+# --- Agnostic / SEO / assets ---
+# /robots.txt=public_seo              # already built-in public-by-design
+# /sitemap.xml=public_seo             # already built-in
+# /.well-known/security.txt=public_seo  # already built-in (+ GENERAL check)
+# /favicon.ico=public_seo
+# /static/images/favicon.png=public_seo
+# /static/images/og-image.png=public_seo
+# /apple-touch-icon.png=public_seo
+# /site.webmanifest=public_seo
+# /humans.txt=public_seo
+# /ads.txt=public_seo
+# /llms.txt=public_seo
+#
+# --- Django app surfaces (custom public routes) ---
+# /app/=app_surface
+# /tests/=app_surface
+# /portal/=app_surface
+# /docs/=app_surface
+# /about/=app_surface
+# /contact/=app_surface
+#
+# --- WordPress public surfaces ---
+# /feed/=public_seo                    # already built-in for WP feed
+# /wp-json/wp/v2/posts=public_seo     # if REST is intentionally public
+#
+# --- Custom login (when not default framework path) ---
+# /panel/login/=login_surface
+# /auth/signin/=login_surface
+#
+# --- Staging-only host (do not copy to prod config) ---
+# /__debug__/=staging
+# /silk/=staging
+
+[expected_open]
+# /app/=app_surface
+# /tests/=app_surface
+
+
+# =============================================================================
+# [misc] — Miscellaneous report: URL list display (optional)
+# =============================================================================
+# Controls HTML report URL lists under Miscellaneous. JSON always includes full
+# split lists (security_probes + internal).
+#
+# show_probe_urls=yes|no     Show attempted GET probe URLs (default yes)
+# show_internal_urls=yes|no  Show same-origin links from homepage/sitemap/pages (default yes)
+# max_probe_urls=N           Cap probe URLs shown in HTML (default 250)
+# max_internal_urls=N        Cap internal URLs shown in HTML (default 250)
+# max_html_bytes=N           HTML bytes scanned for links per page (default 65536)
+# max_html_img_bytes=N       HTML bytes scanned for <img> tags (default 98304)
+#
+# Internal sources: site_config ([paths] extra=), homepage, homepage_links,
+#   page_links, sitemap.xml, robots.txt
+# Probe sources:    security_probe (built-in sensitive paths — not [paths] extra=)
+
+[misc]
+# show_probe_urls=yes
+# show_internal_urls=yes
+# max_probe_urls=250
+# max_internal_urls=250
+# max_html_bytes=65536
+# max_html_img_bytes=98304
+
+
+# =============================================================================
+# [rate_limit_post] — Brute-force / abuse resistance probes
+# =============================================================================
+# Syntax:  /path/=PROBE_TYPE
+#
+# Sends up to 15 rapid invalid POSTs; expects 429/503/lockout signal.
+# Unprotected → ACTION (HIGH without CDN, MEDIUM behind CDN).
+#
+# Default framework login is always tested (no config line needed):
+#   django     → /admin/login/       (django_admin)
+#   wordpress  → /wp-login.php        (wordpress)
+#   laravel    → /login               (laravel)
+#   rails      → /users/sign_in       (rails)
+#   other      → /login/              (form)
+#
+# --- Django API / forms ---
+# /api/chat/=json
+# /api/token/=json
+# /api/contact/=json
+# /contact/=form
+# /api/events/=json
+# /api/webhook/=json
+#
+# --- WordPress ---
+# /xmlrpc.php=form
+# /wp-comments-post.php=form
+#
+# --- Generic ---
+# /api/login/=json
+# /api/v1/auth/=json
+# /contact/=form
+
+[rate_limit_post]
+# /api/chat/=json
+
+
+# =============================================================================
+# REFERENCE — Bot & crawler controls (site / CDN / app; not audit config)
+# =============================================================================
+#
+# web_audit probes /robots.txt but does not parse Disallow rules yet.
+# Use this checklist when writing robots.txt or WAF rules, then probe paths.
+#
+# robots.txt patterns (examples — tune per site):
+#   Disallow: /admin/
+#   Disallow: /api/internal/
+#   Disallow: /tests/              # optional: hide test reports from crawlers
+#   Disallow: /portal/              # optional: keep private area out of index
+#   Allow: /static/images/og-image.png
+#   Sitemap: https://example.com/sitemap.xml
+#
+# Paths that should usually return 403/404/405 on production (probe; do NOT
+# mark expected_open unless you intentionally expose them):
+#   /.env, /.git/, /wp-config.php, /settings.py, /db.sqlite3
+#   /xmlrpc.php (WordPress — disable if unused)
+#   /server-status, /metrics, /telescope, /horizon, /sidekiq
+#   /api/internal/ (POST-only or admin-only hooks)
+#
+# App-side bot / crawler handling (your application — not web_audit):
+#   Middleware or WAF rules that tag bot UAs, rate-limit crawlers, etc.
+#
+# CDN / edge (VERIFY in audit when headers set at CDN):
+#   Bot Fight Mode, WAF rate limits, min TLS 1.2, HSTS, CSP
+#
+# Feature flags / env guards (your application — not web_audit):
+#   Disable debug routes, staging modules, and admin-only tools in production
+
+
+# =============================================================================
+# REFERENCE — SEO optimization checklist (app / templates / CDN)
+# =============================================================================
+#
+# Passive audit already checks: security.txt presence, robots/sitemap reachability,
+# security headers (CSP, HSTS, X-Frame-Options, etc.), TLS versions.
+#
+# Template / static asset naming (typical Django layout):
+#   Favicon:     static/images/favicon.png  (+ cache-bust query param if used)
+#   OG image:    static/images/og-image.png
+#   App icons:   static/images/icons/...
+#   Media:       media/ or static/images/...
+#
+# Meta / social (implement in base template — not audited field-by-field yet):
+#   <title>, meta description, canonical URL
+#   og:title, og:description, og:image, og:url, og:type
+#   twitter:card, twitter:title, twitter:image
+#   link rel=canonical, lang attribute on <html>
+#
+# Django settings (production checklist):
+#   ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS
+#   SECURE_HSTS_*, SECURE_SSL_REDIRECT (or trust LB X-Forwarded-Proto)
+#   SESSION_COOKIE_SECURE, CSRF_COOKIE_SECURE
+#
+# WordPress SEO plugins (audit may detect plugin versions):
+#   yoast-seo, rank-math, all-in-one-seo-pack — keep updated; hide version tags
+#
+# Sitemap generation:
+#   Django: django.contrib.sitemaps or static sitemap.xml
+#   WordPress: core sitemaps / Yoast / Rank Math — probe wp-sitemap.xml variants
+
+
+# =============================================================================
+# REFERENCE — Static PNG / image IDs & cache busting
+# =============================================================================
+#
+# When renaming site PNGs or changing paths, update ALL of:
+#   1. File on disk under static/images/...
+#   2. Template {% static 'images/...' %} references (or equivalent)
+#   3. CMS/admin model fields that store filenames
+#   4. This config [paths] extra= probes (if you audit asset URLs)
+#   5. [expected_open] if the asset must return 200 publicly
+#   6. robots.txt Allow rules for crawlers that fetch og:image
+#   7. CDN cache purge after deploy
+#
+# Cache bust query param (Django context processor):
+#   ?v={{ static_cache_bust }} — bump when replacing favicon/og-image without rename
+#
+# Common probe list after renames:
+#   extra=/static/images/favicon.png
+#   extra=/static/images/og-image.png
+#   /static/images/favicon.png=public_seo
+#   /static/images/og-image.png=public_seo
+
+
+# =============================================================================
+# REFERENCE — Framework-specific built-in probe lists (no config required)
+# =============================================================================
+#
+# COMMON (all frameworks):
+#   /.env, /.git/HEAD, /backup.zip, /robots.txt, /sitemap.xml,
+#   /.well-known/security.txt, /package.json, /composer.json, ...
+#
+# DJANGO (--framework django):
+#   /admin/login/, /api/, /swagger/, /redoc/, /static/, /media/,
+#   /settings.py, /__debug__/, /silk/, /accounts/login/, ...
+#
+# WORDPRESS (--framework wordpress):
+#   /wp-admin/, /wp-login.php, /wp-config.php, /wp-json/wp/v2/users,
+#   /xmlrpc.php, /readme.html, /wp-content/uploads/, ...
+#
+# LARAVEL:  /storage/logs/laravel.log, /telescope, /horizon, /login, ...
+# RAILS:    /rails/info, /sidekiq, /users/sign_in, ...
+# GENERIC:  /administrator/, /phpmyadmin/, /dashboard/, ...
+
+
+# =============================================================================
+# EXAMPLE — minimal production Django site (copy block to my-site.conf)
+# =============================================================================
+#
+# [paths]
+# extra=/app/
+# extra=/tests/
+# extra=/static/images/favicon.png
+# extra=/static/images/og-image.png
+#
+# [expected_open]
+# /app/=app_surface
+# /tests/=app_surface
+# /static/images/favicon.png=public_seo
+# /static/images/og-image.png=public_seo
+#
+# [rate_limit_post]
+# /api/chat/=json
+#
+# Run:
+#   OPEN_BROWSER=0 zsh ./web_audit.sh \
+#     --config ./my-site.conf --framework django https://example.com

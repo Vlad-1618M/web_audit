@@ -24,8 +24,10 @@
 # IMPLEMENTED SECTIONS (read by web_audit.sh)
 # ---------------------------------------------------------------------------
 #   [paths]           extra=PATH          Add paths to GET probes + misc sampling
+#                                         (reported as site_config under Internal URLs)
 #   [expected_open]   PATH=LABEL          Mark intentional 200s (not Exposure leaks)
 #   [rate_limit_post] PATH=PROBE_TYPE     Extra POST abuse / throttle probes
+#   [misc]            show/max/bytes      URL list display + HTML scan limits for links/images
 #
 # expected_open labels:
 #   app_surface   — Public app routes (sidebar pages, APIs meant for visitors)
@@ -63,6 +65,11 @@
 #   • Leading slash optional; tool normalizes to /path/
 #   • Trailing slash recommended for directory-style routes
 #   • Duplicates vs built-in lists are de-duped automatically
+#   • Each extra= path is GET-probed, sampled for link/image discovery (max 8
+#     pages total with homepage), and listed in the report as site_config under
+#     Discovered Internal URLs — not under Security Probe URLs
+#   • Use real server paths (/about/), not hash anchors (/#section) — fragments
+#     are not sent in HTTP requests
 #
 # --- Agnostic (any stack) ---
 # extra=/.well-known/security.txt
@@ -184,6 +191,32 @@
 [expected_open]
 # /app/=app_surface
 # /tests/=app_surface
+
+
+# =============================================================================
+# [misc] — Miscellaneous report: URL list display (optional)
+# =============================================================================
+# Controls HTML report URL lists under Miscellaneous. JSON always includes full
+# split lists (security_probes + internal).
+#
+# show_probe_urls=yes|no     Show attempted GET probe URLs (default yes)
+# show_internal_urls=yes|no  Show same-origin links from homepage/sitemap/pages (default yes)
+# max_probe_urls=N           Cap probe URLs shown in HTML (default 250)
+# max_internal_urls=N        Cap internal URLs shown in HTML (default 250)
+# max_html_bytes=N           HTML bytes scanned for links per page (default 65536)
+# max_html_img_bytes=N       HTML bytes scanned for <img> tags (default 98304)
+#
+# Internal sources: site_config ([paths] extra=), homepage, homepage_links,
+#   page_links, sitemap.xml, robots.txt
+# Probe sources:    security_probe (built-in sensitive paths — not [paths] extra=)
+
+[misc]
+# show_probe_urls=yes
+# show_internal_urls=yes
+# max_probe_urls=250
+# max_internal_urls=250
+# max_html_bytes=65536
+# max_html_img_bytes=98304
 
 
 # =============================================================================

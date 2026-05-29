@@ -127,9 +127,9 @@ On **interactive** runs (terminal TTY, not `--quiet`):
 
 **Non-interactive** (`--quiet`, CI, pipes): loads existing `site_configs/<host>.conf` if present (no prompt, no auto-create). Use `--config FILE` to pin a config, or `--no-site-config` to disable.
 
-**`[paths] extra=`** entries are merged into security probes **and** misc page/image sampling (priority after homepage, before sitemap; max 8 pages).
+**`[paths] extra=`** entries are merged into GET probes, misc page/image sampling (homepage first, then config extras, then sitemap; max **8 pages**), and the Miscellaneous report as **`site_config`** under **Internal URLs** (not `security_probe`). Declining the config prompt skips loading — built-in probes only for that run.
 
-Reference: `resolve_config_for_target()` and `discover_site_paths()` in `web_audit.sh`.
+Reference: `resolve_config_for_target()`, `discover_site_paths()`, `misc_path_is_config_extra()` in `web_audit.sh`.
 
 ### Without `--config` or site config (default)
 
@@ -163,13 +163,14 @@ OPEN_BROWSER=0 zsh ./web_audit.sh --config ./my-site.conf --framework django htt
 
 | INI section | Effect |
 |-------------|--------|
-| `[paths]` `extra=/path/` | Add paths to GET probes **and** misc URL/image sampling (up to 8 pages) |
+| `[paths]` `extra=/path/` | Add paths to GET probes **and** misc URL/image sampling (up to 8 pages); report source **`site_config`** (Internal URLs) |
 | `[expected_open]` `/path/=label` | Mark intentional 200s — not counted as Exposure leaks. Label `app_surface` gets dedicated report wording; other labels (`public_seo`, `staging`, `internal`, `login_surface`) suppress leak scoring but show as “expected (config)” in the path summary. |
 | `[rate_limit_post]` `/path/=type` | Extra POST abuse probes (`json`, `django_admin`, `wordpress`, `laravel`, `rails`, `form`) |
+| `[misc]` | `show_probe_urls`, `show_internal_urls`, `max_probe_urls`, `max_internal_urls` (HTML list display); `max_html_bytes`, `max_html_img_bytes` (link/image scan windows) |
 
 Config via `--config` is explicit. Auto configs live in `site_configs/` (gitignored) unless you pass `--no-site-config`.
 
-Reference sections in `site.conf.template` (SEO, bots, static assets) are **documentation for humans** — only the three sections above are parsed by the script.
+Reference sections in `site.conf.template` (SEO, bots, static assets) are **documentation for humans** — only the four **IMPLEMENTED** sections in the template header are parsed by the script.
 
 ---
 
@@ -202,7 +203,7 @@ Reference sections in `site.conf.template` (SEO, bots, static assets) are **docu
 | **HTTP methods** | TRACE / OPTIONS on homepage and login URL |
 | **General** | `/.well-known/security.txt` presence |
 | **Attribution** | Designer/creator credits (Designed by, Powered by, …) — placement vs SEO risk |
-| **Miscellaneous** | URL inventory (sitemap up to 150 URLs + probes + links); image count on sampled pages |
+| **Miscellaneous** | Split URL inventory (`security_probe` vs internal sources); image count on up to 8 sampled pages; designer attribution |
 
 ### Framework support
 
@@ -347,7 +348,7 @@ is_sensitive_path() {
 | Item | Why |
 |------|-----|
 | VERIFY / EXPECTED / INFO | Not ACTION, or `scored=no` |
-| MISC URL/image inventory | INFO checks with `scored=no` (~1431–1432) |
+| MISC URL/image inventory | INFO checks with `scored=no` — split probe vs internal counts |
 | Designer in footer or HTML comment | EXPECTED (~1478–1486) |
 | Designer in `<title>` or hidden CSS | ACTION with `scored=yes` — **does** reduce Hygiene (~1488–1495) |
 | Non-sensitive OPEN paths | Counted in `SCORE_EXPOSED` for reporting only; no Exposure penalty |
@@ -362,7 +363,7 @@ is_sensitive_path() {
 
 ## Miscellaneous & attribution — `check_site_miscellaneous()`
 
-~1363–1503 in `web_audit.sh`. Runs after `check_artifacts` (sitemap already parsed).
+Runs after `check_artifacts` (sitemap already parsed). Key helpers: `misc_register_url()`, `misc_path_is_config_extra()`, `collect_urls_from_html()`, `collect_images_from_html()`, `html_emit_misc_section()`.
 
 **Designer discovery (stack-agnostic):** Homepage HTML first; if no credit, scans any **OPEN probed path ending in `/`** (and config `[paths] extra=`) — not tied to one CMS. Malformed HTML comments are supported.
 
@@ -370,9 +371,15 @@ is_sensitive_path() {
 
 **Attribution INFO:** **Credit off homepage** when the designer name was read from a non-root URL.
 
-**URL inventory:** Registers probe paths first (~1382–1384), then sitemap URLs (up to **150** from `check_artifacts` ~1137), robots sitemaps, homepage links, and up to **8** sampled pages (~1408–1429). Dedup via `misc_register_url()`.
+**URL inventory:** Built-in probe paths register as `security_probe`; `[paths] extra=` registers as `site_config`; then sitemap/robots locs, homepage, and link extraction from up to **8** sampled pages. Dedup via `misc_register_url()` — if the same URL was `security_probe` and later found in HTML nav, the source upgrades to `homepage_links` / `page_links`.
 
-**Images:** `collect_images_from_html()` / `misc_register_image()` — unique `src` on sampled pages.
+**Report split (HTML + JSON):**
+- **Discovered Security Probe URLs** — built-in sensitive GET paths only (`.env`, `/wp-admin/`, …). `[paths] extra=` is **not** listed here.
+- **Discovered Internal URLs** — `[paths] extra=` (`site_config`), `homepage`, same-origin links (`homepage_links`, `page_links`), `sitemap.xml`, `robots.txt`.
+
+**HTML scan limits:** Links use first **64 KB** per page (`MISC_HTML_MAX`, default 65536); images use first **96 KB** (`MISC_HTML_IMG_MAX`, default 98304). Override in `[misc]`. JS is never executed — only server-rendered HTML is parsed. Link/image extraction uses resolved tool paths (`$GREP`, `$SED`, `$HEAD`) so discovery works reliably after the probe phase on macOS/zsh.
+
+**Images:** `collect_images_from_html()` / `misc_register_image()` — unique `src` / `srcset` on sampled pages within the image scan window.
 
 **Credit patterns:** Designed by, Created by, Developed by, Built by, Powered by, Made by, Coded by, Theme by, Author:, Creator:, etc. CMS boilerplate filtered via `is_credit_noise()`.
 
@@ -386,9 +393,22 @@ is_sensitive_path() {
 
 **Report header:** Always shows **Designer / Creator** — name when found (with proper/risky note), or **Not detected**. Includes path when credit came from a non-homepage URL.
 
-**HTML section:** `html_emit_misc_section()` ~2294+ — designer trace table, clickable URL catalog (source tags: `security_probe`, `sitemap.xml`, `homepage_links`, …), image list (display cap 250).
+**HTML section:** `html_emit_misc_section()` — designer trace table; split URL catalogs with source tags; image list (HTML display cap 250 via `[misc]`).
 
-**JSON:** Top-level `"miscellaneous": { "designer", "urls", "images" }` — not nested under `artifacts`.
+**JSON:** Top-level `"miscellaneous": { "designer", "urls", "images" }`. Under `urls`:
+
+```json
+"urls": {
+  "total": 165,
+  "probe_total": 54,
+  "internal_total": 111,
+  "security_probes": { "total": 54, "items": [ { "url": "…", "source": "security_probe" } ] },
+  "internal": { "total": 111, "items": [ { "url": "…", "source": "site_config|homepage_links|…" } ] },
+  "items": [ … ]
+}
+```
+
+Flat `items` retained for backward compatibility. Not nested under `artifacts`.
 
 **Important:** No designer name in the report means **no credit pattern matched** — not “no SEO issues overall.”
 
@@ -443,6 +463,7 @@ Open the HTML report in any browser and click **Save as PDF** (uses `window.prin
 | **No deep app logic** | No business-rule bugs, payment flows, IDOR with real IDs, or multi-step workflows |
 | **No JavaScript execution** | No SPA routing audit, client-side secrets, or post-render DOM (use Playwright/browser tools) |
 | **robots.txt scope** | Parses Disallow/Allow/Sitemap and cross-checks probed paths; sitemap sample up to 150 URLs — does not crawl the entire site |
+| **Misc URL/image discovery** | Samples up to **8** pages (homepage + config extras + sitemap); parses server HTML only (64 KB links / 96 KB images per page by default). Hash anchors (`/#section`) are not sent to the server — use real paths in `[paths] extra=` |
 | **Limited SEO audit** | Designer/creator **placement** only — not full `<title>`, Open Graph, canonical, or Lighthouse scores |
 | **No continuous monitoring** | One-shot manual/CI run; no alerting or drift history (unless you wrap it) |
 | **No CVE/exploit scanning** | Plugin version hints only; no nuclei-style exploit templates |

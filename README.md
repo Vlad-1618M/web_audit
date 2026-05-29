@@ -44,7 +44,7 @@ Reports are written to `audit_logs/` **next to the script** (cwd-independent).
 | **CORS** | Wildcard or reflected `Origin` on `/api/` paths |
 | **Framework** | WP users enum, Django debug, Laravel debug, Rails info, plugin versions |
 | **Attribution** | Designer/creator credits (Designed by, Powered by, …) — placement vs SEO |
-| **Miscellaneous** | URL inventory (sitemap + probes + links), image count on sampled pages |
+| **Miscellaneous** | Split URL inventory (security probes vs internal site routes/links); image count on up to 8 sampled pages |
 
 ---
 
@@ -171,9 +171,9 @@ On an **interactive** run (TTY, not `--quiet`), the script can manage per-host c
 | `--config FILE` | Uses your file for all targets; skips auto-config |
 | `--no-site-config` | Built-in probes only |
 
-`[paths] extra=` routes are also **sampled for misc URLs/images** (up to 8 pages total).
+**`[paths] extra=`** routes are probed (GET), sampled for link/image discovery (up to **8 pages** with homepage), and listed under **Internal URLs** in the report (`site_config` source) — not under Security Probe URLs.
 
-Edit any auto-generated file anytime — see `site.conf.template` and [run_notes.md](run_notes.md#with-config-vs-without-config).
+**Important:** If you decline the config prompt or run without `--config`, only built-in probes and homepage sampling apply. Use `--config site_configs/<host>.conf` or answer **Y** to load your routes.
 
 ### Manual config
 
@@ -183,21 +183,29 @@ cp site.conf.template my-site.conf
 
 | INI section | Effect |
 |-------------|--------|
-| `[paths]` `extra=/path/` | Add GET probe paths + misc page/image sampling |
+| `[paths]` `extra=/path/` | Add GET probe paths + misc page/image sampling; report tag **`site_config`** (Internal URLs) |
 | `[expected_open]` `/path/=label` | Mark intentional 200s (not Exposure leaks) |
 | `[rate_limit_post]` `/path/=type` | Extra POST abuse probes |
+| `[misc]` | Cap/show probe vs internal URL lists; optional HTML scan byte limits for links/images |
+
+Edit any auto-generated file anytime — see `site.conf.template` and [run_notes.md](run_notes.md#with-config-vs-without-config).
 
 Example:
 
 ```ini
 [paths]
-extra=/design-ideas/
+extra=/projects/
+extra=/contact/
 
 [expected_open]
-/design-ideas/=public_seo
+/projects/=public_seo
 
 [rate_limit_post]
 /api/chat/=json
+
+[misc]
+# max_html_bytes=65536      # link scan window per page (default)
+# max_html_img_bytes=98304  # image scan window per page (default)
 ```
 
 Pass manual configs with `--config ./my-site.conf`.
@@ -206,10 +214,33 @@ Pass manual configs with `--config ./my-site.conf`.
 
 ## Reports
 
-- **HTML** — findings, remediation hints, artifact details, **Miscellaneous** (URLs, images, designer credit), **Save as PDF** (dark theme; enable **Background graphics** in print dialog)
+- **HTML** — findings, remediation hints, artifact details, **Miscellaneous** (designer credit, split URL lists, images), **Save as PDF** (dark theme; enable **Background graphics** in print dialog)
 - **JSON** — `report_schema: "2.5"`, scores, checks, `artifacts`, `miscellaneous`, optional `compare`
 - **TXT** — plain-text summary
 - **Session index** — when auditing multiple URLs in one run
+
+### Miscellaneous in reports
+
+| HTML section | Contents |
+|--------------|----------|
+| **Discovered Security Probe URLs** | Built-in sensitive paths only (`.env`, `/wp-admin/`, …) — source `security_probe` |
+| **Discovered Internal URLs** | Your `[paths] extra=` routes (`site_config`), plus same-origin links from homepage/sitemap/sampled pages (`homepage_links`, `page_links`, …) |
+| **Images on sampled pages** | Unique `<img src>` found in server HTML (no JavaScript execution) |
+
+JSON shape (under `miscellaneous.urls`):
+
+```json
+{
+  "total": 165,
+  "probe_total": 54,
+  "internal_total": 111,
+  "security_probes": { "total": 54, "items": [ … ] },
+  "internal": { "total": 111, "items": [ … ] },
+  "items": [ … ]
+}
+```
+
+Legacy flat `items` is kept for backward compatibility. Hash-only nav (`/#section`) is not sent to the server — use real path routes in `[paths] extra=`.
 
 Report header shows **Website** and, when detected in an acceptable place, **Designer / Creator** next to it.
 

@@ -20,13 +20,27 @@ if [[ -n "${BASH_VERSION:-}" ]] && [[ "${BASH_VERSION%%.*}" -lt 4 ]]; then
   exit 1
 fi
 
-export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+AUDIT_PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+export PATH="${AUDIT_PATH}:${PATH}"
 
-CURL=$(command -v curl 2>/dev/null || echo /usr/bin/curl)
-OPENSSL=$(command -v openssl 2>/dev/null || echo /usr/bin/openssl)
-DATE=$(command -v date 2>/dev/null || echo /bin/date)
-MKDIR=$(command -v mkdir 2>/dev/null || echo /bin/mkdir)
-HOSTNAME_CMD=$(command -v hostname 2>/dev/null || echo /bin/hostname)
+_resolve_tool() {
+  local name="$1" fallback="$2" candidate
+  for candidate in "/opt/homebrew/bin/${name}" "/usr/local/bin/${name}" "/usr/bin/${name}" "/bin/${name}"; do
+    [[ -x "$candidate" ]] && { printf '%s' "$candidate"; return 0; }
+  done
+  command -v "$name" 2>/dev/null || printf '%s' "$fallback"
+}
+
+CURL=$(_resolve_tool curl /usr/bin/curl)
+OPENSSL=$(_resolve_tool openssl /usr/bin/openssl)
+DATE=$(_resolve_tool date /bin/date)
+MKDIR=$(_resolve_tool mkdir /bin/mkdir)
+HOSTNAME_CMD=$(_resolve_tool hostname /bin/hostname)
+GREP=$(_resolve_tool grep /usr/bin/grep)
+SED=$(_resolve_tool sed /usr/bin/sed)
+HEAD=$(_resolve_tool head /usr/bin/head)
+MKTEMP=$(_resolve_tool mktemp /usr/bin/mktemp)
+export GREP SED HEAD MKTEMP CURL OPENSSL DATE MKDIR HOSTNAME_CMD
 
 TIMEOUT=15
 
@@ -39,12 +53,18 @@ fi
 LOG_ROOT="${SCRIPT_DIR}/audit_logs"
 SITE_CONFIG_DIR="${SCRIPT_DIR}/site_configs"
 MISC_SCAN_MAX_PAGES=8
+MISC_HTML_MAX=65536
+MISC_HTML_IMG_MAX=98304
 
 AUDIT_CONFIG=""
 AUDIT_CONFIG_EXPLICIT=0
 TARGET_AUDIT_CONFIG=""
 NO_SITE_CONFIG=0
 declare -a CONFIG_EXTRA_PATHS CONFIG_EXPECTED_OPEN CONFIG_APP_SURFACE CONFIG_RATE_LIMIT_POST
+CONFIG_MISC_MAX_PROBE_URLS=250
+CONFIG_MISC_MAX_INTERNAL_URLS=250
+CONFIG_MISC_SHOW_PROBE_URLS=1
+CONFIG_MISC_SHOW_INTERNAL_URLS=1
 declare -a DISCOVERED_PATHS
 declare -a DISCOVERED_FROM_LINKS
 declare -a DISCOVERED_FROM_SITEMAP
@@ -85,6 +105,8 @@ ARTIFACT_DESIGNER_SUMMARY=""
 declare -a MISC_URLS        # full_url|source
 declare -a MISC_IMAGES      # image_url|page_path
 MISC_URL_COUNT=0
+MISC_PROBE_URL_COUNT=0
+MISC_INTERNAL_URL_COUNT=0
 MISC_IMAGE_COUNT=0
 MISC_PAGES_SCANNED=0
 CACHED_HOME_HTML=""
@@ -253,6 +275,20 @@ load_audit_config() {
         [[ "$path" != /* ]] && path="/${path}"
         CONFIG_RATE_LIMIT_POST+=("${path}|${val}")
         ;;
+      misc)
+        case "$line" in
+          max_probe_urls=*)     CONFIG_MISC_MAX_PROBE_URLS="${line#*=}" ;;
+          max_internal_urls=*)  CONFIG_MISC_MAX_INTERNAL_URLS="${line#*=}" ;;
+          show_probe_urls=*)    [[ "$(printf '%s' "${line#*=}" | tr '[:upper:]' '[:lower:]')" == no ]] && CONFIG_MISC_SHOW_PROBE_URLS=0 || CONFIG_MISC_SHOW_PROBE_URLS=1 ;;
+          show_internal_urls=*) [[ "$(printf '%s' "${line#*=}" | tr '[:upper:]' '[:lower:]')" == no ]] && CONFIG_MISC_SHOW_INTERNAL_URLS=0 || CONFIG_MISC_SHOW_INTERNAL_URLS=1 ;;
+          max_html_bytes=*)
+            val=$(trim_line "${line#*=}")
+            [[ "$val" =~ ^[0-9]+$ ]] && MISC_HTML_MAX="$val" ;;
+          max_html_img_bytes=*)
+            val=$(trim_line "${line#*=}")
+            [[ "$val" =~ ^[0-9]+$ ]] && MISC_HTML_IMG_MAX="$val" ;;
+        esac
+        ;;
     esac
   done < "$f"
   [[ "$quiet" -eq 0 && ${#CONFIG_EXTRA_PATHS[@]} -gt 0 ]] && echo "  Extra paths: ${#CONFIG_EXTRA_PATHS[@]}"
@@ -264,6 +300,10 @@ reset_config_state() {
   CONFIG_EXPECTED_OPEN=()
   CONFIG_APP_SURFACE=()
   CONFIG_RATE_LIMIT_POST=()
+  CONFIG_MISC_MAX_PROBE_URLS=250
+  CONFIG_MISC_MAX_INTERNAL_URLS=250
+  CONFIG_MISC_SHOW_PROBE_URLS=1
+  CONFIG_MISC_SHOW_INTERNAL_URLS=1
 }
 
 parse_cli_args "$@"
@@ -558,6 +598,8 @@ reset_audit_state() {
   MISC_URLS=()
   MISC_IMAGES=()
   MISC_URL_COUNT=0
+  MISC_PROBE_URL_COUNT=0
+  MISC_INTERNAL_URL_COUNT=0
   MISC_IMAGE_COUNT=0
   MISC_PAGES_SCANNED=0
   CACHED_HOME_HTML=""
@@ -689,23 +731,23 @@ discover_try_sitemap() {
 
 discover_site_paths() {
   local url="$1" ua="${EFFECTIVE_UA:-curl/8.7.1}"
-  local html sm_body href abs link_host path
+  local html sm_body href abs link_host path target_host
 
   DISCOVERED_PATHS=()
   DISCOVERED_FROM_LINKS=()
   DISCOVERED_FROM_SITEMAP=()
-  target_host=$(printf '%s' "$url" | sed -E 's|^https?://||; s|/.*||')
+  target_host=$(printf '%s' "$url" | "$SED" -E 's|^https?://||; s|/.*||')
 
   html=$("$CURL" -s -L --max-time "$TIMEOUT" -A "$ua" "$url" 2>/dev/null || true)
-  html="${html:0:25000}"
+  html="${html:0:$MISC_HTML_MAX}"
   while IFS= read -r href; do
     [[ -z "$href" ]] && continue
     abs=$(absolutize_url "$url" "$href") || continue
-    link_host=$(printf '%s' "$abs" | sed -E 's|^https?://||; s|/.*||')
+    link_host=$(printf '%s' "$abs" | "$SED" -E 's|^https?://||; s|/.*||')
     [[ "$link_host" != "$target_host" ]] && continue
     path=$(url_to_site_path "$abs" "${url%/}")
     discover_register_path "$path" "link"
-  done < <(echo "$html" | grep -oiE '<a[^>]+href=["'\''][^"'\'']+["'\'']' | sed -E 's/.*href=["'\'']([^"'\'']+)["'\''].*/\1/I' | head -100)
+  done < <(printf '%s' "$html" | "$GREP" -oiE '<a[^>]+href=["'\''][^"'\'']+["'\'']' | "$SED" -E 's/.*href=["'\'']([^"'\'']+)["'\''].*/\1/I' | "$HEAD" -100)
 
   discover_try_sitemap "$url" "$ua" "${url%/}/sitemap.xml" "$target_host"
   discover_try_sitemap "$url" "$ua" "${url%/}/sitemap_index.xml" "$target_host"
@@ -742,9 +784,10 @@ write_site_config_header() {
   echo "#   marketing pages, portfolio routes, or custom /app/ surfaces."
   echo "#   When you enable this file (interactive Y, or --config, or site_configs auto-load):"
   echo "#     [paths] extra=       Extra GET probes on YOUR routes + misc URL/image sampling"
-  echo "#                          (up to ${MISC_SCAN_MAX_PAGES} pages per audit)"
+  echo "#                          (up to ${MISC_SCAN_MAX_PAGES} pages; Internal report tag site_config)"
   echo "#     [expected_open]      Intentional public 200s — Exposure score won't penalize them"
   echo "#     [rate_limit_post]    Optional POST brute-force checks on APIs/forms you list"
+  echo "#     [misc]               Optional: show/cap URL lists; HTML scan bytes for links/images"
   echo "#     Path table           Fewer REVIEW rows for routes you mark as expected"
   echo "#"
   echo "# HOW TO EDIT"
@@ -901,6 +944,23 @@ write_site_config_stub() {
     echo "# /portal/=app_surface"
     echo "# /panel/login/=login_surface"
     echo "# /__debug__/=staging"
+    echo ""
+
+    echo "# -----------------------------------------------------------------------------"
+    echo "# [misc] — Miscellaneous report: URL list display (optional)"
+    echo "#   show_probe_urls=yes|no     Show security probe URL list in HTML report"
+    echo "#   show_internal_urls=yes|no  Show internal site URL list in HTML report"
+    echo "#   max_probe_urls=N           Cap probe URLs shown in HTML (default 250)"
+    echo "#   max_internal_urls=N        Cap internal URLs shown in HTML (default 250)"
+    echo "#   max_html_bytes=N           Link scan window per page (default 65536)"
+    echo "#   max_html_img_bytes=N       Image scan window per page (default 98304)"
+    echo "# [paths] extra= routes appear as site_config under Internal (not security_probe)."
+    echo "# -----------------------------------------------------------------------------"
+    echo "[misc]"
+    echo "# show_probe_urls=yes"
+    echo "# show_internal_urls=yes"
+    echo "# max_probe_urls=250"
+    echo "# max_internal_urls=250"
     echo ""
 
     echo "# -----------------------------------------------------------------------------"
@@ -1852,22 +1912,66 @@ discover_designer_from_open_paths() {
 
 absolutize_url() {
   local base="$1" ref="$2"
-  ref=$(printf '%s' "$ref" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+  ref=$(printf '%s' "$ref" | "$SED" 's/^[[:space:]]*//; s/[[:space:]]*$//')
   [[ -z "$ref" || "$ref" == \#* ]] && return 1
-  echo "$ref" | grep -qiE '^(javascript|mailto|tel|data):' && return 1
+  echo "$ref" | "$GREP" -qiE '^(javascript|mailto|tel|data):' && return 1
   [[ "$ref" == http://* || "$ref" == https://* ]] && { printf '%s' "$ref"; return 0; }
   [[ "$ref" == //* ]] && { printf '%s' "${base%%://*}:$ref"; return 0; }
   [[ "$ref" == /* ]] && { printf '%s%s' "${base%/}" "$ref"; return 0; }
   printf '%s/%s' "${base%/}" "$ref"
 }
 
-misc_register_url() {
-  local url="$1" source="$2" entry
-  [[ -z "$url" ]] && return 0
-  for entry in "${MISC_URLS[@]}"; do
-    [[ "${entry%%|*}" == "$url" ]] && return 0
+misc_source_is_probe() {
+  [[ "$1" == "security_probe" ]]
+}
+
+misc_path_is_config_extra() {
+  local probe_path="$1" cfg p probe_norm cfg_norm
+  [[ ${#CONFIG_EXTRA_PATHS[@]} -eq 0 ]] && return 1
+  probe_norm="${probe_path%/}"
+  [[ "$probe_norm" != /* ]] && probe_norm="/${probe_norm}"
+  for p in "${CONFIG_EXTRA_PATHS[@]}"; do
+    cfg_norm="${p%/}"
+    [[ "$cfg_norm" != /* ]] && cfg_norm="/${cfg_norm}"
+    [[ "$probe_norm" == "$cfg_norm" ]] && return 0
   done
-  MISC_URLS+=("${url}|${source}")
+  return 1
+}
+
+misc_recount_url_buckets() {
+  MISC_PROBE_URL_COUNT=0
+  MISC_INTERNAL_URL_COUNT=0
+  for entry in "${MISC_URLS[@]}"; do
+    if misc_source_is_probe "${entry#*|}"; then
+      MISC_PROBE_URL_COUNT=$((MISC_PROBE_URL_COUNT + 1))
+    else
+      MISC_INTERNAL_URL_COUNT=$((MISC_INTERNAL_URL_COUNT + 1))
+    fi
+  done
+}
+
+misc_register_url() {
+  local url="$1" source="$2" entry idx=0 existing_src
+  [[ -z "$url" ]] && return 0
+  if [[ "$source" == "security_probe" ]]; then
+    for entry in "${MISC_URLS[@]}"; do
+      [[ "${entry%%|*}" == "$url" ]] && return 0
+    done
+    MISC_URLS+=("${url}|${source}")
+  else
+    for entry in "${MISC_URLS[@]}"; do
+      if [[ "${entry%%|*}" == "$url" ]]; then
+        existing_src="${entry#*|}"
+        if [[ "$existing_src" == "security_probe" ]]; then
+          MISC_URLS[$idx]="${url}|${source}"
+        fi
+        MISC_URL_COUNT=${#MISC_URLS[@]}
+        return 0
+      fi
+      idx=$((idx + 1))
+    done
+    MISC_URLS+=("${url}|${source}")
+  fi
   MISC_URL_COUNT=${#MISC_URLS[@]}
 }
 
@@ -1883,42 +1987,42 @@ misc_register_image() {
 
 collect_urls_from_html() {
   local base_url="$1" html="$2" source="$3"
-  local href abs target_host link_host
+  local href abs target_host link_host html_scan="${html:0:$MISC_HTML_MAX}"
 
-  target_host=$(printf '%s' "$base_url" | sed -E 's|^https?://||; s|/.*||')
+  target_host=$(printf '%s' "$base_url" | "$SED" -E 's|^https?://||; s|/.*||')
   while IFS= read -r href; do
     [[ -z "$href" ]] && continue
     abs=$(absolutize_url "$base_url" "$href") || continue
-    link_host=$(printf '%s' "$abs" | sed -E 's|^https?://||; s|/.*||')
+    link_host=$(printf '%s' "$abs" | "$SED" -E 's|^https?://||; s|/.*||')
     [[ "$link_host" == "$target_host" ]] && misc_register_url "$abs" "$source"
-  done < <(echo "$html" | grep -oiE '<a[^>]+href=["'\''][^"'\'']+["'\'']' | sed -E 's/.*href=["'\'']([^"'\'']+)["'\''].*/\1/I' | head -80)
+  done < <(printf '%s' "$html_scan" | "$GREP" -oiE '<a[^>]+href=["'\''][^"'\'']+["'\'']' | "$SED" -E 's/.*href=["'\'']([^"'\'']+)["'\''].*/\1/I' | "$HEAD" -80)
 }
 
 collect_images_from_html() {
   local base_url="$1" html="$2" page_path="$3"
-  local src abs part item
+  local src abs part item html_scan="${html:0:$MISC_HTML_IMG_MAX}"
 
   while IFS= read -r src; do
     [[ -z "$src" ]] && continue
     abs=$(absolutize_url "$base_url" "$src") || continue
     misc_register_image "$abs" "$page_path"
-  done < <(echo "$html" | grep -oiE '<img[^>]+src=["'\''][^"'\'']+["'\'']' | sed -E 's/.*src=["'\'']([^"'\'']+)["'\''].*/\1/I' | head -60)
+  done < <(printf '%s' "$html_scan" | "$GREP" -oiE '<img[^>]+src=["'\''][^"'\'']+["'\'']' | "$SED" -E 's/.*src=["'\'']([^"'\'']+)["'\''].*/\1/I' | "$HEAD" -60)
 
   while IFS= read -r part; do
     [[ -z "$part" ]] && continue
     for item in ${part//,/ }; do
       src="${item%% *}"
-      src=$(printf '%s' "$src" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+      src=$(printf '%s' "$src" | "$SED" 's/^[[:space:]]*//; s/[[:space:]]*$//')
       [[ -z "$src" ]] && continue
       abs=$(absolutize_url "$base_url" "$src") || continue
       misc_register_image "$abs" "$page_path"
     done
-  done < <(echo "$html" | grep -oiE '<img[^>]+srcset=["'\''][^"'\'']+["'\'']' | sed -E 's/.*srcset=["'\'']([^"'\'']+)["'\''].*/\1/I' | head -20)
+  done < <(printf '%s' "$html_scan" | "$GREP" -oiE '<img[^>]+srcset=["'\''][^"'\'']+["'\'']' | "$SED" -E 's/.*srcset=["'\'']([^"'\'']+)["'\''].*/\1/I' | "$HEAD" -20)
 }
 
 scan_designer_on_page() {
   local url="$1" html="$2" name="$3"
-  local chunk="${html:0:25000}" path name_pat link
+  local chunk="${html:0:$MISC_HTML_MAX}" path name_pat link
 
   path="${url#$TARGET_URL}"
   [[ -z "$path" ]] && path="/"
@@ -1970,11 +2074,17 @@ check_site_miscellaneous() {
   MISC_URLS=()
   MISC_IMAGES=()
   MISC_URL_COUNT=0
+  MISC_PROBE_URL_COUNT=0
+  MISC_INTERNAL_URL_COUNT=0
   MISC_IMAGE_COUNT=0
   MISC_PAGES_SCANNED=0
 
   for (( i=0; i<${#R_PATH[@]}; i++ )); do
-    misc_register_url "${TARGET_URL%/}${R_PATH[$i]}" "security_probe"
+    if misc_path_is_config_extra "${R_PATH[$i]}"; then
+      misc_register_url "${TARGET_URL%/}${R_PATH[$i]}" "site_config"
+    else
+      misc_register_url "${TARGET_URL%/}${R_PATH[$i]}" "security_probe"
+    fi
   done
   for loc in "${ARTIFACT_SITEMAP_LOCS[@]}"; do
     misc_register_url "$loc" "sitemap.xml"
@@ -1984,7 +2094,7 @@ check_site_miscellaneous() {
   done
 
   html=$("$CURL" -s -L --max-time "$TIMEOUT" -A "$ua" "$TARGET_URL" 2>/dev/null || true)
-  html="${html:0:25000}"
+  html="${html:0:$MISC_HTML_MAX}"
   CACHED_HOME_HTML="$html"
 
   if [[ -n "$html" ]]; then
@@ -1997,7 +2107,7 @@ check_site_miscellaneous() {
     scan_urls+=("$TARGET_URL")
     seen_scan_urls["$TARGET_URL"]=1
   fi
-  target_host=$(printf '%s' "$TARGET_URL" | sed -E 's|^https?://||; s|/.*||')
+  target_host=$(printf '%s' "$TARGET_URL" | "$SED" -E 's|^https?://||; s|/.*||')
 
   for path in "${CONFIG_EXTRA_PATHS[@]}"; do
     [[ ${#scan_urls[@]} -ge $MISC_SCAN_MAX_PAGES ]] && break
@@ -2021,7 +2131,7 @@ check_site_miscellaneous() {
       chunk="$html"
     else
       chunk=$("$CURL" -s -L --max-time "$TIMEOUT" -A "$ua" "$url" 2>/dev/null || true)
-      chunk="${chunk:0:25000}"
+      chunk="${chunk:0:$MISC_HTML_MAX}"
       [[ -z "$chunk" ]] && continue
     fi
     path="${url#$TARGET_URL}"; [[ -z "$path" ]] && path="/"
@@ -2030,7 +2140,10 @@ check_site_miscellaneous() {
     collect_images_from_html "$url" "$chunk" "$path"
   done
 
-  add_check "MISC" "Site URL inventory" "CATALOGUED" "INFO" "${MISC_URL_COUNT} unique URL(s) from sitemap, probes, and sampled page links" "INFO" "no"
+  misc_recount_url_buckets
+
+  add_check "MISC" "Security probe URL inventory" "CATALOGUED" "INFO" "${MISC_PROBE_URL_COUNT} unique URL(s) from GET path probes" "INFO" "no"
+  add_check "MISC" "Internal site URL inventory" "CATALOGUED" "INFO" "${MISC_INTERNAL_URL_COUNT} unique URL(s) from site config, homepage, sitemap, robots, and sampled page links" "INFO" "no"
   add_check "MISC" "Image inventory" "COUNTED" "INFO" "${MISC_IMAGE_COUNT} unique image(s) on ${MISC_PAGES_SCANNED} sampled page(s)" "INFO" "no"
 
   [[ -z "$html" ]] && {
@@ -2947,11 +3060,42 @@ html_emit_artifacts_section() {
   fi
 }
 
+html_emit_misc_url_bucket() {
+  local bucket="$1" title="$2" count="$3" show="$4" max="$5"
+  local entry url source idx=0
+
+  echo "<h3>${title} <span style=\"color:var(--muted);font-weight:400\">(${count} total)</span></h3>"
+  if [[ "$show" -eq 0 ]]; then
+    echo "<p class=\"status-info\">Hidden in report (<code>[misc] show_${bucket}_urls=no</code> in site config).</p>"
+    return
+  fi
+  if [[ "$count" -eq 0 ]]; then
+    echo "<p class=\"status-info\">None catalogued.</p>"
+    return
+  fi
+  echo "<details open><summary>Click to expand/collapse URL list</summary>"
+  echo "<ul class=\"misc-list\">"
+  for entry in "${MISC_URLS[@]}"; do
+    url="${entry%%|*}"; source="${entry#*|}"
+    if [[ "$bucket" == probe ]]; then
+      misc_source_is_probe "$source" || continue
+    else
+      misc_source_is_probe "$source" && continue
+    fi
+    idx=$((idx + 1))
+    [[ $idx -gt $max ]] && break
+    echo "<li><a href=\"$(html_escape "$url")\" target=\"_blank\" rel=\"noopener\">$(html_escape "$url")</a> <span style=\"color:var(--muted)\">[$(html_escape "$source")]</span></li>"
+  done
+  echo "</ul>"
+  [[ $count -gt $max ]] && echo "<p style=\"color:var(--muted)\">Showing first ${max} of ${count} URLs.</p>"
+  echo "</details>"
+}
+
 html_emit_misc_section() {
   local entry url src source page show max=250 idx=0
 
   echo "<h2>Miscellaneous</h2>"
-  echo "<p style=\"color:var(--muted);margin-bottom:16px\">Site discovery from sitemap, security probes, sampled pages — URLs and images are clickable for manual review.</p>"
+  echo "<p style=\"color:var(--muted);margin-bottom:16px\">Site discovery from security probes and sampled site pages — URLs are clickable for manual review. <strong>Probe</strong> = generic security paths the audit tried (.env, /wp-admin/, …). <strong>Internal</strong> = your site routes (<code>site_config</code>), plus same-origin links from homepage, sitemap, robots, and sampled pages.</p>"
 
   echo "<h3>Designer / Creator</h3>"
   if [[ -n "$DESIGNER_NAME" ]]; then
@@ -2979,22 +3123,14 @@ html_emit_misc_section() {
     echo "<p class=\"status-info\">Not detected — no Designed by / Created by / Powered by pattern in sampled homepage HTML. Credit may be omitted, loaded via JavaScript, or present on pages not sampled.</p>"
   fi
 
-  echo "<h3>Discovered URLs <span style=\"color:var(--muted);font-weight:400\">(${MISC_URL_COUNT} total)</span></h3>"
-  if [[ $MISC_URL_COUNT -eq 0 ]]; then
-    echo "<p class=\"status-info\">None catalogued.</p>"
-  else
-    echo "<details open><summary>Click to expand/collapse URL list</summary>"
-    echo "<ul class=\"misc-list\">"
-    for entry in "${MISC_URLS[@]}"; do
-      url="${entry%%|*}"; source="${entry#*|}"
-      echo "<li><a href=\"$(html_escape "$url")\" target=\"_blank\" rel=\"noopener\">$(html_escape "$url")</a> <span style=\"color:var(--muted)\">[$(html_escape "$source")]</span></li>"
-    done
-    echo "</ul></details>"
-  fi
+  echo "<h3>Discovered URLs <span style=\"color:var(--muted);font-weight:400\">(${MISC_URL_COUNT} total · ${MISC_PROBE_URL_COUNT} probe · ${MISC_INTERNAL_URL_COUNT} internal)</span></h3>"
+
+  html_emit_misc_url_bucket "probe" "Discovered Security Probe URLs" "$MISC_PROBE_URL_COUNT" "$CONFIG_MISC_SHOW_PROBE_URLS" "$CONFIG_MISC_MAX_PROBE_URLS"
+  html_emit_misc_url_bucket "internal" "Discovered Internal URLs" "$MISC_INTERNAL_URL_COUNT" "$CONFIG_MISC_SHOW_INTERNAL_URLS" "$CONFIG_MISC_MAX_INTERNAL_URLS"
 
   echo "<h3>Images on sampled pages <span style=\"color:var(--muted);font-weight:400\">(${MISC_IMAGE_COUNT} unique · ${MISC_PAGES_SCANNED} page(s) scanned)</span></h3>"
   if [[ $MISC_IMAGE_COUNT -eq 0 ]]; then
-    echo "<p class=\"status-info\">No &lt;img&gt; tags found on sampled pages (JS-rendered images not detected).</p>"
+    echo "<p class=\"status-info\">No &lt;img&gt; tags found in the first ${MISC_HTML_IMG_MAX} bytes of sampled pages (JS-rendered images not detected).</p>"
   else
     echo "<details open><summary>Click to expand/collapse image list</summary>"
     echo "<ul class=\"misc-list\">"
@@ -3290,7 +3426,7 @@ write_logs() {
     [[ ${#VERSIONS_FOUND[@]} -gt 0 ]] && { for v in "${VERSIONS_FOUND[@]}"; do echo "  $v"; done; } || echo "  None detected"
     echo ""
     echo "── Miscellaneous ───────────────────────────────────────────────"
-    echo "  URLs catalogued : ${MISC_URL_COUNT}"
+    echo "  URLs total        : ${MISC_URL_COUNT} (${MISC_PROBE_URL_COUNT} probe · ${MISC_INTERNAL_URL_COUNT} internal)"
     echo "  Images (unique) : ${MISC_IMAGE_COUNT} on ${MISC_PAGES_SCANNED} page(s)"
     [[ -n "$DESIGNER_NAME" ]] && echo "  Designer        : ${DESIGNER_NAME} (${DESIGNER_SOURCE}; proper=${DESIGNER_HAS_PROPER}; risk=${DESIGNER_HAS_RISK})" \
       || echo "  Designer        : Not detected (no credit pattern in homepage sample)"
@@ -3409,6 +3545,37 @@ write_logs() {
     echo "    },"
     echo "    \"urls\": {"
     echo "      \"total\": ${MISC_URL_COUNT},"
+    echo "      \"probe_total\": ${MISC_PROBE_URL_COUNT},"
+    echo "      \"internal_total\": ${MISC_INTERNAL_URL_COUNT},"
+    echo "      \"security_probes\": {"
+    echo "        \"total\": ${MISC_PROBE_URL_COUNT},"
+    echo "        \"items\": ["
+    local probe_idx=0 probe_total=0
+    rd=${#MISC_URLS[@]}
+    for (( ri=0; ri<rd; ri++ )); do
+      local mu="${MISC_URLS[$ri]}"
+      local mu_url="${mu%%|*}"; local mu_src="${mu#*|}"
+      misc_source_is_probe "$mu_src" || continue
+      probe_total=$((probe_total + 1))
+      local comma=","; [[ $probe_total -eq $MISC_PROBE_URL_COUNT ]] && comma=""
+      echo "          {\"url\":\"$(json_escape_str "$mu_url")\",\"source\":\"$(json_escape_str "$mu_src")\"}${comma}"
+    done
+    echo "        ]"
+    echo "      },"
+    echo "      \"internal\": {"
+    echo "        \"total\": ${MISC_INTERNAL_URL_COUNT},"
+    echo "        \"items\": ["
+    local internal_idx=0 internal_total=0
+    for (( ri=0; ri<rd; ri++ )); do
+      local mu="${MISC_URLS[$ri]}"
+      local mu_url="${mu%%|*}"; local mu_src="${mu#*|}"
+      misc_source_is_probe "$mu_src" && continue
+      internal_total=$((internal_total + 1))
+      local comma=","; [[ $internal_total -eq $MISC_INTERNAL_URL_COUNT ]] && comma=""
+      echo "          {\"url\":\"$(json_escape_str "$mu_url")\",\"source\":\"$(json_escape_str "$mu_src")\"}${comma}"
+    done
+    echo "        ]"
+    echo "      },"
     echo "      \"items\": ["
     rd=${#MISC_URLS[@]}
     for (( ri=0; ri<rd; ri++ )); do
@@ -3537,7 +3704,8 @@ run_single_audit() {
   log_msg "  ────────────────────────────────────────────────────────────────────────"
   for url_path in "${UNIQUE_PATHS[@]}"; do probe_path "$url_path"; done
 
-  export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  export GREP SED HEAD MKTEMP CURL
+  export PATH="${AUDIT_PATH}:${PATH}"
 
   log_msg ""; log_msg "────────────────────────────────────────"
   log_msg "Running security checks..."; log_msg "────────────────────────────────────────"

@@ -1,4 +1,4 @@
-# Web Audit.
+# Web Audit
 
 **Zero Install external security hygiene checks for public websites** — one shell script, `curl` + `openssl` only.
 

@@ -1,0 +1,89 @@
+# Web Audit v2 — Global / user configuration example
+# Copy to ~/.config/webaudit/config.yaml and customize.
+# I merge this with per-site profiles on each scan.
+
+webaudit_version: "2.0"
+
+runtime:
+  timeout_seconds: 15
+  max_concurrency: 8
+  probe_delay_ms: 0
+  user_agent: "WebAudit/2.0 (+https://github.com/Vlad-1618M/web_audit)"
+
+paths:
+  sensitive_builtin: true
+  max_probe_urls: 250
+
+rate_limit:
+  enabled: true
+  get_burst: 6
+  post_invalid_attempts: 15
+
+misc:
+  max_pages_sample: 8
+  max_html_bytes: 65536
+  max_html_img_bytes: 98304
+  show_probe_urls: true
+  show_internal_urls: true
+
+collectors:
+  dns:
+    enabled: true
+    check_spf: true
+    check_dmarc: true
+    check_dkim: false
+    check_caa: true
+    check_dnssec: true
+    check_aaaa: true
+  tls:
+    enabled: true
+    check_deprecated_versions: true
+    check_chain: true
+    check_ciphers: true
+    check_ocsp: true
+  js:
+    enabled: false
+  api:
+    enabled: false
+
+scoring:
+  hygiene_weights:
+    CRITICAL: 25
+    HIGH: 10
+    MEDIUM: 4
+    LOW: 1
+  show_risk_index: false
+  hard_stops:
+    - env_exposed
+    - git_exposed
+    - cert_expired
+
+report:
+  variant: executive
+  theme: dark
+  language: en
+
+output:
+  directory: ./audit_logs
+  formats:
+    - html
+    - json
+    - txt
+    - pdf
+  open_browser: false
+  pdf:
+    enabled: true
+    engine: weasyprint
+
+baseline:
+  enabled: false
+  store: sqlite
+  path: ~/.local/share/webaudit/baselines.db
+
+ci:
+  fail_under_hygiene: null
+  fail_under_exposure: null
+
+privacy:
+  redact_ips: false
+  redact_emails_in_report: true

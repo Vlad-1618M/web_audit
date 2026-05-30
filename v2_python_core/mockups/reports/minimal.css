@@ -1,0 +1,140 @@
+@import url("shared-dark.css");
+
+.page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+header {
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg, var(--cyan), var(--magenta), var(--violet)) 1;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  text-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+}
+
+header .sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+  line-height: 1.6;
+}
+
+header .sub strong { color: var(--cyan); }
+
+.summary-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+@media (max-width: 560px) {
+  .summary-box { grid-template-columns: 1fr; }
+}
+
+.summary-box > div {
+  border: 1px solid var(--border-bright);
+  background: var(--surface);
+  padding: 1rem;
+  text-align: center;
+  border-radius: var(--radius);
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.06);
+}
+
+.summary-box .num {
+  font-size: 2rem;
+  font-weight: 800;
+  display: block;
+}
+
+.summary-box .warn-num {
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(255, 193, 77, 0.5);
+}
+
+.summary-box .ok-num {
+  color: var(--lime);
+  text-shadow: 0 0 20px rgba(57, 255, 140, 0.45);
+}
+
+.summary-box .verdict-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--magenta);
+  padding-top: 0.35rem;
+  display: block;
+}
+
+h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 1.5rem 0 0.75rem;
+  color: var(--violet);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.35rem;
+}
+
+ul.compact {
+  list-style: none;
+  font-size: 0.95rem;
+}
+
+ul.compact li {
+  padding: 0.45rem 0;
+  border-bottom: 1px dotted var(--border);
+  color: var(--text);
+}
+
+ul.compact li::before {
+  content: "▸ ";
+  color: var(--cyan);
+}
+
+.priority {
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.priority-high { color: var(--coral); }
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 560px) {
+  .two-col { grid-template-columns: 1fr; }
+}
+
+.two-col p { color: var(--muted); }
+
+.footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.toolbar span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+@media print {
+  .page { max-width: 100%; padding: 0.5in; }
+  section { break-inside: avoid; }
+}

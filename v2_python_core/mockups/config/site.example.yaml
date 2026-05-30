@@ -1,0 +1,55 @@
+# Web Audit v2 — Per-site profile example
+# Modeled after how I configure muzar.io in v1 site_configs/
+# Usage: webaudit scan https://acme-widgets.com --site-config site.example.yaml
+
+host: acme-widgets.com
+framework: auto
+
+paths:
+  extra_get:
+    - /about/
+    - /services/
+    - /contact/
+    - /blog/
+    - /.well-known/security.txt
+
+  expected_open:
+    /about/: app_surface
+    /services/: app_surface
+    /contact/: app_surface
+    /blog/: app_surface
+    /robots.txt: public_seo
+    /sitemap.xml: public_seo
+
+rate_limit:
+  post_targets:
+    - path: /contact/submit
+      probe_type: form
+    - path: /api/v1/leads
+      probe_type: json
+
+misc:
+  max_pages_sample: 10
+  max_probe_urls_display: 100
+  max_internal_urls_display: 150
+
+collectors:
+  dns:
+    enabled: true
+  js:
+    enabled: false
+
+report:
+  variant: executive
+  theme: light
+
+output:
+  open_browser: true
+  formats:
+    - html
+    - json
+    - pdf
+
+notes: |
+  Site owner: Jane at Acme Widgets — non-technical.
+  I use executive variant and PDF for email handoff to their dev shop.

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit — Dashboard (Variant D)</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="dash-wrap">
+    <div class="toolbar no-print">
+      <button type="button" class="btn-edge-cyan" onclick="window.print()">Export PDF</button>
+      <button type="button" class="btn-edge-magenta">Download JSON</button>
+      <button type="button" class="btn-edge-danger">Re-run Scan</button>
+      <span class="hint">Dashboard variant — at-a-glance metrics for me and CI monitors.</span>
+    </div>
+
+    <div class="dash-header">
+      <div>
+        <h1>Security Dashboard</h1>
+        <p class="host">https://acme-widgets.com</p>
+      </div>
+      <div class="tag-row">
+        <span class="tag c">WordPress</span>
+        <span class="tag m">NEEDS ATTENTION</span>
+        <span class="tag g">No leaks</span>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric cyan">
+        <div class="val">78</div>
+        <div class="lbl">Hygiene</div>
+      </div>
+      <div class="metric lime">
+        <div class="val">100</div>
+        <div class="lbl">Exposure</div>
+      </div>
+      <div class="metric gold">
+        <div class="val">54</div>
+        <div class="lbl">Probe URLs</div>
+      </div>
+      <div class="metric violet">
+        <div class="val">4</div>
+        <div class="lbl">Action items</div>
+      </div>
+    </div>
+
+    <div class="panels">
+      <div class="panel">
+        <h2>Category health</h2>
+        <div class="bar-row">
+          <span class="name">Headers</span>
+          <div class="bar-track"><div class="bar-fill bad"></div></div>
+        </div>
+        <div class="bar-row">
+          <span class="name">TLS</span>
+          <div class="bar-track"><div class="bar-fill warn"></div></div>
+        </div>
+        <div class="bar-row">
+          <span class="name">DNS</span>
+          <div class="bar-track"><div class="bar-fill warn"></div></div>
+        </div>
+        <div class="bar-row">
+          <span class="name">Paths</span>
+          <div class="bar-track"><div class="bar-fill ok"></div></div>
+        </div>
+        <div class="bar-row">
+          <span class="name">Cookies</span>
+          <div class="bar-track"><div class="bar-fill ok"></div></div>
+        </div>
+        <div class="alert-strip">
+          ⚠ DMARC missing · CSP missing · TLS 1.1 accepted
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Score rings</h2>
+        <div class="ring-wrap">
+          <div class="ring hygiene">
+            <span class="big">78</span>
+            <span class="small">Hygiene</span>
+          </div>
+          <div class="ring exposure">
+            <span class="big">100</span>
+            <span class="small">Exposure</span>
+          </div>
+        </div>
+        <div class="tag-row" style="justify-content: center;">
+          <span class="tag c">8 pages scanned</span>
+          <span class="tag g">142d cert</span>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Web Audit v2 · Dashboard variant · Mockup
+    </footer>
+  </div>
+</body>
+</html>

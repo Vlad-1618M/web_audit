@@ -1,0 +1,69 @@
+# Optional scoring overrides — tune without code changes
+# Loaded when config.scoring.rules_file is set (Tier 1 stub, Tier 2 full)
+
+version: "1"
+
+# Finding pattern → severity / class / scored
+# Patterns match category + item + status
+
+rules:
+  - match:
+      category: DNS
+      item: DMARC
+      status: MISSING
+    severity: MEDIUM
+    class: ACTION
+    scored: true
+    detail_template: "No DMARC record — email spoofing risk for {domain}"
+
+  - match:
+      category: DNS
+      item: SPF
+      status: MISSING
+    severity: LOW
+    class: ACTION
+    scored: true
+
+  - match:
+      category: DNS
+      item: DNSSEC
+      status: UNSIGNED
+    severity: INFO
+    class: INFO
+    scored: false
+
+  - match:
+      category: TLS
+      item: TLS 1.0
+      status: ACCEPTED
+    severity: HIGH
+    class: ACTION
+    scored: true
+
+  - match:
+      category: TLS
+      item: TLS 1.1
+      status: ACCEPTED
+    severity: MEDIUM
+    class: ACTION
+    scored: true
+
+  - match:
+      category: HEADERS
+      item: Strict-Transport-Security
+      status: MISSING
+    severity: HIGH
+    class: VERIFY
+    scored: false
+    when:
+      cdn_detected: true
+    detail_template: "HSTS not visible externally — may be set at {cdn} edge"
+
+# hygiene_caps:
+#   HEADERS: 30
+hygiene_caps: {}
+
+verdict_labels:
+  PASS: "Looks reasonably hardened for a public business site"
+  NEEDS_ATTENTION: "No obvious secret leaks, but fix configuration gaps"
+  AT_RISK: "Serious issues — involve your developer immediately"

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit — acme-widgets.com (Technical)</title>
+  <link rel="stylesheet" href="technical.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h1>Web Audit v2</h1>
+      <p class="target">https://acme-widgets.com</p>
+      <nav class="nav">
+        <a href="#scores">Scores</a>
+        <a href="#findings">Findings</a>
+        <a href="#dns">DNS (new in v2)</a>
+        <a href="#tls">TLS depth (new in v2)</a>
+        <a href="#paths">Path probes</a>
+        <a href="#inventory">URL inventory</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="toolbar no-print">
+        <button type="button" class="btn-edge-cyan" onclick="window.print()">Export PDF</button>
+        <button type="button" class="btn-edge-magenta">Download JSON</button>
+        <button type="button" class="btn-edge-gold">Copy SARIF</button>
+        <span class="meta-inline">Framework: auto-detected · WordPress · 29 May 2026</span>
+      </div>
+
+      <section id="scores">
+        <div class="score-row">
+          <div class="chip hygiene"><div class="l">Hygiene</div><div class="n">78</div></div>
+          <div class="chip exposure"><div class="l">Exposure</div><div class="n">100</div></div>
+          <div class="chip verdict"><div class="l">Verdict</div><div class="n">NEEDS_ATTENTION</div></div>
+        </div>
+      </section>
+
+      <section id="findings">
+        <h2>Action findings</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Sev</th>
+              <th>Category</th>
+              <th>Item</th>
+              <th>Status</th>
+              <th>Class</th>
+              <th>Detail</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="sev HIGH">HIGH</span></td>
+              <td>HEADERS</td>
+              <td>Content-Security-Policy</td>
+              <td>MISSING</td>
+              <td><span class="class-tag">ACTION</span></td>
+              <td>No CSP on homepage response</td>
+            </tr>
+            <tr>
+              <td><span class="sev MEDIUM">MED</span></td>
+              <td>HEADERS</td>
+              <td>X-Frame-Options</td>
+              <td>MISSING</td>
+              <td><span class="class-tag">ACTION</span></td>
+              <td>Clickjacking mitigation absent</td>
+            </tr>
+            <tr>
+              <td><span class="sev MEDIUM">MED</span></td>
+              <td>DNS</td>
+              <td>DMARC</td>
+              <td>MISSING</td>
+              <td><span class="class-tag">ACTION</span></td>
+              <td>No _dmarc TXT at acme-widgets.com</td>
+            </tr>
+            <tr>
+              <td><span class="sev MEDIUM">MED</span></td>
+              <td>TLS</td>
+              <td>TLS 1.1</td>
+              <td>ACCEPTED</td>
+              <td><span class="class-tag">ACTION</span></td>
+              <td>Deprecated protocol handshake succeeded</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="dns">
+        <h2>DNS &amp; email surface <small class="meta-inline">— Tier 1, not in bash v1</small></h2>
+        <div class="dns-grid">
+          <div class="dns-card">
+            <h3>SPF</h3>
+            <code>v=spf1 include:_spf.google.com ~all</code>
+          </div>
+          <div class="dns-card">
+            <h3>DMARC</h3>
+            <code>(no record)</code>
+          </div>
+          <div class="dns-card">
+            <h3>CAA</h3>
+            <code>0 issue "letsencrypt.org"</code>
+          </div>
+          <div class="dns-card">
+            <h3>AAAA</h3>
+            <code>2606:4700::6810:abcd (published)</code>
+          </div>
+        </div>
+      </section>
+
+      <section id="tls">
+        <h2>TLS &amp; certificate</h2>
+        <table>
+          <thead>
+            <tr><th>Check</th><th>Result</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>TLS 1.3</td><td><span class="sev OK">SUPPORTED</span></td></tr>
+            <tr><td>TLS 1.1</td><td><span class="sev MEDIUM">ACCEPTED</span></td></tr>
+            <tr><td>Chain</td><td>Complete (3 certs)</td></tr>
+            <tr><td>Expiry</td><td>142 days — Let's Encrypt R3</td></tr>
+            <tr><td>OCSP stapling</td><td>Not offered</td></tr>
+          </tbody>
+        </table>
+        <pre class="evidence">subject=CN=acme-widgets.com
+issuer=C=US, O=Let's Encrypt, CN=R3
+san=DNS:acme-widgets.com, DNS:www.acme-widgets.com</pre>
+      </section>
+
+      <section id="paths">
+        <h2>Sensitive path probes</h2>
+        <table>
+          <thead>
+            <tr><th>Path</th><th>Status</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>/.env</td><td>404</td><td>—</td></tr>
+            <tr><td>/.git/HEAD</td><td>403</td><td>Blocked</td></tr>
+            <tr><td>/wp-config.php</td><td>404</td><td>—</td></tr>
+            <tr><td>/wp-login.php</td><td>200</td><td class="class-tag">EXPECTED login_surface</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="inventory">
+        <h2>Miscellaneous inventory</h2>
+        <table>
+          <thead>
+            <tr><th>Bucket</th><th>Count</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Security probe URLs</td><td>54</td></tr>
+            <tr><td>Internal site URLs</td><td>89</td></tr>
+            <tr><td>Images (sampled pages)</td><td>34</td></tr>
+            <tr><td>Pages scanned (DOM)</td><td>8</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

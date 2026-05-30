@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit — Owner Digest (Variant E)</title>
+  <link rel="stylesheet" href="digest.css">
+</head>
+<body>
+  <div class="digest-wrap">
+    <div class="toolbar no-print">
+      <button type="button" class="btn-edge-cyan" onclick="window.print()">Save PDF</button>
+      <button type="button" class="btn-edge-magenta">Share Report Link</button>
+      <button type="button" class="btn-edge-gold">Send to Dev Shop</button>
+    </div>
+
+    <div class="digest-top">
+      <p class="brand">Acme Widgets Co.</p>
+      <h1>Security digest</h1>
+      <p class="url">https://acme-widgets.com · 29 May 2026</p>
+      <div class="verdict-pill">Needs attention — no leaks detected</div>
+    </div>
+
+    <div class="score-strip">
+      <div class="score-cell h">
+        <div class="n">78</div>
+        <div class="l">Hygiene</div>
+      </div>
+      <div class="score-cell e">
+        <div class="n">100</div>
+        <div class="l">Exposure</div>
+      </div>
+      <div class="score-cell v">
+        <div class="n">NEEDS ATTENTION</div>
+        <div class="l">Verdict</div>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="t-item critical">
+        <div class="cat">Headers · HIGH</div>
+        <h3>Content-Security-Policy missing</h3>
+        <p>Your homepage does not send a CSP header. This is a standard hardening step my developer should add.</p>
+      </div>
+      <div class="t-item warn">
+        <div class="cat">DNS · MEDIUM</div>
+        <h3>No DMARC record</h3>
+        <p>Email spoofing protection is not configured for acme-widgets.com.</p>
+      </div>
+      <div class="t-item warn">
+        <div class="cat">TLS · MEDIUM</div>
+        <h3>TLS 1.1 still accepted</h3>
+        <p>Deprecated protocol — disable at CDN or hosting panel.</p>
+      </div>
+      <div class="t-item ok">
+        <div class="cat">Paths · OK</div>
+        <h3>No sensitive file leaks</h3>
+        <p>.env and .git were not publicly readable. That is the outcome I wanted to see.</p>
+      </div>
+    </div>
+
+    <div class="digest-actions no-print">
+      <button type="button" class="btn-edge-cyan">Download full technical report</button>
+      <button type="button" class="btn-edge-magenta">Compare to last month</button>
+    </div>
+
+    <footer>
+      Web Audit v2 · Owner digest variant · I designed this for the person who paid $5k and needs clarity, not jargon.
+    </footer>
+  </div>
+</body>
+</html>

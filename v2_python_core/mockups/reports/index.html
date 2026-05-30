@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit v2 — All Report Variants</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="gallery">
+    <header class="gallery-header">
+      <h1>Report Variants Gallery</h1>
+      <p>
+        Five dark-theme mockups for Web Audit v2. Black background, rich accent colors,
+        edge-lit buttons on sensitive export actions. Open any variant full-screen or scroll below.
+      </p>
+      <div class="gallery-nav">
+        <a href="#variant-a">A · Executive</a>
+        <a href="#variant-b">B · Technical</a>
+        <a href="#variant-c">C · Minimal</a>
+        <a href="#variant-d">D · Dashboard</a>
+        <a href="#variant-e">E · Digest</a>
+        <a href="#all-at-once">All at once</a>
+      </div>
+    </header>
+
+    <div class="variant-grid">
+      <article class="variant-card" id="variant-a">
+        <div class="variant-card-header">
+          <h2>Variant A <span>Executive</span></h2>
+          <div class="links">
+            <a href="variant-a-executive.html" class="btn-edge-cyan" target="_blank" rel="noopener">Open full</a>
+          </div>
+        </div>
+        <div class="variant-frame-wrap">
+          <iframe src="variant-a-executive.html" title="Executive variant preview"></iframe>
+        </div>
+        <p class="variant-desc">Plain language for site owners. Traffic-light verdict, fix-first list, edge-lit PDF + email actions.</p>
+      </article>
+
+      <article class="variant-card" id="variant-b">
+        <div class="variant-card-header">
+          <h2>Variant B <span>Technical</span></h2>
+          <div class="links">
+            <a href="variant-b-technical.html" class="btn-edge-cyan" target="_blank" rel="noopener">Open full</a>
+          </div>
+        </div>
+        <div class="variant-frame-wrap">
+          <iframe src="variant-b-technical.html" title="Technical variant preview"></iframe>
+        </div>
+        <p class="variant-desc">Developer handoff — findings table, DNS/TLS depth, path probes, JSON/SARIF export buttons with edge glow.</p>
+      </article>
+
+      <article class="variant-card" id="variant-c">
+        <div class="variant-card-header">
+          <h2>Variant C <span>Minimal</span></h2>
+          <div class="links">
+            <a href="variant-c-minimal.html" class="btn-edge-cyan" target="_blank" rel="noopener">Open full</a>
+          </div>
+        </div>
+        <div class="variant-frame-wrap">
+          <iframe src="variant-c-minimal.html" title="Minimal variant preview"></iframe>
+        </div>
+        <p class="variant-desc">One-page handoff sheet. Print/PDF optimized. Priority actions + confirmed OK list on black.</p>
+      </article>
+
+      <article class="variant-card" id="variant-d">
+        <div class="variant-card-header">
+          <h2>Variant D <span>Dashboard</span></h2>
+          <div class="links">
+            <a href="variant-d-dashboard.html" class="btn-edge-cyan" target="_blank" rel="noopener">Open full</a>
+          </div>
+        </div>
+        <div class="variant-frame-wrap">
+          <iframe src="variant-d-dashboard.html" title="Dashboard variant preview"></iframe>
+        </div>
+        <p class="variant-desc">Metrics grid, category health bars, glowing score rings. For me monitoring scans and CI dashboards.</p>
+      </article>
+
+      <article class="variant-card" id="variant-e">
+        <div class="variant-card-header">
+          <h2>Variant E <span>Owner Digest</span></h2>
+          <div class="links">
+            <a href="variant-e-digest.html" class="btn-edge-cyan" target="_blank" rel="noopener">Open full</a>
+          </div>
+        </div>
+        <div class="variant-frame-wrap">
+          <iframe src="variant-e-digest.html" title="Digest variant preview"></iframe>
+        </div>
+        <p class="variant-desc">Timeline narrative for non-technical owners. The person who paid for the site and needs clarity.</p>
+      </article>
+    </div>
+
+    <section id="all-at-once">
+      <h2 style="text-align:center; color: var(--cyan); margin-bottom: 1.25rem; font-size: 1.1rem;">
+        All five — compact preview
+      </h2>
+      <div class="all-grid">
+        <div class="mini-preview">
+          <div class="label">A · Executive</div>
+          <iframe src="variant-a-executive.html" title="A"></iframe>
+        </div>
+        <div class="mini-preview">
+          <div class="label">B · Technical</div>
+          <iframe src="variant-b-technical.html" title="B"></iframe>
+        </div>
+        <div class="mini-preview">
+          <div class="label">C · Minimal</div>
+          <iframe src="variant-c-minimal.html" title="C"></iframe>
+        </div>
+        <div class="mini-preview">
+          <div class="label">D · Dashboard</div>
+          <iframe src="variant-d-dashboard.html" title="D"></iframe>
+        </div>
+        <div class="mini-preview" style="grid-column: 1 / -1; max-width: 480px; margin: 0 auto; width: 100%;">
+          <div class="label">E · Owner Digest</div>
+          <iframe src="variant-e-digest.html" title="E"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Web Audit v2 mockups · shared-dark.css + per-variant CSS · Python renders templates later — no inline styles in core
+    </footer>
+  </div>
+</body>
+</html>

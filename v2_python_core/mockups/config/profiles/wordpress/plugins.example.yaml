@@ -1,0 +1,76 @@
+# Framework profile — WordPress extensions (Tier 2b)
+# Auto-loaded when framework=wordpress or auto-detect confidence >= min_detection_confidence
+
+framework: wordpress
+min_detection_confidence: 0.65
+
+probe:
+  mode: observed_only
+  sources:
+    - html_assets
+    - readme_txt
+  readme_fetch: observed_only
+
+compare:
+  wporg_api: true
+  semver_engine: packaging
+
+vuln:
+  enabled: true
+  source: cache
+  cache_ttl_days: 14
+  api_daily_budget: 25
+  auth_required_default_class: VERIFY
+
+scoring:
+  hygiene_cap: 30
+  exposure_on_unauth_cve_only: true
+  worst_plugin_wins: true
+
+watchlist:
+  - slug: elementor
+    tier: critical
+    premium: false
+  - slug: elementor-pro
+    tier: critical
+    premium: true
+    vuln_source: wpscan_only
+    compare_latest: false
+  - slug: woocommerce
+    tier: high
+    premium: false
+  - slug: wordfence
+    tier: high
+    premium: false
+  - slug: wpforms-lite
+    tier: high
+    premium: false
+  - slug: contact-form-7
+    tier: medium
+    premium: false
+  - slug: yoast-seo
+    tier: medium
+    premium: false
+  - slug: wordpress-seo
+    tier: medium
+    premium: false
+  - slug: jetpack
+    tier: medium
+    premium: false
+  - slug: rank-math
+    tier: medium
+    premium: false
+  - slug: wp-rocket
+    tier: high
+    premium: true
+    compare_latest: false
+    label: verify_updates
+
+aliases:
+  wordpress-seo: yoast-seo
+
+labels:
+  stale_premium: verify_updates
+  unknown_slug: review
+  no_version: suspicious_maintenance
+  version_mismatch: info

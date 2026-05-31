@@ -1,0 +1,45 @@
+# Framework profile — Django (Tier 2+)
+# No wp-content/plugins equivalent — passive signals only unless user supplies lockfile path
+
+framework: django
+min_detection_confidence: 0.65
+
+probe:
+  mode: observed_only
+  sources:
+    - debug_leak
+    - admin_static
+    - headers
+  optional_lockfile: null   # site config may set path to requirements.txt for offline compare
+
+compare:
+  pip_audit: false          # Tier 3 — requires user-provided SBOM/lockfile
+  semver_engine: packaging
+
+vuln:
+  enabled: false
+  source: none
+
+scoring:
+  hygiene_cap: 15
+
+watchlist:
+  - package: django
+    tier: critical
+  - package: django-allauth
+    tier: high
+  - package: wagtail
+    tier: medium
+  - package: django-rest-framework
+    tier: medium
+  - package: celery
+    tier: medium
+
+signals:
+  debug_page: CRITICAL
+  allowed_hosts_leak: HIGH
+  exposed_requirements_txt: MEDIUM
+
+labels:
+  dependency_risk: verify
+  no_lockfile: info

@@ -1,0 +1,120 @@
+/* Web Audit v2 — diagram viewer (matches report mockups) */
+
+@import url("../reports/shared-dark.css");
+
+.diagram-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.diagram-page h1 {
+  font-size: 1.75rem;
+  background: linear-gradient(90deg, var(--cyan), var(--magenta));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.35rem;
+}
+
+.diagram-page .lead {
+  color: var(--muted);
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+.diagram-card {
+  background: var(--surface);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  padding: 1.25rem 1rem 1.5rem;
+  margin-bottom: 1.75rem;
+  box-shadow:
+    0 0 0 1px rgba(0, 240, 255, 0.08),
+    0 0 32px rgba(0, 240, 255, 0.06),
+    0 0 48px rgba(255, 0, 128, 0.03);
+}
+
+.diagram-card h2 {
+  font-size: 1rem;
+  color: var(--cyan);
+  margin-bottom: 0.25rem;
+  padding: 0 0.5rem;
+}
+
+.diagram-card .desc {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  padding: 0 0.5rem;
+}
+
+.mermaid-wrap {
+  background: #030306;
+  border-radius: 8px;
+  padding: 1rem 0.5rem;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Mermaid SVG tweaks for glow on key shapes */
+.mermaid-wrap svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.nav-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.nav-top a {
+  color: var(--cyan);
+  text-decoration: none;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 999px;
+  transition: box-shadow 0.2s;
+}
+
+.nav-top a:hover {
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.35);
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 1rem;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.75rem;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--muted);
+}
+
+.legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.legend .c-cyan { background: #00f0ff; box-shadow: 0 0 8px #00f0ff; }
+.legend .c-gold { background: #ffc14d; box-shadow: 0 0 8px #ffc14d; }
+.legend .c-lime { background: #39ff8c; box-shadow: 0 0 8px #39ff8c; }
+.legend .c-violet { background: #a855f7; box-shadow: 0 0 8px #a855f7; }
+.legend .c-magenta { background: #ff0080; box-shadow: 0 0 8px #ff0080; }

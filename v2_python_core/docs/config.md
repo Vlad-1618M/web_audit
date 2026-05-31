@@ -15,15 +15,18 @@ v1 INI (`site.conf.template`) maps to v2 in Tier 3 via `webaudit config migrate`
 
 ---
 
-## Config files (three layers)
+## Config files (four layers)
 
 | File | Scope | Example path |
 |------|-------|--------------|
 | **Global defaults** | Shipped with package | `webaudit/config/defaults.yaml` |
 | **User config** | My machine defaults | `~/.config/webaudit/config.yaml` |
 | **Site profile** | One hostname | `site_configs/example.com.yaml` |
+| **Framework profile** | Auto when WP/Django/… detected | `profiles/wordpress/extensions.yaml` |
 
-Merge order (later wins): defaults → user → `--config` → site profile → CLI flags.
+Merge order (later wins): defaults → user → `--config` → site profile → **framework profile** → `site.extensions` → CLI flags.
+
+Framework profile detail: [framework_profiles.md](framework_profiles.md).
 
 ---
 
@@ -38,6 +41,19 @@ webaudit_version: "2.0"
 target:
   url: ""                    # or pass on CLI
   framework: auto            # auto | django | wordpress | laravel | rails | php | unknown
+
+framework_profiles:
+  auto_load: true            # load profiles/{detected}/extensions.yaml
+  min_confidence: 0.65       # below → generic/php profile
+  profile_dir: null          # null = shipped webaudit/profiles/
+
+extensions:                  # site-level override (merged after framework profile)
+  inherit_profile: true
+  probe:
+    mode: observed_only      # fix v1 blind readme GETs
+  extra_watch: []
+  ignore: []
+  expected: []
 
 runtime:
   timeout_seconds: 15
@@ -67,6 +83,9 @@ misc:
   max_internal_urls_display: 250
 
 collectors:
+  extensions:
+    enabled: true            # Tier 2b — off until module ships
+    vuln_cache_path: ~/.local/share/webaudit/vuln_cache.db
   dns:
     enabled: true
     check_spf: true
@@ -88,6 +107,14 @@ collectors:
     enabled: false           # Tier 2
     graphql_probe: true
     openapi_paths: ["/swagger", "/api/docs", "/openapi.json"]
+  seo_surface:
+    enabled: true            # Tier 2c — INFO/VERIFY only
+    check_meta_robots: true
+    check_canonical: true
+    check_meta_description: true
+    check_open_graph: false
+    check_broken_links: true
+    max_internal_links_sample: 20
 
 scoring:
   hygiene_weights:           # override defaults
@@ -95,11 +122,16 @@ scoring:
     HIGH: 10
     MEDIUM: 4
     LOW: 1
+  hygiene_caps:              # Tier 2b — prevent plugin pile-on
+    PLUGIN: 30
+    PLUGIN_CVE: 30
   show_risk_index: false     # Tier 2
   hard_stops:
     - env_exposed
     - git_exposed
     - cert_expired
+  plugin_worst_wins: true    # one worst plugin finding drives cap bucket
+  seo_surface_affects_scores: false   # Tier 2c — must stay false in shipped defaults
 
 report:
   variant: executive         # executive | technical | minimal | dashboard | digest
@@ -159,6 +191,16 @@ misc:
 
 report:
   variant: technical
+
+extensions:
+  inherit_profile: true
+  extra_watch:
+    - custom-agency-plugin
+  expected:
+    - slug: wordfence
+      note: "Client pays for premium license"
+  ignore:
+    - hello-dolly
 ```
 
 ---
@@ -207,6 +249,18 @@ Working examples I can copy and edit:
 - [../mockups/config/webaudit.example.yaml](../mockups/config/webaudit.example.yaml) — global/user
 - [../mockups/config/site.example.yaml](../mockups/config/site.example.yaml) — per-site
 - [../mockups/config/scoring_rules.example.yaml](../mockups/config/scoring_rules.example.yaml) — tunable finding severity
+- [../mockups/config/profiles/](../mockups/config/profiles/) — framework profile examples (WordPress, Django, Laravel, generic)
+
+---
+
+## Framework profile examples
+
+| Framework | Mockup path |
+|-----------|-------------|
+| WordPress | [profiles/wordpress/plugins.example.yaml](../mockups/config/profiles/wordpress/plugins.example.yaml) |
+| Django | [profiles/django/packages.example.yaml](../mockups/config/profiles/django/packages.example.yaml) |
+| Laravel | [profiles/laravel/packages.example.yaml](../mockups/config/profiles/laravel/packages.example.yaml) |
+| Generic PHP | [profiles/generic/php.example.yaml](../mockups/config/profiles/generic/php.example.yaml) |
 
 ---
 
@@ -224,4 +278,4 @@ No scan, no network — for dev shops reviewing a config before handoff.
 
 ---
 
-*Related: [architecture.md](architecture.md) · [mockups/config/](../mockups/config/)*
+*Related: [architecture.md](architecture.md) · [mockups/config/](../mockups/config/) · [framework_profiles.md](framework_profiles.md) · [seo_surface.md](seo_surface.md)*

@@ -51,6 +51,7 @@ I am not throwing this away conceptually. v2 **reimplements** it cleanly, then *
 | PDF = browser print dialog | **WeasyPrint** (or similar) — server-side PDF, no Chrome required |
 | Weak baseline/diff story | **sqlite + structured diff** — “what changed since last run” |
 | Regex CSP/HSTS | Dedicated **policy parsers** — structured weak-CSP findings |
+| v1 plugin readme only, blind high-risk list | **Framework profiles** + wp.org compare + optional CVE cache ([plugin research](plugin_vulnerability_research.md)) |
 
 I have used **httpx** and **dnspython** before; they are proven choices for me, not experiments.
 
@@ -102,11 +103,20 @@ I have used **httpx** and **dnspython** before; they are proven choices for me, 
 - Mixed content detection
 - Broken link sampling
 
+**Discoverability (Tier 2c — informational only)**
+
+- Meta robots / noindex, canonical, meta description — **INFO/VERIFY**
+- robots.txt vs sitemap cross-check (extends artifacts)
+- **No SEO success score** — primary scores stay Hygiene + Exposure
+- See [seo_surface.md](seo_surface.md)
+
 **Framework & API**
 
 - GraphQL introspection probe (Tier 2)
 - OpenAPI/Swagger discovery (Tier 2)
 - Richer WordPress/Django/Laravel signals
+- **WordPress plugin intelligence (Tier 2b)** — framework profile auto-load, version compare, auth-aware CVE, no “nulled” accusations in output
+- **Django/Laravel profiles** — debug/dependency VERIFY signals (not WP plugin model forced on them)
 
 **UX & audience**
 
@@ -121,6 +131,7 @@ I have used **httpx** and **dnspython** before; they are proven choices for me, 
 
 - Not authenticated scanning
 - Not a replacement for OWASP ZAP, nuclei, or a pentest
+- Not an SEO ranking / lead-generation tool (Tier 2c is INFO/VERIFY discoverability only)
 - Not Scapy-driven packet crafting (I was speculating; out of scope)
 - Not Windows support in Tier 1 (Unix + pipx first; Windows later if demand exists)
 
@@ -135,7 +146,9 @@ I have used **httpx** and **dnspython** before; they are proven choices for me, 
 | **M2 — Tier 1 parity+** | v1-equivalent checks in Python + DNS + TLS depth |
 | **M3 — Reports** | Three template variants + PDF |
 | **M4 — Tier 2** | JS pass, API probes, baselines |
-| **M5 — Tier 3** | CT subdomains, passive CVE hints, SARIF export |
+| **M4b — Tier 2b** | Framework profiles, WP plugin/version/CVE module |
+| **M4c — Tier 2c** | SEO surface checks (INFO/VERIFY only) |
+| **M5 — Tier 3** | CT subdomains, vuln snapshot, SARIF export |
 | **M6 — Install** | pipx, Homebrew formula, docs for non-terminal users |
 
 ---
@@ -157,6 +170,10 @@ I have used **httpx** and **dnspython** before; they are proven choices for me, 
 - No template HTML inside `.py` files — ever
 
 Full library list per tier: [stages.md](stages.md) and [architecture.md](architecture.md).
+
+Plugin/extension planning: [plugin_vulnerability_research.md](plugin_vulnerability_research.md) · [framework_profiles.md](framework_profiles.md).
+
+SEO surface (informational): [seo_surface.md](seo_surface.md).
 
 ---
 

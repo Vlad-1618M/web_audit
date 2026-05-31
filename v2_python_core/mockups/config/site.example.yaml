@@ -3,7 +3,7 @@
 # Usage: webaudit scan https://acme-widgets.com --site-config site.example.yaml
 
 host: acme-widgets.com
-framework: auto
+framework: auto   # auto-loads profiles/wordpress/ when detected
 
 paths:
   extra_get:
@@ -33,15 +33,30 @@ misc:
   max_probe_urls_display: 100
   max_internal_urls_display: 150
 
+# Merged after framework profile — see mockups/config/profiles/wordpress/
+extensions:
+  inherit_profile: true
+  probe:
+    mode: observed_only
+  extra_watch:
+    - advanced-custom-fields-pro
+  ignore:
+    - hello-dolly
+  expected:
+    - slug: wordfence
+      note: "Client pays for premium — verify license separately"
+
 collectors:
   dns:
+    enabled: true
+  extensions:
     enabled: true
   js:
     enabled: false
 
 report:
   variant: executive
-  theme: light
+  theme: dark
 
 output:
   open_browser: true
@@ -52,4 +67,4 @@ output:
 
 notes: |
   Site owner: Jane at Acme Widgets — non-technical.
-  I use executive variant and PDF for email handoff to their dev shop.
+  WordPress agency build — I use executive variant + plugin section for dev handoff.

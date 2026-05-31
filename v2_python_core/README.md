@@ -59,9 +59,14 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 | [docs/architecture.md](docs/architecture.md) | Module layout, libraries, data flow, diagrams |
 | [docs/scoring.md](docs/scoring.md) | Math for Hygiene, Exposure, verdicts, baselines |
 | [docs/testing.md](docs/testing.md) | pytest strategy, fixtures, CI gates |
-| [docs/config.md](docs/config.md) | YAML config system — global + per-site controls |
+| [docs/config.md](docs/config.md) | YAML config system — global + per-site + framework profiles |
+| [docs/framework_profiles.md](docs/framework_profiles.md) | Detect → load profile; WordPress/Django/Laravel |
+| [docs/plugin_vulnerability_research.md](docs/plugin_vulnerability_research.md) | WP plugin CVE research + v2 criteria refinements |
+| [docs/seo_surface.md](docs/seo_surface.md) | Tier 2c discoverability — INFO/VERIFY only, not scored |
+| [docs/diagrams.md](docs/diagrams.md) | Mermaid architecture diagrams (dark theme) |
+| [mockups/diagrams/index.html](mockups/diagrams/index.html) | **Live diagram viewer** (browser) |
 | [mockups/reports/README.md](mockups/reports/README.md) | Five HTML report variants + [gallery index](mockups/reports/index.html) |
-| [mockups/config/](mockups/config/) | Example YAML configs |
+| [mockups/config/](mockups/config/) | Example YAML configs + [framework profiles](mockups/config/profiles/) |
 
 ---
 
@@ -71,7 +76,9 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 2. **v1 untouched** — parity tests compare v2 JSON to v1 where checks overlap; v1 keeps shipping.
 3. **Same ethical line** — external, unauthenticated hygiene only; not a pentest replacement.
 4. **Terminal-first CLI** — rich HTML/PDF for humans who hate terminals; CLI for me and CI.
-5. **Modular tiers** — ship Tier 1 first; Tier 2/3 plug in without rewriting the core.
+5. **Modular tiers** — ship Tier 1 first; Tier 2/2b/3 plug in without rewriting the core.
+6. **Framework profiles** — if WordPress detected, load WordPress extension config; Django gets its own profile, not WP plugin logic forced on it.
+7. **SEO surface is informational** — Tier 2c helps owners who were sold SEO; it never competes with Hygiene/Exposure scores ([seo_surface.md](docs/seo_surface.md)).
 
 ---
 
@@ -80,16 +87,17 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 ```text
 v2_python_core/                 ← docs + mockups today
 webaudit/                       ← Python package (later)
-  cli/                          ← typer entrypoints
-  config/                       ← load/validate YAML (pydantic)
-  collectors/                   ← httpx, dnspython, tls, optional playwright
-  analyzers/                    ← parse findings from raw artifacts
-  scoring/                      ← hygiene, exposure, verdict math
-  storage/                      ← run artifacts, sqlite baselines
-  render/                       ← jinja loader only — no inline HTML
-templates/reports/              ← executive | technical | minimal
+  cli/
+  config/                       ← pydantic + profiles.py loader
+  collectors/                   ← httpx, dns, tls, wp_plugins (Tier 2b)
+  analyzers/                    ← wp_plugins, plugin_vuln, seo_surface (2c)
+  scoring/
+  storage/                      ← baselines + vuln_cache
+  render/
+profiles/                       ← wordpress, django, laravel YAML (not Python)
+templates/reports/
+tests/
 mockups/                        ← static previews (this repo section)
-tests/                          ← pytest unit + integration
 ```
 
 ---
@@ -100,6 +108,7 @@ Open the gallery or any variant in a browser:
 
 ```bash
 open v2_python_core/mockups/reports/index.html
+open v2_python_core/mockups/diagrams/index.html
 ```
 
 ---

@@ -1,2 +1,6 @@
 audit_logs/
 site_configs/
+
+# macOS
+.DS_Store
+**/.DS_Store

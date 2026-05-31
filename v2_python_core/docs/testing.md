@@ -67,7 +67,12 @@ tests/
 │   ├── test_analyzer_csp.py
 │   ├── test_analyzer_html_forms.py
 │   ├── test_analyzer_cookies.py
-│   └── test_dns_parser.py
+│   ├── test_dns_parser.py
+│   ├── test_config_profiles.py      # Tier 2b — framework profile merge
+│   ├── test_wp_plugin_fingerprint.py
+│   ├── test_wp_plugin_stale.py
+│   ├── test_plugin_vuln_auth_class.py
+│   └── test_seo_surface_unscored.py   # Tier 2c
 ├── integration/
 │   ├── test_scan_wiremock.py
 │   └── test_render_templates.py
@@ -78,7 +83,14 @@ tests/
     ├── headers/
     ├── dns/
     ├── scoring/
-    └── v1_samples/                # anonymized v1 JSON outputs
+    ├── plugins/
+    │   ├── html_wp_assets.html
+    │   ├── readme_elementor.txt
+    │   └── cve_cases.json
+    ├── seo/
+    │   ├── homepage_noindex.html
+    │   └── homepage_no_description.html
+    └── v1_samples/
 ```
 
 ---
@@ -91,6 +103,8 @@ tests/
 - Invalid severity override rejected
 - CLI flag overrides merge correctly
 - Site profile merges over global config
+- Framework profile loads when `framework=wordpress`
+- `site.extensions` overrides watchlist / probe.mode
 - INI import (Tier 3) produces equivalent YAML
 
 ### scoring/
@@ -113,6 +127,8 @@ Cover:
 - VERIFY/EXPECTED/INFO ignored
 - hard-stop verdict overrides
 - exposure 5xx vs 403
+- PLUGIN hygiene cap at 30 with five stale plugins
+- auth-required CVE → VERIFY, not scored
 
 ### analyzers/
 
@@ -123,7 +139,21 @@ Fixtures = real-world snippets (anonymized from muzar.io runs):
 - Cookies: missing Secure on session cookie
 - Framework: wp-login body markers
 
-No network.
+**Plugins (Tier 2b):**
+
+- Slug extract from `/wp-content/plugins/foo/bar.css?ver=1.2.3`
+- readme.txt `Stable tag:` parse
+- wp.org API mocked — stale vs current
+- Premium slug → VERIFY not ACTION
+- CVE fixtures from [plugin_vulnerability_research.md](plugin_vulnerability_research.md): unauth XSS → ACTION; Contributor XSS → VERIFY
+
+No network. No live WPScan in unit tests.
+
+**SEO surface (Tier 2c):**
+
+- `noindex` → VERIFY, hygiene unchanged
+- Missing description → INFO
+- Assert `seo_surface_affects_scores: false` in scorer
 
 ### collectors/
 
@@ -195,7 +225,7 @@ I maintain `tests/parity/PARITY.md`:
 | check_headers | analyzers.policy + collectors.headers | exact |
 | check_tls | collectors.tls | extended (more data) |
 | check_site_miscellaneous | analyzers.html_dom | extended |
-| ... | ... | ... |
+| check_plugin_versions | collectors.wp_plugins + analyzers.wp_plugins | extended (compare + cap) |
 
 Automated: load same mocked responses into v1 export (where possible) and v2; compare finding counts for core categories.
 
@@ -250,7 +280,7 @@ Fast loop before push.
 | 2 | all Tier 1 collectors mocked |
 | 3 | scoring golden files 100% |
 | 4 | three templates render |
-| 5 | baseline diff tests |
+| 5 | baseline diff + Tier 2b plugin + **Tier 2c SEO unscored** tests |
 | 6 | pip install + smoke scan in CI |
 
 ---

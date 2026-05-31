@@ -74,7 +74,59 @@ scoring:
     HEADERS: 30   # max 30 points off from header issues per run
 ```
 
-Default: **no caps** (v1 behavior).
+Default: **no caps** (v1 behavior). **Tier 2b default for plugins:**
+
+```yaml
+scoring:
+  hygiene_caps:
+    PLUGIN: 30
+    PLUGIN_CVE: 30
+  plugin_worst_wins: true   # optional — use highest-severity plugin finding only
+```
+
+---
+
+## Plugin & extension findings (Tier 2b)
+
+Categories: `PLUGIN`, `PLUGIN_CVE`, `PLUGIN_VERIFY`, `PLUGIN_INFO`.
+
+| Finding | Class | Scored | Hygiene | Exposure |
+|---------|-------|--------|---------|----------|
+| Free plugin behind wp.org latest | ACTION | yes | MEDIUM–HIGH (gap size) | no |
+| Premium plugin detected | VERIFY | no | — | — |
+| Unauth CVE match | ACTION | yes | per CVSS | yes if critical unauth |
+| Auth-required CVE (Contributor+) | VERIFY | no | — | — |
+| No version string | VERIFY | no | — | — |
+| Unknown / custom slug | VERIFY | no | — | — |
+
+**Never label “nulled”** in automated output — use `verify_updates` / `verify_maintenance` (see [plugin_vulnerability_research.md](plugin_vulnerability_research.md)).
+
+**Exposure:** only when `exposure_on_unauth_cve_only: true` (framework profile default) and CVE requires no authentication.
+
+**v1 parity note:** v1 `PLUGIN_VERSION` / EXPOSED / MEDIUM with WPScan URL → v2 splits into PLUGIN + optional PLUGIN_CVE with structured evidence.
+
+---
+
+## SEO surface findings (Tier 2c — never scored by default)
+
+Category: **`SEO_SURFACE`**. All findings **INFO** or **VERIFY** unless I explicitly override in custom rules (shipped default: never).
+
+| Finding | Class | Hygiene | Exposure |
+|---------|-------|---------|----------|
+| Homepage `noindex` | VERIFY | no | no |
+| Missing meta description | INFO | no | no |
+| Canonical missing/duplicate | INFO | no | no |
+| robots.txt blocks `/` | VERIFY | no | no |
+| Broken internal link (sample) | INFO | no | no |
+
+```yaml
+scoring:
+  seo_surface_affects_scores: false   # hard default
+```
+
+**Verdict:** SEO_SURFACE findings **do not** change PASS / NEEDS_ATTENTION / AT_RISK.
+
+Full check list: [seo_surface.md](seo_surface.md).
 
 ---
 
@@ -190,6 +242,8 @@ When comparing run **B** to baseline **A**:
 | New ACTION finding | **NEW_ISSUE** |
 | ACTION finding resolved | **RESOLVED** |
 | DNS/TLS cosmetic INFO | **INFO** |
+| New PLUGIN_CVE (unauth) | **REGRESSION** (critical) |
+| Plugin version improved | **IMPROVEMENT** |
 
 ```text
 delta_hygiene = hygiene_B - hygiene_A
@@ -266,10 +320,14 @@ tests/fixtures/scoring/
   case_exposure_double.json   → expected 50
   case_verdict_at_risk.json   → AT_RISK
   case_hard_stop_env.json     → AT_RISK override
+  case_plugin_cap.json        → 5 stale plugins capped at 30 hygiene loss
+  case_plugin_auth_cve.json   → VERIFY not scored
 ```
 
 Every severity × class combination gets at least one unit test.
 
+Plugin CVE cases sourced from [plugin_vulnerability_research.md](plugin_vulnerability_research.md) §4 as fixtures — not hardcoded in scorer.
+
 ---
 
-*Related: [testing.md](testing.md) · [roadmap.md](roadmap.md)*
+*Related: [testing.md](testing.md) · [roadmap.md](roadmap.md) · [framework_profiles.md](framework_profiles.md) · [seo_surface.md](seo_surface.md)*

@@ -4,6 +4,10 @@
 
 webaudit_version: "2.0"
 
+framework_profiles:
+  auto_load: true
+  min_confidence: 0.65
+
 runtime:
   timeout_seconds: 15
   max_concurrency: 8
@@ -27,6 +31,9 @@ misc:
   show_internal_urls: true
 
 collectors:
+  extensions:
+    enabled: true
+    vuln_cache_path: ~/.local/share/webaudit/vuln_cache.db
   dns:
     enabled: true
     check_spf: true
@@ -46,12 +53,26 @@ collectors:
   api:
     enabled: false
 
+  seo_surface:
+    enabled: true
+    check_meta_robots: true
+    check_canonical: true
+    check_meta_description: true
+    check_open_graph: false
+    check_broken_links: true
+    max_internal_links_sample: 20
+
 scoring:
   hygiene_weights:
     CRITICAL: 25
     HIGH: 10
     MEDIUM: 4
     LOW: 1
+  hygiene_caps:
+    PLUGIN: 30
+    PLUGIN_CVE: 30
+  plugin_worst_wins: true
+  seo_surface_affects_scores: false
   show_risk_index: false
   hard_stops:
     - env_exposed

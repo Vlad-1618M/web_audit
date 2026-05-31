@@ -11,6 +11,7 @@ flowchart TB
   subgraph input [Input]
     CLI[CLI typer]
     CFG[YAML config]
+    PROF[Framework profile YAML]
     URL[Target URL]
   end
 
@@ -35,6 +36,7 @@ flowchart TB
 
   CLI --> ORCH
   CFG --> ORCH
+  PROF --> ORCH
   URL --> ORCH
   ORCH --> COL
   COL --> AN
@@ -63,7 +65,9 @@ sequenceDiagram
   participant J as jinja render
 
   U->>C: webaudit scan URL
-  C->>O: load config + resolve site profile
+  C->>O: load config + site profile
+  O->>O: detect framework → load profiles/{fw}/extensions.yaml
+  O->>O: merge site.extensions overrides
   par HTTP collectors
     O->>H: path probes
     O->>H: headers / cookies / cors
@@ -98,6 +102,7 @@ webaudit/
 ├── config/
 │   ├── loader.py            # YAML → pydantic Settings
 │   ├── site.py              # per-site profile model
+│   ├── profiles.py          # detect → load profiles/{framework}/
 │   └── defaults.py
 ├── models/
 │   ├── artifact.py          # RawCollectorOutput
@@ -114,11 +119,15 @@ webaudit/
 │   ├── rate_limit.py
 │   ├── artifacts.py
 │   ├── cors.py
+│   ├── wp_plugins.py        # Tier 2b — readme, asset URLs
 │   └── js.py                # Tier 2 — playwright
 ├── analyzers/
 │   ├── policy.py
 │   ├── html_dom.py
 │   ├── framework.py
+│   ├── wp_plugins.py        # Tier 2b — stale compare
+│   ├── plugin_vuln.py       # Tier 2b/3 — CVE cache
+│   ├── seo_surface.py       # Tier 2c — INFO/VERIFY only
 │   ├── cors.py
 │   ├── graphql.py           # Tier 2
 │   └── diff.py              # Tier 2
@@ -128,12 +137,19 @@ webaudit/
 │   └── verdict.py
 ├── storage/
 │   ├── runs.py              # audit_logs layout
-│   └── baseline.py          # sqlite Tier 2
+│   ├── baseline.py          # sqlite Tier 2
+│   └── vuln_cache.py        # Tier 2b — WPScan/wp.org cache
 └── render/
     ├── jinja_env.py         # template search path only
     ├── html.py
     ├── txt.py
     └── pdf.py
+
+profiles/                    # shipped YAML — NOT Python code
+├── wordpress/extensions.yaml
+├── django/extensions.yaml
+├── laravel/extensions.yaml
+└── generic/php.yaml
 
 templates/reports/           # NOT inside webaudit package
 ├── executive/
@@ -227,7 +243,7 @@ Single artifact between phases. Rough shape:
   "config_snapshot": { },
   "scores": { "hygiene": 82, "exposure": 100, "verdict": "NEEDS_ATTENTION" },
   "findings": [ ],
-  "artifacts": { "dns": { }, "tls": { }, "inventory": { } },
+  "artifacts": { "dns": { }, "tls": { }, "inventory": { }, "plugins": { }, "seo_surface": { } },
   "reports": { "html": "...", "pdf": "...", "json": "..." }
 }
 ```
@@ -258,10 +274,13 @@ Rate limiting between probes: `config.probe_delay_ms` (v1 had `PROBE_THROTTLE_MS
 3. ./webaudit.yaml (project)
 4. --config path
 5. site profile: site_configs/{host}.yaml or --site-config
-6. CLI flags (override specific keys)
+6. framework detect OR target.framework forced
+7. profiles/{framework}/extensions.yaml (auto-loaded)
+8. site.extensions merge (overrides profile)
+9. CLI flags (override specific keys)
 ```
 
-Same spirit as v1 `site_configs/<hostname>.conf` but YAML-native.
+Detail: [framework_profiles.md](framework_profiles.md).
 
 ---
 
@@ -299,6 +318,8 @@ flowchart LR
 
 I will maintain a **parity matrix** in tests: which v1 checks map 1:1 to v2 module names.
 
+**Extended diagrams** (product focus, tiers, pipeline, finding classes): [diagrams.md](diagrams.md) · [mockups/diagrams/index.html](../mockups/diagrams/index.html).
+
 ---
 
-*Related: [stages.md](stages.md) · [scoring.md](scoring.md) · [config.md](config.md)*
+*Related: [stages.md](stages.md) · [scoring.md](scoring.md) · [config.md](config.md) · [framework_profiles.md](framework_profiles.md) · [seo_surface.md](seo_surface.md)*

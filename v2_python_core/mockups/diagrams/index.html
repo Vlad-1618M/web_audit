@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit v2 — Architecture Diagrams</title>
+  <link rel="stylesheet" href="diagrams.css">
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      themeVariables: {
+        darkMode: true,
+        background: '#030306',
+        mainBkg: '#0e0e16',
+        secondBkg: '#14141f',
+        tertiaryColor: '#1a1a24',
+        primaryColor: '#0e0e16',
+        primaryTextColor: '#eef2ff',
+        primaryBorderColor: '#00f0ff',
+        secondaryColor: '#14141f',
+        secondaryTextColor: '#eef2ff',
+        secondaryBorderColor: '#ff0080',
+        tertiaryTextColor: '#8b95b0',
+        tertiaryBorderColor: '#a855f7',
+        lineColor: '#8b95b0',
+        textColor: '#eef2ff',
+        nodeTextColor: '#eef2ff',
+        clusterBkg: '#14141f',
+        clusterBorder: '#00f0ff',
+        titleColor: '#00f0ff',
+        edgeLabelBackground: '#0e0e16',
+        pie1: '#ffc14d',
+        pie2: '#39ff8c',
+        pie3: '#a855f7',
+        pie4: '#00f0ff',
+        pieStrokeColor: '#030306',
+        pieStrokeWidth: '2px',
+        pieLegendTextColor: '#eef2ff',
+        pieSectionTextColor: '#030306',
+        pieSectionTextSize: '14px',
+        fontFamily: 'Segoe UI, system-ui, sans-serif'
+      },
+      flowchart: {
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="diagram-page">
+    <h1>Web Audit v2 — Diagrams</h1>
+    <p class="lead">
+      Dark theme aligned with report mockups — cyan, gold, lime, violet, magenta on black.
+      Source: <code style="color:var(--cyan)">docs/diagrams.md</code>
+    </p>
+
+    <div class="legend">
+      <span><i class="c-gold"></i> Hygiene</span>
+      <span><i class="c-lime"></i> Exposure</span>
+      <span><i class="c-cyan"></i> Primary / Tier 1</span>
+      <span><i class="c-violet"></i> SEO surface</span>
+      <span><i class="c-magenta"></i> Tier 2 / profiles</span>
+    </div>
+
+    <nav class="nav-top">
+      <a href="#focus">Product focus</a>
+      <a href="#scores">Scoring axes</a>
+      <a href="#tiers">Tier stack</a>
+      <a href="#pipeline">Scan pipeline</a>
+      <a href="#classes">Finding classes</a>
+      <a href="#profiles">Framework profiles</a>
+      <a href="../reports/index.html">Report mockups →</a>
+    </nav>
+
+    <section class="diagram-card" id="focus">
+      <h2>1. Pro v2 product focus</h2>
+      <p class="desc">~70% Hygiene · ~25% Exposure · ~5% SEO surface (INFO only, not scored)</p>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+pie title Pro v2 — where effort &amp; scoring live
+    "Hygiene — config &amp; hardening" : 70
+    "Exposure — leaks &amp; secrets" : 25
+    "SEO surface — INFO/VERIFY only" : 5
+        </pre>
+      </div>
+    </section>
+
+    <section class="diagram-card" id="scores">
+      <h2>2. Scoring vs informational</h2>
+      <p class="desc">SEO_SURFACE never drives Verdict alone</p>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+flowchart LR
+  subgraph PRIMARY["Primary — scored"]
+    H["Hygiene / 100&lt;br/&gt;&lt;span style='color:#ffc14d'&gt;headers · TLS · DNS · plugins&lt;/span&gt;"]
+    E["Exposure / 100&lt;br/&gt;&lt;span style='color:#39ff8c'&gt;.env · .git · secrets&lt;/span&gt;"]
+    V["Verdict&lt;br/&gt;&lt;span style='color:#00f0ff'&gt;PASS · ATTENTION · AT RISK&lt;/span&gt;"]
+  end
+  subgraph SECONDARY["Secondary — not scored"]
+    S["SEO_SURFACE&lt;br/&gt;&lt;span style='color:#a855f7'&gt;INFO / VERIFY&lt;/span&gt;"]
+  end
+  H --> V
+  E --> V
+  S -.->|"no score impact"| V
+
+  classDef hygiene fill:#0e0e16,stroke:#ffc14d,color:#eef2ff,stroke-width:2px
+  classDef exposure fill:#0e0e16,stroke:#39ff8c,color:#eef2ff,stroke-width:2px
+  classDef verdict fill:#0e0e16,stroke:#00f0ff,color:#eef2ff,stroke-width:2px
+  classDef seo fill:#0e0e16,stroke:#a855f7,color:#eef2ff,stroke-width:2px
+  class H hygiene
+  class E exposure
+  class V verdict
+  class S seo
+        </pre>
+      </div>
+    </section>
+
+    <section class="diagram-card" id="tiers">
+      <h2>3. Tier stack</h2>
+      <p class="desc">Tier 1 first — 2b plugins &amp; 2c SEO stack on Tier 2</p>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+flowchart TB
+  T1["Tier 1 — Foundation&lt;br/&gt;HTTP · DNS · TLS · DOM · PDF"]
+  T2["Tier 2 — Depth&lt;br/&gt;JS · API · baselines"]
+  T2B["Tier 2b — WP plugins&lt;br/&gt;framework profiles · CVE"]
+  T2C["Tier 2c — SEO surface&lt;br/&gt;INFO / VERIFY only"]
+  T3["Tier 3 — Ecosystem&lt;br/&gt;SARIF · packaging"]
+
+  T1 --> T2
+  T2 --> T2B
+  T2 --> T2C
+  T2B --> T3
+  T2C --> T3
+
+  classDef t1 fill:#0e0e16,stroke:#00f0ff,color:#eef2ff,stroke-width:2px
+  classDef t2 fill:#0e0e16,stroke:#ff0080,color:#eef2ff,stroke-width:2px
+  classDef t2b fill:#0e0e16,stroke:#ffc14d,color:#eef2ff,stroke-width:2px
+  classDef t2c fill:#0e0e16,stroke:#a855f7,color:#eef2ff,stroke-width:2px
+  classDef t3 fill:#0e0e16,stroke:#39ff8c,color:#eef2ff,stroke-width:2px
+  class T1 t1
+  class T2 t2
+  class T2B t2b
+  class T2C t2c
+  class T3 t3
+        </pre>
+      </div>
+    </section>
+
+    <section class="diagram-card" id="pipeline">
+      <h2>4. Scan pipeline</h2>
+      <p class="desc">Detect framework → load profile → collect → analyze → score → render</p>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+flowchart TB
+  subgraph IN["Input"]
+    CLI["CLI"]
+    CFG["YAML config"]
+    SITE["Site profile"]
+  end
+  subgraph DETECT["Framework"]
+    FW{"auto / forced"}
+    PROF["profiles/{fw}/extensions.yaml"]
+    GEN["generic/php.yaml"]
+  end
+  subgraph CORE["Python core"]
+    COL["collectors"]
+    AN["analyzers"]
+    SC["scoring"]
+  end
+  subgraph OUT["Output"]
+    JSON["audit_run.json"]
+    REN["templates + render"]
+  end
+  CLI --> COL
+  CFG --> COL
+  SITE --> COL
+  FW -->|OK| PROF
+  FW -->|low| GEN
+  PROF --> COL
+  GEN --> COL
+  COL --> AN --> SC --> JSON --> REN
+
+  classDef cyan fill:#0e0e16,stroke:#00f0ff,color:#eef2ff,stroke-width:2px
+  classDef magenta fill:#0e0e16,stroke:#ff0080,color:#eef2ff,stroke-width:2px
+  classDef gold fill:#0e0e16,stroke:#ffc14d,color:#eef2ff,stroke-width:2px
+  classDef lime fill:#0e0e16,stroke:#39ff8c,color:#eef2ff,stroke-width:2px
+  class CLI,CFG,SITE cyan
+  class PROF,GEN magenta
+  class COL,AN,SC gold
+  class JSON,REN lime
+        </pre>
+      </div>
+    </section>
+
+    <section class="diagram-card" id="classes">
+      <h2>5. Finding classes</h2>
+      <p class="desc">What moves Hygiene / Exposure vs report-only</p>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+flowchart TD
+  F["Finding"]
+  F --> C{"Class?"}
+  C -->|ACTION| H["−Hygiene"]
+  C -->|sensitive OPEN| X["−Exposure"]
+  C -->|VERIFY| V["Manual confirm"]
+  C -->|INFO| I["Informational"]
+  SEO["SEO_SURFACE"] --> I
+  SEO --> V
+  AUTH["Auth-required CVE"] --> V
+  UAUTH["Unauth CVE"] --> H
+
+  classDef action fill:#0e0e16,stroke:#ff3355,color:#eef2ff,stroke-width:2px
+  classDef verify fill:#0e0e16,stroke:#ffc14d,color:#eef2ff,stroke-width:2px
+  classDef info fill:#0e0e16,stroke:#a855f7,color:#eef2ff,stroke-width:2px
+  class H,X,UAUTH action
+  class V,AUTH verify
+  class I,SEO info
+        </pre>
+      </div>
+    </section>
+
+    <section class="diagram-card" id="profiles">
+      <h2>6. Framework profile resolution</h2>
+      <p class="desc">WordPress detected → wordpress profile; else generic</p>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+sequenceDiagram
+  participant U as User
+  participant O as Orchestrator
+  participant D as Detect
+  participant P as Profile
+  participant C as Collectors
+
+  U->>O: webaudit scan URL
+  O->>D: fingerprint site
+  alt WP confidence ≥ 0.65
+    D->>P: wordpress/extensions.yaml
+  else Django / Laravel
+    D->>P: django|laravel profile
+  else unknown
+    D->>P: generic/php.yaml
+  end
+  P->>O: merge site.extensions
+  O->>C: enabled collectors
+  C-->>U: reports + JSON
+        </pre>
+      </div>
+    </section>
+
+    <footer>
+      Web Audit v2 diagram mockup · palette from shared-dark.css
+    </footer>
+  </div>
+</body>
+</html>

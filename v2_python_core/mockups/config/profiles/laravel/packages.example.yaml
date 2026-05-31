@@ -1,0 +1,33 @@
+# Framework profile — Laravel (Tier 2+)
+
+framework: laravel
+min_detection_confidence: 0.65
+
+probe:
+  mode: observed_only
+  sources:
+    - debug_leak
+    - headers
+    - exposed_composer_lock
+
+compare:
+  composer_audit: false     # Tier 3 — user-supplied lockfile
+
+vuln:
+  enabled: false
+
+scoring:
+  hygiene_cap: 15
+
+watchlist:
+  - package: laravel/framework
+    tier: critical
+
+signals:
+  app_debug: CRITICAL
+  whoops_page: CRITICAL
+  exposed_vendor: HIGH
+  exposed_env: CRITICAL
+
+labels:
+  dependency_risk: verify

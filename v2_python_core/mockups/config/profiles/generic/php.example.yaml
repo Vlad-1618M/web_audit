@@ -1,0 +1,28 @@
+# Framework profile — generic PHP / unknown stack
+# Loaded when auto-detect confidence is below threshold or framework=php|unknown
+
+framework: generic
+min_detection_confidence: 0.0
+
+probe:
+  mode: observed_only
+  sources:
+    - version_disclosure
+    - readme_exposure
+
+compare:
+  wporg_api: false
+
+vuln:
+  enabled: false
+
+scoring:
+  hygiene_cap: 10
+
+signals:
+  server_version_header: LOW
+  x_powered_by: LOW
+  exposed_readme: MEDIUM
+
+labels:
+  framework_unknown: verify

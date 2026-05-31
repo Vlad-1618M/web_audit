@@ -59,9 +59,55 @@ rules:
       cdn_detected: true
     detail_template: "HSTS not visible externally — may be set at {cdn} edge"
 
-# hygiene_caps:
-#   HEADERS: 30
-hygiene_caps: {}
+  - match:
+      category: PLUGIN
+      item: "*"
+      status: STALE
+    severity: MEDIUM
+    class: ACTION
+    scored: true
+    detail_template: "{slug} v{version} behind wordpress.org latest {latest}"
+
+  - match:
+      category: PLUGIN
+      item: "*"
+      status: PREMIUM_DETECTED
+    severity: INFO
+    class: VERIFY
+    scored: false
+    detail_template: "{slug} — verify update channel (premium or custom)"
+
+  - match:
+      category: PLUGIN_CVE
+      item: "*"
+      status: MATCH
+    severity: HIGH
+    class: ACTION
+    scored: true
+    when:
+      cve_auth: none
+
+  - match:
+      category: PLUGIN_CVE
+      item: "*"
+      status: MATCH
+    severity: MEDIUM
+    class: VERIFY
+    scored: false
+    when:
+      cve_auth: contributor
+
+  - match:
+      category: SEO_SURFACE
+      item: "*"
+      status: "*"
+    severity: INFO
+    class: INFO
+    scored: false
+
+hygiene_caps:
+  PLUGIN: 30
+  PLUGIN_CVE: 30
 
 verdict_labels:
   PASS: "Looks reasonably hardened for a public business site"

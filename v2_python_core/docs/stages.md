@@ -12,7 +12,7 @@ Stage 1   Core skeleton + config + CLI
 Stage 2   Tier 1 collectors + v1 parity
 Stage 3   Scoring + analyzers + audit_run.json
 Stage 4   Report templates + PDF
-Stage 5   Tier 2 modules
+Stage 5   Tier 2 + Tier 2b modules
 Stage 6   Tier 3 modules + packaging
 ```
 
@@ -74,9 +74,64 @@ webaudit[pdf]      → weasyprint
 - [ ] DNS section in report (new)
 - [ ] TLS chain section (new)
 - [ ] DOM-based misc inventory (better than regex)
-- [ ] Three HTML templates wired
+- [ ] Five HTML templates wired
 - [ ] PDF generates without browser
 - [ ] pytest coverage on scoring + config + parsers
+
+---
+
+### Tier 2b — Framework extension intelligence (v2.1+, WordPress first)
+
+**Purpose:** Data-driven plugin/package detection via **framework profiles** — fixes v1 blind readme probing, adds version compare and optional CVE cache.
+
+| Module | Responsibility | Libraries |
+|--------|----------------|-----------|
+| `config.profiles` | Detect framework → load `profiles/{fw}/extensions.yaml` | pyyaml, pydantic |
+| `collectors.wp_plugins` | Slug/version from HTML `?ver=`, readme.txt | httpx, beautifulsoup4 |
+| `analyzers.wp_plugins` | wp.org latest compare, stale heuristics | httpx, **packaging** |
+| `analyzers.plugin_vuln` | CVE match from cache / WPScan | httpx, sqlite |
+| `storage.vuln_cache` | `(slug, version)` TTL cache | sqlite3 |
+
+**Research basis:** [plugin_vulnerability_research.md](plugin_vulnerability_research.md) · [framework_profiles.md](framework_profiles.md)
+
+**Profile mockups:** [mockups/config/profiles/](../mockups/config/profiles/)
+
+**Tier 2b additional deps:**
+
+```text
+packaging>=24.0
+```
+
+**Tier 2b exit criteria:**
+
+- [ ] WordPress auto-detect loads `profiles/wordpress/extensions.yaml`
+- [ ] `probe.mode: observed_only` — no readme GET for undetected slugs (v1 fix)
+- [ ] Free plugins compared to wordpress.org API
+- [ ] Premium slugs → VERIFY findings, not false “stale”
+- [ ] Auth-required CVEs default to VERIFY class
+- [ ] `hygiene_caps.PLUGIN: 30` enforced in scoring tests
+- [ ] CVE fixtures from research doc drive pytest golden files
+
+---
+
+### Tier 2c — SEO surface (v2.1+, informational only)
+
+**Purpose:** Small slice for owners sold “SEO” — **INFO/VERIFY only**, zero impact on Hygiene/Exposure/Verdict by default.
+
+| Module | Responsibility | Libraries |
+|--------|----------------|-----------|
+| `analyzers.seo_surface` | Meta robots, canonical, description, OG; robots/sitemap cross-check | beautifulsoup4, lxml |
+| `analyzers.links` | Sampled broken internal links → INFO | httpx |
+
+**Spec:** [seo_surface.md](seo_surface.md)
+
+**Tier 2c exit criteria:**
+
+- [ ] All `SEO_SURFACE` findings default to INFO or VERIFY — never ACTION
+- [ ] `scoring.seo_surface_affects_scores: false` enforced in tests
+- [ ] Executive report shows one informational “Discoverability” block
+- [ ] No “SEO success %” or ranking language anywhere in UI
+- [ ] pytest: `noindex` homepage → VERIFY; missing meta description → INFO
 
 ---
 
@@ -119,6 +174,7 @@ playwright>=1.42    # extra: webaudit[js]
 |--------|----------------|-----------|
 | `export.sarif` | GitHub Code Scanning format | json schema |
 | `analyzers.cve` | Version → CVE hint (VERIFY class) | **nvdlib** or cached CPE map |
+| `analyzers.plugin_vuln` | WP plugin CVE from shipped snapshot | sqlite + weekly JSON |
 | `analyzers.takeover` | CNAME → known-bad SaaS targets | dnspython + rules yaml |
 | `collectors.whois` | Registrar expiry | **python-whois** |
 | `collectors.http3` | QUIC/HTTP3 probe where supported | httpx (when capable) |
@@ -150,7 +206,7 @@ nvdlib>=0.7          # optional, rate-limited
 | **2 — Collect** | all Tier 1 collectors | — | — |
 | **3 — Analyze/Score** | analyzers, scoring | — | — |
 | **4 — Render** | templates + PDF | — | — |
-| **5 — Extend** | polish | JS, API, baseline | — |
+| **5 — Extend** | polish | JS, API, baseline, **Tier 2b WP profiles**, **Tier 2c SEO surface** | — |
 | **6 — Ship wide** | pipx | — | SARIF, packaging |
 
 ---
@@ -203,4 +259,4 @@ cli/            → wires stages; thin orchestration only
 
 ---
 
-*Related: [architecture.md](architecture.md) · [scoring.md](scoring.md) · [config.md](config.md)*
+*Related: [architecture.md](architecture.md) · [scoring.md](scoring.md) · [config.md](config.md) · [framework_profiles.md](framework_profiles.md) · [seo_surface.md](seo_surface.md)*

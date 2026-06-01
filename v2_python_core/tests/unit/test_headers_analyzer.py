@@ -1,0 +1,48 @@
+"""Tests for ``webaudit.analyzers.headers`` — header finding rules.
+
+What: Verifies missing/present headers, INFO-only Permissions-Policy, and leak detection.
+Where: Run via ``pytest``; no network — uses synthetic ``HeaderProbeResult`` fixtures.
+How: ``pytest tests/unit/test_headers_analyzer.py``.
+"""
+
+from webaudit.analyzers.headers import analyze_headers
+from webaudit.collectors.headers import HeaderProbeResult
+from webaudit.models.finding import FindingClass, Severity
+
+
+def test_missing_security_headers():
+    probe = HeaderProbeResult(
+        target_url="https://example.com",
+        final_url="https://example.com/",
+        status_code=200,
+        headers={},
+    )
+    findings = analyze_headers(probe)
+    items = {f.item: f for f in findings}
+    assert items["Strict-Transport-Security"].status == "MISSING"
+    assert items["Strict-Transport-Security"].severity == Severity.HIGH
+    assert items["Content-Security-Policy"].severity == Severity.HIGH
+    assert items["Permissions-Policy"].class_ == FindingClass.INFO
+    assert items["Permissions-Policy"].scored is False
+
+
+def test_present_headers_and_leaks():
+    probe = HeaderProbeResult(
+        target_url="https://example.com",
+        final_url="https://example.com/",
+        status_code=200,
+        headers={
+            "strict-transport-security": "max-age=31536000",
+            "content-security-policy": "default-src 'self'",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "x-powered-by": "PHP/8.2",
+            "server": "nginx/1.24.0",
+        },
+    )
+    findings = analyze_headers(probe)
+    by_item = {f.item: f for f in findings}
+    assert by_item["Strict-Transport-Security"].status == "PRESENT"
+    assert by_item["X-Powered-By"].status == "LEAKING"
+    assert by_item["Server version"].status == "LEAKING"

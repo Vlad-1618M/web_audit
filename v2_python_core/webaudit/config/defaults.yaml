@@ -1,0 +1,45 @@
+webaudit_version: "2.0"
+
+runtime:
+  timeout_seconds: 15
+  max_concurrency: 8
+  probe_delay_ms: 0
+  user_agent: "WebAudit/2.0 (+https://github.com/Vlad-1618M/web_audit)"
+
+target:
+  framework: auto
+
+paths:
+  sensitive_builtin: true
+  max_probe_urls: 250
+
+collectors:
+  dns:
+    enabled: true
+    check_spf: true
+    check_dmarc: true
+    check_dkim: false
+    check_caa: true
+    check_dnssec: true
+    check_aaaa: true
+
+scoring:
+  hygiene_weights:
+    CRITICAL: 25
+    HIGH: 10
+    MEDIUM: 4
+    LOW: 1
+  seo_surface_affects_scores: false
+
+report:
+  variant: technical
+  theme: dark
+
+output:
+  directory: ./audit_logs
+  formats:
+    - json
+
+ci:
+  fail_under_hygiene: null
+  fail_under_exposure: null

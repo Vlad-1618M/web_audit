@@ -1,6 +1,6 @@
 # Web Audit v2 — Python Core
 
-**Status:** - Planning & documentation only. No Python code yet.
+**Status:** Stage 1 skeleton live — CLI, config, `audit_run.json`, headers + DNS collectors/analyzers. Reports, TLS, paths, and Tier 2 modules still planned.
 
 This directory is the blueprint for **Web Audit v2**. It lives beside the public **v1 bash** tool (`web_audit.sh` at the repo root). I am **not replacing v1** — people use it today, and it stays frozen as the zero-install shell edition.
 
@@ -54,7 +54,7 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 
 | Document | Purpose |
 |----------|---------|
-| [docs/roadmap.md](docs/roadmap.md) | What I plan to build and how v2 improves on bash |
+| [docs/getting_started_plain.md](docs/getting_started_plain.md) | **Non-technical** — install, scan, tab completion explained simply |
 | [docs/stages.md](docs/stages.md) | Delivery stages; Tier 1 → Tier 2 → Tier 3 stacking |
 | [docs/architecture.md](docs/architecture.md) | Module layout, libraries, data flow, diagrams |
 | [docs/scoring.md](docs/scoring.md) | Math for Hygiene, Exposure, verdicts, baselines |
@@ -82,11 +82,46 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 
 ---
 
-## Planned package layout (future)
+## Quick start (dev)
+
+```bash
+cd v2_python_core
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+webaudit scan https://example.com
+pytest
+```
+
+Scan output lands in `./audit_logs/<timestamp>_<host>/audit_run.json`.
+
+Or use the helper script (lists existing envs, age, setup/teardown):
+
+```bash
+./dev-venv.sh setup      # create .venv + install
+eval "$(./dev-venv.sh activate --print)"   # zsh/bash: activate in this window (best for p10k)
+./dev-venv.sh shell      # optional: minimal quiet subshell (skips ~/.zshrc)
+./dev-venv.sh teardown   # remove .venv when finished
+```
+
+### In plain English (non-developers)
+
+**Installing** (`pip install` or `./dev-venv.sh setup`) puts the `webaudit` command on your computer — like installing an app. After that you can run:
+
+```bash
+webaudit scan https://your-site.com
+```
+
+**`webaudit completion install`** adds optional **Tab autocomplete** (see friendly panel after install). **`webaudit completion uninstall`** removes it. **Deleting `.venv` does not remove completion** — they live in different places (`~/.zfunc/` vs project folder).
+
+Full friendly guide: **[docs/getting_started_plain.md](docs/getting_started_plain.md)** — share with site owners or PMs.
+
+---
+
+## Package layout
 
 ```text
-v2_python_core/                 ← docs + mockups today
-webaudit/                       ← Python package (later)
+v2_python_core/
+webaudit/                       ← Python package (Stage 1+)
   cli/
   config/                       ← pydantic + profiles.py loader
   collectors/                   ← httpx, dns, tls, wp_plugins (Tier 2b)

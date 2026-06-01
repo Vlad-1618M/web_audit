@@ -56,7 +56,7 @@ It adds a **small file in your home directory** so the terminal can suggest comm
 |-------|------------------------|
 | zsh (macOS default) | `~/.zfunc/_webaudit` |
 | bash | `~/.bash_completions/webaudit.sh` |
-| fish | `~/.config/fish/completions/webaudit.fish |
+| fish | `~/.config/fish/completions/webaudit.fish` |
 
 After you restart the terminal (or open a new window):
 
@@ -139,4 +139,4 @@ Your developer can turn that into an HTML report as v2 matures. Mockups of those
 
 ## One-sentence summary
 
-**Setup installs the checker; `scan` runs the checker on a URL; `--install-completion` only makes Tab-key suggestions in the terminal — nothing more.**
+**Setup installs the checker; `scan` runs the checker on a URL; `webaudit completion install` only adds optional Tab-key suggestions — nothing more.**

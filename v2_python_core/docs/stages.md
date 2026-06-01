@@ -7,16 +7,31 @@
 ## Stage overview
 
 ```text
-Stage 0   Documentation & mockups          ← we are here
-Stage 1   Core skeleton + config + CLI
-Stage 2   Tier 1 collectors + v1 parity
-Stage 3   Scoring + analyzers + audit_run.json
+Stage 0   Documentation & mockups          ✓
+Stage 1   Core skeleton + config + CLI     ✓
+Stage 2   Tier 1 collectors + v1 parity    ← in progress (headers + DNS live)
+Stage 3   Scoring + analyzers + audit_run.json  ← partial (engine live; no HTML reports)
 Stage 4   Report templates + PDF
 Stage 5   Tier 2 + Tier 2b modules
 Stage 6   Tier 3 modules + packaging
 ```
 
 Stages are **sequential**. Tiers are **feature bundles** that land across stages but are owned as logical groups.
+
+### Stage 1 delivered (alpha)
+
+- [x] `pyproject.toml` + installable `webaudit` CLI (`webaudit scan URL`)
+- [x] YAML config loader (`webaudit/config/settings.py`, `defaults.yaml`)
+- [x] Pydantic models: `Finding`, `AuditRun`, scores, artifacts
+- [x] Orchestrator → `audit_logs/<timestamp>_<host>/audit_run.json` (schema 2.0)
+- [x] Collectors: **headers** (httpx), **DNS** (dnspython)
+- [x] Analyzers: headers (v1 `check_headers` parity), DNS (SPF/DMARC scoring policy)
+- [x] Scoring engine: Hygiene, Exposure, Verdict
+- [x] `dev-venv.sh` — setup / activate / teardown helper
+- [x] pytest unit suite (config, collectors, analyzers, scoring, completion CLI)
+- [x] `webaudit completion install|status|uninstall` with plain-English output
+
+**Not in Stage 1:** paths, TLS, cookies, HTML reports, PDF, framework profiles, Tier 2b plugins.
 
 ---
 
@@ -71,12 +86,12 @@ webaudit[pdf]      → weasyprint
 **Tier 1 exit criteria:**
 
 - [ ] Parity checklist vs v1 checks (documented deltas)
-- [ ] DNS section in report (new)
+- [ ] DNS section in report (new) — data in `audit_run.json`; HTML report Stage 4
 - [ ] TLS chain section (new)
 - [ ] DOM-based misc inventory (better than regex)
 - [ ] Five HTML templates wired
 - [ ] PDF generates without browser
-- [ ] pytest coverage on scoring + config + parsers
+- [x] pytest on scoring + config + header/DNS parsers (14 unit tests; expand with Tier 1)
 
 ---
 
@@ -202,9 +217,9 @@ nvdlib>=0.7          # optional, rate-limited
 | Stage | Tier 1 | Tier 2 | Tier 3 |
 |-------|--------|--------|--------|
 | **0 — Docs** | Spec | Spec | Spec |
-| **1 — Skeleton** | config, cli, models | — | — |
-| **2 — Collect** | all Tier 1 collectors | — | — |
-| **3 — Analyze/Score** | analyzers, scoring | — | — |
+| **1 — Skeleton** | config, cli, models, headers+DNS slice, scoring, `audit_run.json` | — | — |
+| **2 — Collect** | remaining Tier 1 collectors | — | — |
+| **3 — Analyze/Score** | remaining analyzers, parity polish | — | — |
 | **4 — Render** | templates + PDF | — | — |
 | **5 — Extend** | polish | JS, API, baseline, **Tier 2b WP profiles**, **Tier 2c SEO surface** | — |
 | **6 — Ship wide** | pipx | — | SARIF, packaging |

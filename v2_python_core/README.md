@@ -37,7 +37,7 @@ That is v2.
 
 | | v1 (bash) | v2 (Python) |
 |---|-----------|-------------|
-| **Location** | Repo root `web_audit.sh` | This directory → future `webaudit` package |
+| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (Stage 1 alpha) |
 | **Audience** | Devs, CI, SSH boxes | Devs **and** non-technical site owners |
 | **Install** | curl + openssl + zsh/bash | `pipx install webaudit` (or similar) |
 | **Architecture** | Monolith script | Modular collectors, analyzers, scorers, renderers |
@@ -55,6 +55,7 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 | Document | Purpose |
 |----------|---------|
 | [docs/getting_started_plain.md](docs/getting_started_plain.md) | **Non-technical** — install, scan, tab completion explained simply |
+| [dev-venv.sh](dev-venv.sh) | Local `.venv` setup, activate, teardown (Mac/Linux) |
 | [docs/stages.md](docs/stages.md) | Delivery stages; Tier 1 → Tier 2 → Tier 3 stacking |
 | [docs/architecture.md](docs/architecture.md) | Module layout, libraries, data flow, diagrams |
 | [docs/scoring.md](docs/scoring.md) | Math for Hygiene, Exposure, verdicts, baselines |
@@ -121,18 +122,24 @@ Full friendly guide: **[docs/getting_started_plain.md](docs/getting_started_plai
 
 ```text
 v2_python_core/
-webaudit/                       ← Python package (Stage 1+)
-  cli/
-  config/                       ← pydantic + profiles.py loader
-  collectors/                   ← httpx, dns, tls, wp_plugins (Tier 2b)
-  analyzers/                    ← wp_plugins, plugin_vuln, seo_surface (2c)
-  scoring/
-  storage/                      ← baselines + vuln_cache
-  render/
-profiles/                       ← wordpress, django, laravel YAML (not Python)
-templates/reports/
-tests/
-mockups/                        ← static previews (this repo section)
+├── dev-venv.sh                 # local venv helper
+├── pyproject.toml
+├── webaudit/                   ← Python package (Stage 1 alpha)
+│   ├── cli/                    # scan + completion commands
+│   ├── config/                 # settings.py + defaults.yaml
+│   ├── collectors/             # headers, dns (more Tier 1 later)
+│   ├── analyzers/              # headers, dns
+│   ├── scoring/                # engine.py
+│   ├── storage/                # audit_logs writer
+│   └── models/
+├── tests/unit/
+├── mockups/                    # static previews (reports, config, diagrams)
+└── docs/
+
+# Planned (not in repo yet as code):
+profiles/                       # wordpress, django, laravel YAML
+templates/reports/              # Jinja HTML + CSS
+webaudit/render/                # PDF export
 ```
 
 ---

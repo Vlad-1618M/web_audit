@@ -47,7 +47,10 @@ def test_robots_section_parses_rules():
 
 def test_report_footer_branding():
     footer = build_report_footer(scanned_at="2026-06-02T14:43:46+00:00")
+    assert footer["brand_app_label"] == "muzar.io"
+    assert footer["brand_product"] == "Web Security Audit Pro"
     assert "muzar.io" in footer["brand_line"]
+    assert footer["report_timestamp"]
     assert footer["webaudit_version"]
     assert footer["audit_host"]
 

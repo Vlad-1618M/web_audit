@@ -19,6 +19,8 @@ def test_focus_pie_slices_cover_full_circle():
     assert len(slices) == 3
     assert slices[0]["display"] == "81"
     assert slices[1]["display"] == "100"
+    assert slices[1]["label"] == "Leak protection"
+    assert slices[1]["display_suffix"] == "/100"
     assert slices[2]["display"] == "1"
     assert slices[-1]["end_pct"] == 100
     gradient = focus_pie_conic_gradient(slices)

@@ -1,0 +1,73 @@
+{# Framework extension / plugin version checks — all supported stacks #}
+{% if extension_section %}
+<section id="extensions">
+  <h2>{{ extension_section.framework_label }} {{ extension_section.unit_plural|title }} &amp; version check</h2>
+  <p class="discovery-intro">
+    Profile <code>{{ extension_section.profile_name }}</code> —
+    {% if extension_section.compare_enabled and extension_section.registry_label %}
+    detected {{ extension_section.unit_plural }} are compared against
+    <a href="{{ extension_section.registry_home }}" target="_blank" rel="noopener">{{ extension_section.registry_label }}</a>.
+    {% elif extension_section.framework == 'php' %}
+    PHP runtime and header signals (no package registry compare for generic PHP).
+    {% else %}
+    fingerprinting only — registry compare not enabled for this profile.
+    {% endif %}
+    Watchlist: {{ extension_section.watchlist_count }} · detected on scan: {{ extension_section.detected_count }}
+    {% if extension_section.compare_enabled %} · registry lookups: {{ extension_section.compared_count }}{% endif %}
+    {% if extension_section.stale_count %} · <span class="ext-stale-count">{{ extension_section.stale_count }} behind latest</span>{% endif %}
+  </p>
+
+  {% if extension_section.error %}
+  <p class="meta-inline">{{ extension_section.error }}</p>
+  {% elif extension_section.has_rows %}
+  <details class="fold-panel" open>
+    <summary class="fold-toggle">
+      <span class="fold-chevron" aria-hidden="true"></span>
+      <span class="fold-title">Detected {{ extension_section.unit_plural }}</span>
+      <span class="fold-count">{{ extension_section.detected_count }}</span>
+      <span class="fold-hint">Click to fold or unfold</span>
+    </summary>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Detected</th>
+          <th>Latest (registry)</th>
+          <th>Status</th>
+          <th>Source</th>
+          <th>Registry</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in extension_section.rows %}
+        <tr>
+          <td><code>{{ row.name }}</code>{% if row.tier %} <span class="pill tier-{{ row.tier }}">{{ row.tier }}</span>{% endif %}</td>
+          <td>{{ row.detected_version }}</td>
+          <td>{{ row.latest_version }}</td>
+          <td><span class="ext-status {{ row.status_tone }}">{{ row.status }}</span></td>
+          <td>{{ row.source }}</td>
+          <td>
+            {% if row.registry_url %}
+            <a href="{{ row.registry_url }}" target="_blank" rel="noopener">View on registry</a>
+            {% else %}—{% endif %}
+          </td>
+          <td class="ext-detail">{{ row.detail or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </details>
+  {% else %}
+  <p class="meta-inline">No {{ extension_section.unit_plural }} or version signals observed in public HTML/headers for this {{ extension_section.framework_label }} site.</p>
+  {% endif %}
+
+  {% if extension_section.registry_home and extension_section.compare_enabled %}
+  <p class="meta-inline registry-ref">
+    Latest versions sourced from
+    <a href="{{ extension_section.registry_home }}" target="_blank" rel="noopener">{{ extension_section.registry_label }}</a>
+    at scan time — use registry pages to confirm current releases.
+  </p>
+  {% endif %}
+</section>
+{% endif %}

@@ -1,0 +1,63 @@
+<script>
+(function () {
+  var layout = document.getElementById("report-layout");
+  var sidebar = document.getElementById("report-sidebar");
+  var resizer = document.getElementById("sidebar-resizer");
+  if (!layout || !sidebar || !resizer) return;
+
+  var storageKey = "webaudit-sidebar-width";
+  var saved = parseInt(localStorage.getItem(storageKey) || "", 10);
+  if (!isNaN(saved) && saved >= 200 && saved <= Math.floor(window.innerWidth * 0.5)) {
+    layout.style.setProperty("--sidebar-width", saved + "px");
+  } else {
+    layout.style.setProperty("--sidebar-width", "320px");
+  }
+
+  var dragging = false;
+  var startX = 0;
+  var startWidth = 0;
+
+  function onMove(clientX) {
+    var width = Math.min(Math.max(startWidth + (clientX - startX), 200), Math.floor(window.innerWidth * 0.5));
+    layout.style.setProperty("--sidebar-width", width + "px");
+  }
+
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    resizer.classList.remove("dragging");
+    document.body.classList.remove("sidebar-resizing");
+    var current = parseInt(getComputedStyle(layout).getPropertyValue("--sidebar-width"), 10);
+    if (!isNaN(current)) localStorage.setItem(storageKey, String(current));
+    document.removeEventListener("mousemove", onMouseMove);
+    document.removeEventListener("mouseup", onUp);
+    document.removeEventListener("touchmove", onTouchMove);
+    document.removeEventListener("touchend", onUp);
+  }
+
+  function onMouseMove(e) { onMove(e.clientX); }
+  function onTouchMove(e) {
+    if (e.touches.length) onMove(e.touches[0].clientX);
+  }
+
+  resizer.addEventListener("mousedown", function (e) {
+    dragging = true;
+    startX = e.clientX;
+    startWidth = sidebar.getBoundingClientRect().width;
+    resizer.classList.add("dragging");
+    document.body.classList.add("sidebar-resizing");
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onUp);
+  });
+
+  resizer.addEventListener("touchstart", function (e) {
+    dragging = true;
+    startX = e.touches[0].clientX;
+    startWidth = sidebar.getBoundingClientRect().width;
+    resizer.classList.add("dragging");
+    document.body.classList.add("sidebar-resizing");
+    document.addEventListener("touchmove", onTouchMove, { passive: true });
+    document.addEventListener("touchend", onUp);
+  }, { passive: true });
+})();
+</script>

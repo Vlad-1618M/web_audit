@@ -1,0 +1,42 @@
+{# Focus pie — scores split + full finding status chips (executive at-a-glance) #}
+<div class="focus-scan-stack">
+  <div class="focus-pie-wrap">
+    <div
+      class="focus-pie-chart"
+      style="background: {{ focus_pie_gradient }}"
+      role="img"
+      aria-label="Scan focus: Hygiene {{ scores.hygiene }}, Exposure {{ scores.exposure }}, SEO surface informational"
+    ></div>
+    <ul class="focus-pie-legend">
+      {% for slice in focus_pie_slices %}
+      <li>
+        <span class="focus-swatch" style="background: {{ slice.color }}"></span>
+        <span class="focus-legend-text">
+          <span class="focus-headline">
+            <strong>{{ slice.label }}</strong>
+            <span class="focus-sep">—</span>
+            <span class="focus-val">
+              {% if slice.key == 'seo' %}
+              {{ slice.display }} {{ slice.display_suffix }}
+              {% else %}
+              score {{ slice.display }}
+              {% endif %}
+              <span class="focus-pct">({{ slice.pct }}%)</span>
+            </span>
+          </span>
+          <span class="focus-sub">— {{ slice.sublabel }}</span>
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="focus-status-block">
+    <h4 class="focus-status-title">Finding status</h4>
+    {% include "metric_chips_row.html" with context %}
+  </div>
+</div>
+<p class="meta-inline focus-pie-note">
+  Hygiene + Exposure drive the verdict. Chips mirror the technical report — open Technical details for evidence.
+  · {{ pages_scanned }} page(s) scanned{% if cert_days is not none %} · {{ cert_days }}d cert{% endif %}
+</p>

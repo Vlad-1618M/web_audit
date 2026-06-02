@@ -1,0 +1,65 @@
+<script>
+(function () {
+  var pages = ["overview", "technical"];
+
+  function showPage(id, anchor) {
+    if (pages.indexOf(id) === -1) id = "overview";
+    pages.forEach(function (name) {
+      var el = document.getElementById("page-" + name);
+      if (el) el.hidden = name !== id;
+    });
+    document.querySelectorAll("[data-owner-tab]").forEach(function (btn) {
+      if (!btn.classList.contains("owner-tab")) return;
+      var active = btn.getAttribute("data-owner-tab") === id;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+    });
+    var hash = anchor ? ("#" + id + "/" + anchor) : ("#" + id);
+    if (location.hash !== hash) {
+      history.replaceState(null, "", hash);
+    }
+    if (id === "technical") {
+      window.scrollTo({ top: 0, behavior: "auto" });
+      if (anchor) {
+        requestAnimationFrame(function () {
+          var target = document.getElementById(anchor);
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      }
+    }
+  }
+
+  function parseHash() {
+    var raw = (location.hash || "").replace(/^#/, "");
+    if (!raw) return { page: "overview", anchor: null };
+    var parts = raw.split("/");
+    if (parts[0] === "technical") {
+      return { page: "technical", anchor: parts[1] || null };
+    }
+    return { page: parts[0] === "overview" ? "overview" : "overview", anchor: null };
+  }
+
+  function bindDeepLinks(root) {
+    (root || document).querySelectorAll("[data-owner-tab]").forEach(function (btn) {
+      if (btn.dataset.ownerTabBound) return;
+      btn.dataset.ownerTabBound = "1";
+      btn.addEventListener("click", function () {
+        showPage(
+          btn.getAttribute("data-owner-tab"),
+          btn.getAttribute("data-tech-anchor") || null
+        );
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    bindDeepLinks(document);
+    var parsed = parseHash();
+    showPage(parsed.page, parsed.anchor);
+  });
+
+  window.showOwnerPage = showPage;
+})();
+</script>

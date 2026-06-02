@@ -1,0 +1,10 @@
+{# Finding count chips — shared by technical scores and dashboard scan focus #}
+<div class="metric-row{% if metric_row_class %} {{ metric_row_class }}{% endif %}">
+  {% for chip in metric_chips %}
+  <div class="metric-chip {{ chip.tone }}">
+    <div class="metric-n">{{ chip.count }}</div>
+    <div class="metric-l">{{ chip.label }}</div>
+    {% if chip.sub %}<div class="metric-sub">{{ chip.sub }}</div>{% endif %}
+  </div>
+  {% endfor %}
+</div>

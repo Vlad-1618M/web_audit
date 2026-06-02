@@ -1,0 +1,107 @@
+{# Unified executive summary — owner-facing single source of truth #}
+{% from "site_link.html" import site_link %}
+
+<section class="block executive-summary-block">
+  <div class="section-heading-row">
+    <h2>Executive summary</h2>
+    <p class="url section-heading-url">{{ site_link(target_href, target_url) }}</p>
+  </div>
+  <p class="meta">Framework: {{ framework }} ({{ framework_confidence }}) · Scanned {{ scanned_at }}</p>
+
+  <div class="verdict-pill">
+    {{ verdict_label }}{% if scores.exposure == 100 %} — no leaks detected{% endif %}
+  </div>
+
+  <div class="verdict-banner {{ verdict_banner_class }}">
+    <span class="verdict-icon" aria-hidden="true">{% if scores.verdict == 'PASS' %}✓{% elif scores.verdict == 'AT_RISK' %}✕{% else %}⚠{% endif %}</span>
+    <div>
+      <strong>{{ verdict_label }}</strong><br>
+      {% if scores.exposure >= 75 and action_findings %}
+      No obvious sensitive files were publicly readable, but several standard protections need attention.
+      {% elif scores.verdict == 'PASS' %}
+      Configuration and exposure look good from this external scan.
+      {% elif scores.verdict == 'AT_RISK' %}
+      Critical issues were detected — treat remediation as urgent.
+      {% else %}
+      Review the priority fixes below and share this summary with whoever maintains the site.
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="score-strip compact-score-strip">
+    <div class="score-cell h">
+      <div class="n">{{ scores.hygiene }}</div>
+      <div class="l">Hygiene</div>
+    </div>
+    <div class="score-cell e">
+      <div class="n">{{ scores.exposure }}</div>
+      <div class="l">Exposure</div>
+    </div>
+    <div class="score-cell v">
+      <div class="n">{{ scores.verdict.replace('_', ' ') }}</div>
+      <div class="l">Verdict</div>
+    </div>
+  </div>
+
+  <h3 class="subsection-title">Priority timeline</h3>
+  <div class="timeline">
+    {% for item in digest_timeline %}
+    <div class="t-item {{ item.tone }}">
+      <div class="cat">{{ item.category }}</div>
+      <h4>{{ item.title }}</h4>
+      <p>{{ item.detail }}</p>
+    </div>
+    {% else %}
+    <div class="t-item ok">
+      <div class="cat">Summary</div>
+      <h4>No urgent issues</h4>
+      <p>This external scan did not surface scored action items.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% include "cert_summary_section.html" %}
+
+  <section class="block inner-block">
+    <h3 class="subsection-title">What to fix first</h3>
+    <ul class="plain-list">
+      {% for f in action_findings[:8] %}
+      <li>
+        <span class="badge fix">Fix</span>
+        <span><strong>{{ f.item }}</strong> ({{ f.category }}) — {{ f.detail }}</span>
+      </li>
+      {% else %}
+      <li>
+        <span class="badge ok">OK</span>
+        <span>No scored action items — keep monitoring with regular scans.</span>
+      </li>
+      {% endfor %}
+      {% if scores.exposure == 100 %}
+      <li>
+        <span class="badge ok">OK</span>
+        <span><strong>No sensitive path leaks</strong> detected in this scan.</span>
+      </li>
+      {% endif %}
+    </ul>
+    {% if action_findings %}
+    <div class="callout">
+      <strong>For your developer:</strong> Address the Fix items above.
+      {% if is_combined_report %}
+      <button type="button" class="link-tab" data-owner-tab="technical">Open full technical details →</button>
+      {% else %}
+      Full technical detail is in the technical report variant or <code>audit_run.json</code> in the same folder.
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+
+  {% include "discovery_section.html" %}
+
+  <section class="block inner-block muted-block">
+    <h3 class="subsection-title">What this report is (and is not)</h3>
+    <p class="muted-text">
+      This is an external hygiene check — what anyone on the internet could see without logging in.
+      It is not a penetration test. Run it only on sites you own or have permission to test.
+    </p>
+  </section>
+</section>

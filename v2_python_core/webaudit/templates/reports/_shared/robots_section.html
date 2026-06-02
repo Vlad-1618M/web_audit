@@ -1,0 +1,35 @@
+{% if robots_section %}
+<section id="robots">
+  <h2>robots.txt</h2>
+  <p class="discovery-intro">{{ robots_section.description }}</p>
+  <p class="dns-summary {{ robots_section.summary_tone }}">{{ robots_section.summary }}</p>
+  {% if robots_section.disallow_rules or robots_section.allow_rules or robots_section.sitemap_urls %}
+  <div class="robots-parsed">
+    {% if robots_section.disallow_rules %}
+    <div>
+      <strong>Disallow</strong>
+      <ul>{% for rule in robots_section.disallow_rules %}<li><code>{{ rule }}</code></li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    {% if robots_section.allow_rules %}
+    <div>
+      <strong>Allow</strong>
+      <ul>{% for rule in robots_section.allow_rules %}<li><code>{{ rule }}</code></li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    {% if robots_section.sitemap_urls %}
+    <div>
+      <strong>Sitemap URLs</strong>
+      <ul>{% for url in robots_section.sitemap_urls %}<li><a href="{{ url }}" target="_blank" rel="noopener">{{ url }}</a></li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% if robots_section.raw_preview %}
+  <details>
+    <summary>Raw robots.txt{% if robots_section.status_code %} (HTTP {{ robots_section.status_code }}){% endif %}</summary>
+    <pre class="evidence">{{ robots_section.raw_preview }}{% if robots_section.raw_truncated %}…{% endif %}</pre>
+  </details>
+  {% endif %}
+</section>
+{% endif %}

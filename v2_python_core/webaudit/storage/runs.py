@@ -14,6 +14,17 @@ from datetime import datetime
 from urllib.parse import urlparse
 
 from webaudit.models.run import AuditRun
+from webaudit.render.reports import write_run_reports
+
+
+def load_audit_run(path: Path) -> AuditRun:
+    """Load ``audit_run.json`` (schema 2.0) into an ``AuditRun`` model."""
+    with path.open(encoding="utf-8") as fh:
+        data = json.load(fh)
+    schema = data.get("schema_version", "2.0")
+    if schema != "2.0":
+        raise ValueError(f"Unsupported audit_run schema: {schema!r} (expected '2.0')")
+    return AuditRun.model_validate(data)
 
 
 def _slugify_host(url: str) -> str:
@@ -30,10 +41,31 @@ def run_directory(output_dir: Path, target_url: str, started_at: str) -> Path:
     return path
 
 
-def write_audit_run(run: AuditRun, *, output_dir: Path) -> Path:
+def write_audit_run(
+    run: AuditRun,
+    *,
+    output_dir: Path,
+    formats: list[str] | None = None,
+    report_variant: str = "technical",
+    report_theme: str = "dark",
+) -> tuple[Path, dict[str, str], list[str]]:
     run_dir = run_directory(output_dir, run.meta.target_url, run.meta.started_at)
+    wanted = formats or ["json"]
+    report_paths, warnings = write_run_reports(
+        run,
+        run_dir,
+        formats=wanted,
+        report_variant=report_variant,
+        report_theme=report_theme,
+    )
+
+    reports = dict(report_paths)
+    reports["json"] = "audit_run.json"
+    run.reports = reports
+
     out_file = run_dir / "audit_run.json"
     with out_file.open("w", encoding="utf-8") as fh:
         json.dump(run.to_json_dict(), fh, indent=2, ensure_ascii=False)
         fh.write("\n")
-    return out_file
+
+    return out_file, {key: str(run_dir / name) for key, name in reports.items()}, warnings

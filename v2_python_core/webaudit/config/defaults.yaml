@@ -11,8 +11,16 @@ target:
 
 # Stage 2 — paths collector reads paths.* (see docs/implementation_tracker.md)
 paths:
+  enabled: true
   sensitive_builtin: true
   max_probe_urls: 250
+  extra_paths: []
+  expected_open: []
+
+policy:
+  enabled: true
+  hsts_min_max_age_seconds: 15552000
+  csp_detail_max_length: 500
 
 collectors:
   dns:
@@ -23,6 +31,45 @@ collectors:
     check_caa: true
     check_dnssec: true
     check_aaaa: true
+  tls:
+    enabled: true
+    check_deprecated_versions: true
+    check_chain: true
+    check_ciphers: false
+    check_ocsp: false
+    expiry_warn_days: 30
+  cookies:
+    enabled: true
+  artifacts:
+    enabled: true
+    check_robots: true
+    check_security_txt: true
+    check_sitemap: true
+    max_robots_bytes: 12000
+    max_security_txt_bytes: 8000
+    max_sitemap_bytes: 16000
+    max_sitemap_urls: 150
+  rate_limit:
+    enabled: true
+    get_burst_count: 6
+    post_burst_count: 15
+  cors:
+    enabled: true
+    probe_origin: "https://evil.example.com"
+    api_paths:
+      - "/api/"
+      - "/api/v1/"
+  framework:
+    enabled: true
+    probe_admin: true
+    max_body_bytes: 8000
+  html:
+    enabled: true
+    check_mixed_content: true
+    check_forms: true
+    max_body_bytes: 65536
+    max_internal_links_sample: 50
+    fetch_if_missing: true
 
 scoring:
   hygiene_weights:
@@ -40,6 +87,7 @@ output:
   directory: ./audit_logs
   formats:
     - json
+    - html
 
 ci:
   fail_under_hygiene: null

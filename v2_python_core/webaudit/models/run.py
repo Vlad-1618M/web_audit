@@ -32,6 +32,7 @@ class AuditArtifacts(BaseModel):
     headers: dict[str, Any] = Field(default_factory=dict)
     dns: dict[str, Any] = Field(default_factory=dict)
     tls: dict[str, Any] = Field(default_factory=dict)
+    policy: dict[str, Any] = Field(default_factory=dict)
     inventory: dict[str, Any] = Field(default_factory=dict)
     plugins: dict[str, Any] = Field(default_factory=dict)
     seo_surface: dict[str, Any] = Field(default_factory=dict)
@@ -45,6 +46,7 @@ class AuditRun(BaseModel):
     findings: list[Finding] = Field(default_factory=list)
     artifacts: AuditArtifacts = Field(default_factory=AuditArtifacts)
     reports: dict[str, str] = Field(default_factory=dict)
+    warnings: list[str] = Field(default_factory=list)
 
     def to_json_dict(self) -> dict[str, Any]:
         return {

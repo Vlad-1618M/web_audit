@@ -28,10 +28,21 @@ class TargetSettings(BaseModel):
 
 
 class PathsSettings(BaseModel):
-    """Stage 2 — sensitive path probes (Exposure). Stub wired in defaults.yaml; collector TBD."""
+    """Stage 2 — sensitive path probes (Exposure)."""
 
+    enabled: bool = True
     sensitive_builtin: bool = True
     max_probe_urls: int = Field(default=250, ge=1, le=2000)
+    extra_paths: list[str] = Field(default_factory=list)
+    expected_open: list[str] = Field(default_factory=list)
+
+
+class PolicySettings(BaseModel):
+    """Stage 2 — HSTS/CSP deep parse (reads headers artifact; no collector)."""
+
+    enabled: bool = True
+    hsts_min_max_age_seconds: int = Field(default=15_552_000, ge=0)
+    csp_detail_max_length: int = Field(default=500, ge=100, le=2000)
 
 
 class DnsCollectorSettings(BaseModel):
@@ -44,8 +55,66 @@ class DnsCollectorSettings(BaseModel):
     check_aaaa: bool = True
 
 
+class TlsCollectorSettings(BaseModel):
+    enabled: bool = True
+    check_deprecated_versions: bool = True
+    check_chain: bool = True
+    check_ciphers: bool = False
+    check_ocsp: bool = False
+    expiry_warn_days: int = Field(default=30, ge=1, le=365)
+
+
+class CookiesCollectorSettings(BaseModel):
+    enabled: bool = True
+
+
+class ArtifactsCollectorSettings(BaseModel):
+    enabled: bool = True
+    check_robots: bool = True
+    check_security_txt: bool = True
+    check_sitemap: bool = True
+    max_robots_bytes: int = Field(default=12_000, ge=1000)
+    max_security_txt_bytes: int = Field(default=8000, ge=500)
+    max_sitemap_bytes: int = Field(default=16_000, ge=1000)
+    max_sitemap_urls: int = Field(default=150, ge=1, le=500)
+
+
+class RateLimitCollectorSettings(BaseModel):
+    enabled: bool = True
+    get_burst_count: int = Field(default=6, ge=1, le=20)
+    post_burst_count: int = Field(default=15, ge=1, le=30)
+
+
+class CorsCollectorSettings(BaseModel):
+    enabled: bool = True
+    probe_origin: str = "https://evil.example.com"
+    api_paths: list[str] = Field(default_factory=lambda: ["/api/", "/api/v1/"])
+
+
+class FrameworkCollectorSettings(BaseModel):
+    enabled: bool = True
+    probe_admin: bool = True
+    max_body_bytes: int = Field(default=8000, ge=1000, le=200_000)
+
+
+class HtmlCollectorSettings(BaseModel):
+    enabled: bool = True
+    check_mixed_content: bool = True
+    check_forms: bool = True
+    max_body_bytes: int = Field(default=65536, ge=1000, le=500_000)
+    max_internal_links_sample: int = Field(default=50, ge=1, le=500)
+    fetch_if_missing: bool = True
+
+
 class CollectorsSettings(BaseModel):
     dns: DnsCollectorSettings = Field(default_factory=DnsCollectorSettings)
+    tls: TlsCollectorSettings = Field(default_factory=TlsCollectorSettings)
+    cookies: CookiesCollectorSettings = Field(default_factory=CookiesCollectorSettings)
+    artifacts: ArtifactsCollectorSettings = Field(default_factory=ArtifactsCollectorSettings)
+    rate_limit: RateLimitCollectorSettings = Field(default_factory=RateLimitCollectorSettings)
+    cors: CorsCollectorSettings = Field(default_factory=CorsCollectorSettings)
+    framework: FrameworkCollectorSettings = Field(default_factory=FrameworkCollectorSettings)
+    html: HtmlCollectorSettings = Field(default_factory=HtmlCollectorSettings)
 
 
 class HygieneWeights(BaseModel):
@@ -80,6 +149,7 @@ class Settings(BaseModel):
     runtime: RuntimeSettings = Field(default_factory=RuntimeSettings)
     target: TargetSettings = Field(default_factory=TargetSettings)
     paths: PathsSettings = Field(default_factory=PathsSettings)
+    policy: PolicySettings = Field(default_factory=PolicySettings)
     collectors: CollectorsSettings = Field(default_factory=CollectorsSettings)
     scoring: ScoringSettings = Field(default_factory=ScoringSettings)
     report: ReportSettings = Field(default_factory=ReportSettings)

@@ -17,8 +17,13 @@ def test_defaults_load():
     assert settings.target.url == "https://example.com"
     assert settings.runtime.timeout_seconds == 15
     assert settings.collectors.dns.check_dmarc is True
+    assert settings.paths.enabled is True
     assert settings.paths.sensitive_builtin is True
     assert settings.paths.max_probe_urls == 250
+    assert settings.collectors.tls.enabled is True
+    assert settings.collectors.tls.expiry_warn_days == 30
+    assert settings.policy.enabled is True
+    assert settings.policy.hsts_min_max_age_seconds == 15_552_000
 
 
 def test_merge_user_config(tmp_path: Path):

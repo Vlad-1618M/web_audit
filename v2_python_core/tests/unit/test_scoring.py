@@ -35,3 +35,34 @@ def test_worked_example_from_docs():
     assert scores.hygiene == 82
     assert scores.exposure == 100
     assert scores.verdict == "NEEDS_ATTENTION"
+
+
+def test_exposure_deducts_for_sensitive_path_leak():
+    findings = [
+        Finding.from_check(
+            category="PATHS",
+            item=".env",
+            status="OPEN",
+            severity=Severity.CRITICAL,
+            class_=FindingClass.ACTION,
+            scored=True,
+        ),
+    ]
+    scores = score_findings(findings, HygieneWeights())
+    assert scores.exposure == 75
+    assert scores.verdict == "AT_RISK"
+
+
+def test_expired_tls_cert_forces_at_risk():
+    findings = [
+        Finding.from_check(
+            category="TLS",
+            item="Certificate expiry",
+            status="EXPIRED",
+            severity=Severity.CRITICAL,
+            class_=FindingClass.ACTION,
+            scored=True,
+        ),
+    ]
+    scores = score_findings(findings, HygieneWeights())
+    assert scores.verdict == "AT_RISK"

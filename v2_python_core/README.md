@@ -1,6 +1,6 @@
 # Web Audit v2 — Python Core
 
-**Status:** Stage 1 skeleton live — CLI, config, `audit_run.json`, headers + DNS collectors/analyzers. Reports, TLS, paths, and Tier 2 modules still planned.
+**Status:** **Tier 1 complete (2.0.0b1)** — full scan pipeline, reports, `webaudit scan` / `webaudit report`. Tier 2 (profiles, plugins, SEO) is Stage 5.
 
 This directory is the blueprint for **Web Audit v2**. It lives beside the public **v1 bash** tool (`web_audit.sh` at the repo root). I am **not replacing v1** — people use it today, and it stays frozen as the zero-install shell edition.
 

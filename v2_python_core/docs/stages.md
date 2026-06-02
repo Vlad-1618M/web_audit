@@ -9,12 +9,14 @@
 ```text
 Stage 0   Documentation & mockups          ✓
 Stage 1   Core skeleton + config + CLI     ✓
-Stage 2   Tier 1 collectors + v1 parity    ← in progress (headers + DNS live)
-Stage 3   Scoring + analyzers + audit_run.json  ← partial (engine live; no HTML reports)
-Stage 4   Report templates + PDF
-Stage 5   Tier 2 + Tier 2b modules
+Stage 2   Tier 1 collectors + v1 parity    ✓
+Stage 3   Scoring + analyzers + audit_run  ✓ (parity polish ongoing)
+Stage 4   Report templates + PDF           ✓
+Stage 5   Tier 2 + Tier 2b modules         ← next (Tier 1 **shipped** in 2.0.0b1)
 Stage 6   Tier 3 modules + packaging
 ```
+
+**Tier 1 (2.0.0b1):** Feature-complete for v2.0 foundation. Remaining Tier 1 item: optional CDN-aware HSTS downgrade (parity delta).
 
 Stages are **sequential**. Tiers are **feature bundles** that land across stages but are owned as logical groups.
 
@@ -85,15 +87,15 @@ tldextract>=5.0
 webaudit[pdf]      → weasyprint
 ```
 
-**Tier 1 exit criteria:**
+**Tier 1 exit criteria (2.0.0b1):**
 
-- [ ] Parity checklist vs v1 checks (documented deltas)
-- [ ] DNS section in report (new) — data in `audit_run.json`; HTML report Stage 4
-- [ ] TLS chain section (new)
-- [ ] DOM-based misc inventory (better than regex)
-- [ ] Five HTML templates wired
-- [ ] PDF generates without browser
-- [x] pytest on scoring + config + header/DNS parsers (14 unit tests; expand with Tier 1)
+- [x] Parity checklist vs v1 checks — [tests/parity/PARITY.md](../tests/parity/PARITY.md)
+- [x] DNS section in report + `audit_run.json`
+- [x] TLS chain section in report + artifacts
+- [x] DOM-based HTML inventory (BeautifulSoup)
+- [x] Five HTML templates wired
+- [x] PDF — browser print (default); optional WeasyPrint headless
+- [x] pytest on scoring, config, collectors, analyzers, render (~85 tests)
 
 ---
 

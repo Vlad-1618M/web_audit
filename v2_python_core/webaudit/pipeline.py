@@ -9,14 +9,35 @@ How: Each step is optional (config-gated). Append findings; merge artifact dicts
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
+if TYPE_CHECKING:
+    from webaudit.cli.scan_progress import ScanProgress
+
+from webaudit.analyzers.artifacts import analyze_artifacts
+from webaudit.analyzers.cookies import analyze_cookies
+from webaudit.analyzers.cors import analyze_cors
 from webaudit.analyzers.dns import analyze_dns
+from webaudit.analyzers.framework import analyze_framework
 from webaudit.analyzers.headers import analyze_headers
+from webaudit.analyzers.html import analyze_html
+from webaudit.analyzers.paths import analyze_paths
+from webaudit.analyzers.policy import analyze_policy
+from webaudit.analyzers.rate_limit import analyze_rate_limit
+from webaudit.analyzers.tls import analyze_tls
+from webaudit.collectors.artifacts import collect_artifacts
+from webaudit.collectors.cookies import collect_cookies
+from webaudit.collectors.cors import collect_cors
 from webaudit.collectors.dns import collect_dns
+from webaudit.collectors.framework import collect_framework
 from webaudit.collectors.headers import collect_headers
+from webaudit.collectors.html import HtmlProbeResult, collect_html, parse_html_inventory
+from webaudit.collectors.paths import collect_paths
+from webaudit.collectors.rate_limit import collect_rate_limit
+from webaudit.collectors.tls import collect_tls
 from webaudit.config.settings import Settings
 from webaudit.models.finding import Finding
+from webaudit.cli.scan_progress import STEP_LABELS, step_enabled
 
 
 @dataclass
@@ -34,6 +55,35 @@ def _step_headers(settings: Settings) -> tuple[list[Finding], dict[str, dict[str
     return analyze_headers(probe), {"headers": probe.to_artifact()}
 
 
+def _apply_detected_framework(settings: Settings, effective: str) -> None:
+    if settings.target.framework not in {"auto", "unknown"}:
+        return
+    if effective in {"django", "wordpress", "laravel", "rails", "php"}:
+        settings.target.framework = effective  # type: ignore[assignment]
+
+
+def _step_framework(
+    settings: Settings,
+    result: PipelineResult,
+) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    if not settings.collectors.framework.enabled:
+        return [], {}
+    headers_artifact = result.artifacts.get("headers", {})
+    header_map = headers_artifact.get("headers") or {}
+    probe = collect_framework(
+        settings.target.url,
+        forced_framework=settings.target.framework,
+        headers=header_map,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+        max_body_bytes=settings.collectors.framework.max_body_bytes,
+        probe_admin=settings.collectors.framework.probe_admin,
+    )
+    _apply_detected_framework(settings, probe.effective_framework)
+    findings = analyze_framework(probe, settings.collectors.framework)
+    return findings, {"inventory": {"framework": probe.to_artifact()}}
+
+
 def _step_dns(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
     if not settings.collectors.dns.enabled:
         return [], {}
@@ -49,19 +99,202 @@ def _step_dns(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, An
     return analyze_dns(probe, settings.collectors.dns), {"dns": probe.to_artifact()}
 
 
+def _step_paths(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    if not settings.paths.enabled:
+        return [], {}
+    probe = collect_paths(
+        settings.target.url,
+        framework=settings.target.framework,
+        paths_settings=settings.paths,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+        probe_delay_ms=settings.runtime.probe_delay_ms,
+    )
+    findings = analyze_paths(
+        probe,
+        framework=settings.target.framework,
+        paths_settings=settings.paths,
+    )
+    return findings, {"inventory": {"paths": probe.to_artifact()}}
+
+
+def _step_tls(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    if not settings.collectors.tls.enabled:
+        return [], {}
+    probe = collect_tls(
+        settings.target.url,
+        timeout_seconds=settings.runtime.timeout_seconds,
+        probe_versions=settings.collectors.tls.check_deprecated_versions,
+        fetch_certificate=True,
+    )
+    findings = analyze_tls(probe, settings.collectors.tls)
+    return findings, {"tls": probe.to_artifact()}
+
+
+def _step_policy(
+    settings: Settings,
+    result: PipelineResult,
+) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    if not settings.policy.enabled:
+        return [], {}
+    headers_artifact = result.artifacts.get("headers", {})
+    header_map = headers_artifact.get("headers") or {}
+    if not header_map:
+        return [], {}
+    findings, parsed = analyze_policy(header_map, settings.policy)
+    return findings, {"policy": parsed.to_artifact()}
+
+
+def _step_cookies(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    if not settings.collectors.cookies.enabled:
+        return [], {}
+    probe = collect_cookies(
+        settings.target.url,
+        framework=settings.target.framework,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+    )
+    findings = analyze_cookies(probe, settings.collectors.cookies, framework=settings.target.framework)
+    return findings, {"inventory": {"cookies": probe.to_artifact()}}
+
+
+def _step_rate_limit(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    if not settings.collectors.rate_limit.enabled:
+        return [], {}
+    probe = collect_rate_limit(
+        settings.target.url,
+        framework=settings.target.framework,
+        settings=settings.collectors.rate_limit,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+    )
+    findings = analyze_rate_limit(probe, settings.collectors.rate_limit)
+    return findings, {"inventory": {"rate_limit": probe.to_artifact()}}
+
+
+def _step_artifacts(
+    settings: Settings,
+    result: PipelineResult,
+) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    if not settings.collectors.artifacts.enabled:
+        return [], {}
+    probe = collect_artifacts(
+        settings.target.url,
+        settings=settings.collectors.artifacts,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+    )
+    paths_data = result.artifacts.get("inventory", {}).get("paths", {})
+    open_paths = paths_data.get("paths", [])
+    findings = analyze_artifacts(probe, settings.collectors.artifacts, open_paths=open_paths)
+    return findings, {"inventory": {"artifacts": probe.to_artifact()}}
+
+
+def _step_cors(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    if not settings.collectors.cors.enabled:
+        return [], {}
+    probe = collect_cors(
+        settings.target.url,
+        settings=settings.collectors.cors,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+        extra_api_paths=settings.paths.extra_paths,
+    )
+    findings = analyze_cors(probe, settings.collectors.cors)
+    return findings, {"inventory": {"cors": probe.to_artifact()}}
+
+
+def _step_html(
+    settings: Settings,
+    result: PipelineResult,
+) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    if not settings.collectors.html.enabled:
+        return [], {}
+
+    html_settings = settings.collectors.html
+    framework_artifact = result.artifacts.get("inventory", {}).get("framework", {})
+    body = framework_artifact.get("body", "")
+
+    if body:
+        probe = HtmlProbeResult(
+            target_url=settings.target.url,
+            body=body,
+            pages_scanned=1,
+        )
+        probe.inventory = parse_html_inventory(
+            body,
+            target_url=settings.target.url,
+            check_mixed_content=html_settings.check_mixed_content,
+            check_forms=html_settings.check_forms,
+            max_internal_links=html_settings.max_internal_links_sample,
+        )
+    elif html_settings.fetch_if_missing:
+        probe = collect_html(
+            settings.target.url,
+            user_agent=settings.runtime.user_agent,
+            timeout_seconds=settings.runtime.timeout_seconds,
+            max_body_bytes=html_settings.max_body_bytes,
+        )
+        if probe.body:
+            probe.inventory = parse_html_inventory(
+                probe.body,
+                target_url=settings.target.url,
+                check_mixed_content=html_settings.check_mixed_content,
+                check_forms=html_settings.check_forms,
+                max_internal_links=html_settings.max_internal_links_sample,
+            )
+    else:
+        probe = HtmlProbeResult(target_url=settings.target.url)
+
+    findings = analyze_html(probe, html_settings)
+    artifact = probe.to_artifact()
+    artifact.pop("body", None)
+    return findings, {"inventory": {"html": artifact}}
+
+
 # Stage 2+: register new steps here in planned order (see docs/implementation_tracker.md)
-# _step_paths, _step_tls, _step_policy, ...
-_PIPELINE: tuple[Callable[[Settings], tuple[list[Finding], dict[str, dict[str, Any]]]], ...] = (
+_CONTEXT_STEPS = frozenset({"_step_policy", "_step_artifacts", "_step_framework", "_step_html"})
+_PIPELINE: tuple[Callable[..., tuple[list[Finding], dict[str, dict[str, Any]]]], ...] = (
     _step_headers,
+    _step_framework,
     _step_dns,
+    _step_paths,
+    _step_tls,
+    _step_policy,
+    _step_cookies,
+    _step_rate_limit,
+    _step_artifacts,
+    _step_cors,
+    _step_html,
 )
 
 
-def run_pipeline(settings: Settings) -> PipelineResult:
+def run_pipeline(
+    settings: Settings,
+    *,
+    progress: ScanProgress | None = None,
+) -> PipelineResult:
     """Execute all pipeline steps; merge findings and artifact fragments."""
     result = PipelineResult()
     for step in _PIPELINE:
-        findings, artifact_parts = step(settings)
+        step_name = step.__name__
+        label, description = STEP_LABELS.get(step_name, (step_name, ""))
+        if not step_enabled(step_name, settings):
+            if progress:
+                progress.step_skipped(label)
+            continue
+        if progress:
+            progress.step_start(label, description)
+        if step_name in _CONTEXT_STEPS:
+            findings, artifact_parts = step(settings, result)
+        else:
+            findings, artifact_parts = step(settings)
         result.findings.extend(findings)
-        result.artifacts.update(artifact_parts)
+        for key, value in artifact_parts.items():
+            if key == "inventory" and key in result.artifacts:
+                result.artifacts[key] = {**result.artifacts[key], **value}
+            else:
+                result.artifacts[key] = value
+        if progress:
+            progress.step_done(step_name, label, findings, artifact_parts)
     return result

@@ -32,6 +32,16 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - Config: `collectors.extensions` (alias `wp_plugins`), `collectors.seo_surface`, `collectors.dns.{check_a,check_mx,check_ns,check_asn,use_host_tools}`, `collectors.html.prefer_full_homepage_fetch`
 - Artifact key: `artifacts.extensions` (+ legacy `artifacts.plugins` for WordPress); `artifacts.dns.{records,whois,net_tools}`
 
+### Changed (report UX polish — owner default)
+
+- **Owner guide** — expanded “What this report is (and is not)” for non-devs: how to read scores, tool comparison (ZAP, Nuclei, etc.), dev/QA suggestions (`report_about_section.html`)
+- **Branding footer** — three-line footer with finding count; only **muzar.io** linked (`report_branding_footer_body.html`)
+- **Score clarity** — Hygiene/Leak protection show **/100**; Exposure labeled **Leak protection** in UI (higher = safer; 100 = no leaks)
+- **Dashboard header** — framework/verdict tags aligned right; white section titles + conventional light-blue URL links
+- **Discovery layout** — 50/50 probe/site columns; compact focus-pie legend
+- **Executive summary** — removed redundant verdict pill (banner + score strip remain)
+- **Readability** — brighter prose colors (`--text-soft`) in owner guide section
+
 ### Deferred (Stage 5 remainder)
 
 - Playwright `--js` collector

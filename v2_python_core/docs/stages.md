@@ -15,7 +15,8 @@ Stage 4   Report templates + PDF           ✓
 Stage 5   Tier 2 + Tier 2b modules         ← in progress (2.1.0a1)
           · extensions (WP/Django/Laravel/Rails)
           · DNS enrichment (A/MX/NS/ASN/WHOIS)
-          · report polish (DNS cards, probe colors, robots, metrics)
+          · owner combined report (default HTML)
+          · report polish (guide, footer, leak-protection labels, discovery grid)
           · baseline diff ✓
 Stage 6   Tier 3 modules + packaging
 ```
@@ -99,7 +100,7 @@ webaudit[pdf]      → weasyprint
 - [x] DOM-based HTML inventory (BeautifulSoup)
 - [x] Five HTML templates wired
 - [x] PDF — browser print (default); optional WeasyPrint headless
-- [x] pytest on scoring, config, collectors, analyzers, render (~142 unit tests)
+- [x] pytest on scoring, config, collectors, analyzers, render (~145 unit tests)
 
 ---
 

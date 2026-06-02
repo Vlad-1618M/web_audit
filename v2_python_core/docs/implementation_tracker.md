@@ -35,7 +35,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for release notes.
 | **html** (DOM inventory) | `collectors/html.py` ✓ (+ `sitemap.py`, `site_discovery.py`, `attribution.py`) | `analyzers/html.py` ✓ | wired ✓ | ✓ | **2–3 / 5** |
 | **scoring** | n/a | n/a | `scoring/engine.py` ✓ | ✓ | 1 (partial 3) |
 | **render** | n/a | `render/html.py`, `render/txt.py`, `render/pdf.py`, `render/reports.py` ✓ | wired ✓ | ✓ | **4** ✓ |
-| **render helpers** | n/a | `dns_display`, `probe_status`, `extension_display`, `robots_display`, `report_metrics`, `system_info` ✓ | wired ✓ | ✓ | **4 / 5** ✓ |
+| **render helpers** | n/a | `dns_display`, `probe_status`, `extension_display`, `robots_display`, `report_metrics`, `focus_pie`, `system_info` ✓ | wired ✓ | ✓ | **4 / 5** ✓ |
 | **profiles** (WP/Django/Laravel/Rails YAML) | `profiles/loader.py` ✓ | — | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **extensions** (multi-framework) | `collectors/extensions/` ✓ | `analyzers/extensions.py` ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **wp_plugins** (WP HTML/readme) | via `collectors/extensions/wordpress.py` ✓ | via unified analyzer ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
@@ -73,10 +73,10 @@ See [CHANGELOG.md](../CHANGELOG.md) for release notes.
    - Auto `target.framework` updated when config is `auto`/`unknown`  
    - Deps: `beautifulsoup4`
 
-6. ~~**render** (HTML reports)~~ ✓ — all five Jinja2 variants  
-   - Files: `render/context.py`, `render/html.py`, `render/txt.py`, `render/reports.py`, `templates/reports/`  
+6. ~~**render** (HTML reports)~~ ✓ — six Jinja2 variants (`owner` default)  
+   - Files: `render/context.py`, `render/html.py`, `render/txt.py`, `render/reports.py`, `templates/reports/` + `_shared/` partials  
    - Output: `report.html` + `report.css`, optional `report.txt`  
-   - Config: `report.variant`, `output.formats` includes `html`, `txt`
+   - Config: `report.variant` (`owner` | executive | technical | minimal | dashboard | digest), `output.formats` includes `html`, `txt`
 
 7. ~~**render** (PDF + re-render CLI)~~ ✓  
    - Browser **Print / Save as PDF** in HTML (default)  
@@ -203,4 +203,4 @@ Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
 
 ---
 
-*Last updated: Stage 5 alpha 2.1.0a1 (2026-05).*
+*Last updated: Stage 5 alpha 2.1.0a1 — owner report polish (2026-06).*

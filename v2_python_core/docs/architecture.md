@@ -108,8 +108,8 @@ v2_python_core/
 │   ├── render/                 # html, txt, pdf + dns_display, probe_status, …
 │   ├── pipeline.py
 │   └── models/
-├── templates/reports/          # Jinja HTML + CSS (five variants)
-├── tests/unit/                 # pytest (~142 tests)
+├── templates/reports/          # Jinja HTML + CSS (six variants; owner default)
+├── tests/unit/                 # pytest (~145 tests)
 └── docs/
 ```
 
@@ -181,12 +181,16 @@ profiles/                    # shipped YAML — NOT Python code
 └── generic/extensions.yaml
 
 templates/reports/           # NOT inside webaudit package
+├── _shared/                 # discovery, dashboard, guide, footer partials
+├── owner/                   # default combined report (dashboard + executive + technical tab)
 ├── executive/
 │   ├── report.html
 │   └── report.css
 ├── technical/
 │   ├── report.html
 │   └── report.css
+├── dashboard/
+├── digest/
 └── minimal/
     ├── report.html
     └── report.css
@@ -318,7 +322,7 @@ Detail: [framework_profiles.md](framework_profiles.md).
 ## Report variant selection
 
 ```text
-config.report.variant: executive | technical | minimal | dashboard | digest
+config.report.variant: owner | executive | technical | minimal | dashboard | digest
 config.report.theme: dark | light | print
 config.output.formats: [html, json, txt, pdf]
 ```

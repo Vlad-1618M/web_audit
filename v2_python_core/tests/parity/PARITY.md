@@ -48,7 +48,9 @@ Reference: repo root `web_audit.sh` (read-only). v2 code lives in `v2_python_cor
 - Optional domain WHOIS when `whois` binary exists on audit host
 - Host net-tool detection note in report (`dig`, `whois`, `host`, `mtr`, `traceroute`)
 - Structured `audit_run.json` (schema 2.0)
-- Five HTML report variants + TXT + `webaudit report` + metric chips + plain-English DNS cards
+- Six HTML report variants + TXT + `webaudit report` (default **`owner`**: combined dashboard + executive + technical tab)
+- Owner guide section: how to read the report, tool comparison, dev/QA suggestions
+- Metric chips, plain-English DNS cards, leak-protection **/100** score labels in UI
 - Framework extension intelligence (WordPress plugins, Django/Laravel packages, Rails gems)
 - SEO surface analyzer (INFO/VERIFY only)
 - `webaudit diff` baseline comparison
@@ -64,4 +66,4 @@ cd v2_python_core
 .venv/bin/python -m pytest -q
 ```
 
-Automated v1-vs-v2 golden fixtures: planned; unit tests mock I/O today (~142 unit tests).
+Automated v1-vs-v2 golden fixtures: planned; unit tests mock I/O today (~145 unit tests).

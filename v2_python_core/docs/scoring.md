@@ -136,6 +136,8 @@ Full check list: [seo_surface.md](seo_surface.md).
 
 **Question:** *Are secrets or sensitive files reachable?*
 
+**UI label (2.1.0a1 reports):** **Leak protection** with **/100** suffix — e.g. `100/100` means no obvious public leaks (good), not “100% exposed.”
+
 **Start:** `exposure = 100`
 
 **Apply only:** sensitive path probes where HTTP status ∈ `{200, 500, 502, 503, 504}` (5xx treated as “might be leaking error/debug” — v1 parity).

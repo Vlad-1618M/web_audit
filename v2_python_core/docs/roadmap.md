@@ -123,6 +123,7 @@ I have used **httpx** and **dnspython** before; they are proven choices for me, 
 
 **UX & audience**
 
+- **Owner** report variant (default) — Security dashboard + Executive summary + Technical tab; owner guide for non-devs
 - **Executive** report variant — plain language, traffic-light summary
 - **Technical** report variant — findings tables, remediation, evidence
 - **Minimal** report variant — one-page printable handoff for dev shops

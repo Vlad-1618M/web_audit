@@ -41,7 +41,7 @@ That is v2.
 | **Audience** | Devs, CI, SSH boxes | Devs **and** non-technical site owners |
 | **Install** | curl + openssl + zsh/bash | `pipx install webaudit` (or similar) |
 | **Architecture** | Monolith script | Modular collectors, analyzers, scorers, renderers |
-| **Reports** | HTML with browser “Save as PDF” | HTML templates **outside** Python + **native PDF** export |
+| **Reports** | HTML with browser “Save as PDF” | **`owner`** combined HTML (default) + five standalone variants; native PDF optional |
 | **Scope** | External hygiene snapshot | Same philosophy, **deeper signal** (DNS, TLS, DOM, optional JS) |
 
 v1 remains **Audit Lite** — zero dependencies, Unix-first, public forever.
@@ -69,7 +69,7 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 | [docs/diagrams.md](docs/diagrams.md) | Mermaid architecture diagrams (dark theme) |
 | [mockups/diagrams/index.html](mockups/diagrams/index.html) | **Live diagram viewer** (browser) |
 | [tests/parity/PARITY.md](tests/parity/PARITY.md) | v1 bash ↔ v2 Pro parity matrix |
-| [mockups/reports/README.md](mockups/reports/README.md) | Five HTML report variants + [gallery index](mockups/reports/index.html) |
+| [mockups/reports/README.md](mockups/reports/README.md) | HTML report variants + [gallery index](mockups/reports/index.html) (live default: **`owner`**) |
 | [mockups/config/](mockups/config/) | Example YAML configs + [framework profiles](mockups/config/profiles/) |
 
 ---
@@ -137,7 +137,7 @@ v2_python_core/
 │   ├── scoring/
 │   ├── pipeline.py
 │   └── models/
-├── templates/reports/          # Jinja HTML + CSS (five variants)
+├── templates/reports/          # Jinja HTML + CSS (owner default + five standalone)
 ├── tests/unit/ + tests/parity/
 ├── mockups/
 └── docs/

@@ -613,7 +613,10 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
     image_rows = _image_rows(artifacts)
     path_rows = _path_rows(artifacts, framework=run.meta.framework)
     footer = build_report_footer(scanned_at=run.meta.finished_at or run.meta.started_at)
-    metric_chips = build_metric_chips(run.findings)
+    metric_chips = build_metric_chips(
+        run.findings,
+        extension_detected_count=len((artifacts.get("extensions") or {}).get("extensions") or []),
+    )
     robots_section = build_robots_section(artifacts)
     attribution = _attribution_display(artifacts)
     focus_pie_slices = build_focus_pie_slices(run.scores, run.findings)
@@ -639,6 +642,7 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
         "verify_findings": groups["verify"],
         "expected_findings": groups["expected"],
         "info_findings": groups["info"],
+        "seo_findings": [f for f in run.findings if f.category == "SEO_SURFACE"],
         "dns_cards": _dns_cards(artifacts),
         "dns_net_tools_note": _dns_net_tools_note(artifacts),
         "tls_rows": _tls_rows(artifacts),

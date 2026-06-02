@@ -13,7 +13,11 @@ from typing import Any
 
 from webaudit.profiles.loader import FrameworkProfile
 
-_PLUGIN_PATH_RE = re.compile(r"/wp-content/plugins/([a-z0-9_-]+)/[^\s\"'<>]*", re.IGNORECASE)
+_PLUGIN_PATH_RE = re.compile(
+    r"(?:https?://[^/\"'<>]+)?/wp-content/plugins/([a-z0-9_-]+)/[^\s\"'<>]*",
+    re.IGNORECASE,
+)
+_README_HTML_RE = re.compile(r"<!doctype\s+html|<html[\s>]", re.I)
 _VERSION_RE = re.compile(r"[?&](?:ver|version)=([\d.]+(?:\.[\d]+)*)", re.IGNORECASE)
 _STABLE_TAG_RE = re.compile(r"^\s*Stable tag:\s*(.+)\s*$", re.MULTILINE | re.IGNORECASE)
 
@@ -84,6 +88,8 @@ def _version_tuple(version: str) -> tuple[int, ...]:
 
 
 def _parse_readme_stable_tag(body: str) -> str | None:
+    if not body.strip() or _README_HTML_RE.search(body[:500]):
+        return None
     match = _STABLE_TAG_RE.search(body)
     if not match:
         return None

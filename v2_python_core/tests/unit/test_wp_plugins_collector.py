@@ -7,12 +7,20 @@ from webaudit.profiles.loader import FrameworkProfile, ProfileProbeSettings
 def test_extract_plugins_from_html_with_versions():
     html = """
     <link href="/wp-content/plugins/elementor/assets/style.css?ver=3.15.0">
-    <script src="/wp-content/plugins/contact-form-7/includes/js/scripts.js?ver=5.8.2"></script>
+    <script src="https://cdn.example.com/wp-content/plugins/contact-form-7/includes/js/scripts.js?ver=5.8.2"></script>
     <link href="/wp-content/plugins/elementor/assets/widget.css?ver=3.16.1">
     """
     observed = extract_plugins_from_html(html)
     assert observed["elementor"] == "3.16.1"
     assert observed["contact-form-7"] == "5.8.2"
+
+
+def test_readme_parser_rejects_html_soft_404():
+    from webaudit.collectors.wp_plugins import _parse_readme_stable_tag
+
+    html404 = "<!DOCTYPE html><html><title>404</title></html>"
+    assert _parse_readme_stable_tag(html404) is None
+    assert _parse_readme_stable_tag("=== Plugin ===\nStable tag: 1.2.3\n") == "1.2.3"
 
 
 def test_collect_wp_plugins_observed_only(monkeypatch):

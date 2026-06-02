@@ -25,6 +25,10 @@ def test_metric_chips_count_severities():
     assert chips["High action"] == 1
     assert chips["Verify"] == 1
     assert chips["SEO checks"] == 1
+    assert chips["Plugins"] == 0
+    critical = next(c for c in build_metric_chips(findings) if c["label"] == "Critical")
+    assert critical["anchor"] == "findings-action"
+    assert next(c for c in build_metric_chips(findings) if c["label"] == "SEO checks")["anchor"] == "findings-seo"
 
 
 def test_robots_section_parses_rules():

@@ -27,11 +27,28 @@ def _count_action(findings: list[Finding], severity: Severity) -> int:
     )
 
 
-def build_metric_chips(findings: list[Finding]) -> list[dict[str, str | int]]:
+def _count_extension_chip(findings: list[Finding], *, extension_detected_count: int) -> int:
+    if extension_detected_count > 0:
+        return extension_detected_count
+    return sum(
+        1
+        for finding in findings
+        if finding.category in _EXTENSION_CATEGORIES
+        and finding.status.upper() != "NONE_OBSERVED"
+        and not (finding.item or "").startswith("Framework ")
+    )
+
+
+def build_metric_chips(
+    findings: list[Finding],
+    *,
+    extension_detected_count: int = 0,
+) -> list[dict[str, str | int]]:
     verify = [f for f in findings if f.class_ == FindingClass.VERIFY]
     expected = [f for f in findings if f.class_ == FindingClass.EXPECTED]
     seo = [f for f in findings if f.category == "SEO_SURFACE"]
     extensions = [f for f in findings if f.category in _EXTENSION_CATEGORIES]
+    plugin_count = _count_extension_chip(findings, extension_detected_count=extension_detected_count)
     sensitive = [
         f
         for f in findings
@@ -44,17 +61,33 @@ def build_metric_chips(findings: list[Finding]) -> list[dict[str, str | int]]:
     ]
 
     return [
-        {"label": "Critical", "count": _count_action(findings, Severity.CRITICAL), "tone": "critical"},
-        {"label": "High action", "count": _count_action(findings, Severity.HIGH), "tone": "high"},
-        {"label": "Medium", "count": _count_action(findings, Severity.MEDIUM), "tone": "medium"},
-        {"label": "Verify", "count": len(verify), "tone": "verify"},
-        {"label": "Expected", "count": len(expected), "tone": "expected"},
-        {"label": "Sensitive leaks", "count": len(sensitive), "tone": "leak"},
-        {"label": "SEO checks", "count": len(seo), "tone": "seo"},
         {
-            "label": "Plugins / extensions",
-            "count": len(extensions),
+            "label": "Critical",
+            "count": _count_action(findings, Severity.CRITICAL),
+            "tone": "critical",
+            "anchor": "findings-action",
+        },
+        {
+            "label": "High action",
+            "count": _count_action(findings, Severity.HIGH),
+            "tone": "high",
+            "anchor": "findings-action",
+        },
+        {
+            "label": "Medium",
+            "count": _count_action(findings, Severity.MEDIUM),
+            "tone": "medium",
+            "anchor": "findings-action",
+        },
+        {"label": "Verify", "count": len(verify), "tone": "verify", "anchor": "findings-verify"},
+        {"label": "Expected", "count": len(expected), "tone": "expected", "anchor": "findings-expected"},
+        {"label": "Sensitive leaks", "count": len(sensitive), "tone": "leak", "anchor": "paths"},
+        {"label": "SEO checks", "count": len(seo), "tone": "seo", "anchor": "findings-seo"},
+        {
+            "label": "Plugins",
+            "count": plugin_count,
             "sub": f"{len(ext_stale)} need version review" if ext_stale else "",
             "tone": "plugins",
+            "anchor": "extensions",
         },
     ]

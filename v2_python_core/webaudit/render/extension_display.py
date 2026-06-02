@@ -133,6 +133,23 @@ def build_extension_section(
     current_count = sum(1 for row in rows if row["status"] == "CURRENT")
     compared_count = sum(1 for row in rows if row["latest_version"] not in {"", "—", "n/a"})
 
+    none_observed = next(
+        (
+            finding
+            for finding in findings
+            if finding.category in _EXTENSION_CATEGORIES and finding.status.upper() == "NONE_OBSERVED"
+        ),
+        None,
+    )
+    framework_meta = (artifacts.get("inventory") or {}).get("framework") or {}
+    powered_by = str(framework_meta.get("powered_by") or "")
+    frontend_note = ""
+    if not rows and powered_by and "next" in powered_by.lower():
+        frontend_note = (
+            f"Public HTML is served by {powered_by}. WordPress may run behind the scenes, "
+            "but plugin asset paths are not exposed in the homepage HTML this scan could read."
+        )
+
     return {
         "framework": framework,
         "framework_label": _FRAMEWORK_LABELS.get(framework, framework.title()),
@@ -152,4 +169,6 @@ def build_extension_section(
         "rows": rows,
         "has_rows": bool(rows),
         "error": str(ext_art.get("error") or ""),
+        "none_observed_detail": none_observed.detail if none_observed else "",
+        "frontend_note": frontend_note,
     }

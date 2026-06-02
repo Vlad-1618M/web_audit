@@ -308,7 +308,8 @@ def _step_html(
     from webaudit.collectors.attribution import extract_attribution
 
     attribution = extract_attribution(body_for_attr, base_url=settings.target.url)
-    artifact.pop("body", None)
+    if body_for_attr:
+        artifact["scan_html"] = body_for_attr
     return findings, {
         "inventory": {
             "html": artifact,
@@ -336,7 +337,8 @@ def _step_extensions(
         return [], {}
 
     framework_artifact = result.artifacts.get("inventory", {}).get("framework", {})
-    body = framework_artifact.get("body", "")
+    html_artifact = result.artifacts.get("inventory", {}).get("html", {})
+    body = html_artifact.get("scan_html") or framework_artifact.get("body", "")
     headers_artifact = result.artifacts.get("headers", {})
     header_map = headers_artifact.get("headers") or {}
 

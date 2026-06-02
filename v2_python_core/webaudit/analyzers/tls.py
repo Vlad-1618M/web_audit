@@ -109,8 +109,37 @@ def analyze_tls(probe: TlsProbeResult, settings: TlsCollectorSettings) -> list[F
                 item="Certificate issuer",
                 status="PRESENT",
                 severity=Severity.OK,
-                detail=cert.issuer[:120],
-                evidence={"issuer": cert.issuer},
+                detail=cert.issuer_display or cert.issuer[:120],
+                evidence={
+                    "issuer": cert.issuer,
+                    "issuer_display": cert.issuer_display,
+                    "issuer_org": cert.issuer_org,
+                },
+            )
+        )
+
+    if cert.hostname_match is False:
+        findings.append(
+            Finding.from_check(
+                category="TLS",
+                item="Certificate hostname",
+                status="MISMATCH",
+                severity=Severity.HIGH,
+                detail=cert.hostname_note or "Certificate does not cover scanned hostname",
+                class_=FindingClass.ACTION,
+                scored=True,
+                evidence={"hostname_match": cert.hostname_match, "san": cert.san},
+            )
+        )
+    elif cert.hostname_match is True and cert.hostname_note:
+        findings.append(
+            Finding.from_check(
+                category="TLS",
+                item="Certificate hostname",
+                status="MATCH",
+                severity=Severity.OK,
+                detail=cert.hostname_note,
+                evidence={"san": cert.san},
             )
         )
 

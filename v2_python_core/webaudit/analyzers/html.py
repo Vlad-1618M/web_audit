@@ -50,6 +50,8 @@ def analyze_html(probe: HtmlProbeResult, settings: HtmlCollectorSettings) -> lis
             check_mixed_content=settings.check_mixed_content,
             check_forms=settings.check_forms,
             max_internal_links=settings.max_internal_links_sample,
+            max_site_links=settings.max_site_links,
+            max_images=settings.max_images,
         )
 
     findings: list[Finding] = [
@@ -58,7 +60,11 @@ def analyze_html(probe: HtmlProbeResult, settings: HtmlCollectorSettings) -> lis
             item="Internal link inventory",
             status="CATALOGUED",
             severity=Severity.INFO,
-            detail=f"{inventory.link_count} link(s) on homepage; sampled {len(inventory.internal_links_sample)} internal URL(s)",
+            detail=(
+                f"{len(inventory.site_links)} site URL(s) catalogued from homepage, sitemap, and "
+                f"{inventory.pages_sampled or probe.pages_scanned or 1} sampled page(s) "
+                f"({inventory.internal_link_count} internal · {inventory.external_link_count} external anchors seen)"
+            ),
             class_=FindingClass.INFO,
             scored=False,
             evidence={"internal_links_sample": inventory.internal_links_sample},
@@ -68,7 +74,10 @@ def analyze_html(probe: HtmlProbeResult, settings: HtmlCollectorSettings) -> lis
             item="Image inventory",
             status="COUNTED",
             severity=Severity.INFO,
-            detail=f"{inventory.image_count} image(s) on {probe.pages_scanned or 1} sampled page(s)",
+            detail=(
+                f"{len(inventory.images)} unique asset(s) including favicons/OG "
+                f"({inventory.image_count} <img> tags on homepage)"
+            ),
             class_=FindingClass.INFO,
             scored=False,
         ),

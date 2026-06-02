@@ -1,0 +1,19 @@
+{% from "site_link.html" import site_link %}
+<section id="attribution">
+  <h2>Designer / creator</h2>
+  <p class="discovery-intro">
+    Credits such as “Designed by” or meta author tags — helps identify who built the site
+    and whether placement is SEO-friendly.
+  </p>
+  {% if attribution.name %}
+  <div class="attribution-card">
+    <div class="attribution-name">{{ attribution.name }}</div>
+    <p class="dns-summary {{ attribution.summary_tone }}">{{ attribution.summary }}</p>
+    {% if attribution.link_url %}
+    <p><a href="{{ attribution.link_url }}" target="_blank" rel="noopener">{{ attribution.link_url }}</a></p>
+    {% endif %}
+  </div>
+  {% else %}
+  <p class="meta-inline">{{ attribution.summary }}</p>
+  {% endif %}
+</section>

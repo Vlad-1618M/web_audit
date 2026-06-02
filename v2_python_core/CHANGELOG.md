@@ -30,16 +30,27 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - **Scoring caps** — `hygiene_caps` for PLUGIN/PACKAGE/GEM + `plugin_worst_wins`
 - **`webaudit diff`** — compare two `audit_run.json` files
 - Config: `collectors.extensions` (alias `wp_plugins`), `collectors.seo_surface`, `collectors.dns.{check_a,check_mx,check_ns,check_asn,use_host_tools}`, `collectors.html.prefer_full_homepage_fetch`
-- Artifact key: `artifacts.extensions` (+ legacy `artifacts.plugins` for WordPress); `artifacts.dns.{records,whois,net_tools}`
+- Artifact key: `artifacts.extensions` (+ legacy `artifacts.plugins` for WordPress); `artifacts.dns.{records,whois,net_tools}`; `artifacts.inventory.html.scan_html` (full homepage body for extensions + attribution)
+
+### Fixed
+
+- **WordPress plugin detection** — extensions step reads full homepage HTML (`scan_html` from HTML collector), not the truncated framework fingerprint body (~8 KB cap); fixes under-counting on real WP sites
+- **Plugin chip count** — dashboard “Plugins” chip uses detected extension rows from artifacts; `PLUGIN_INFO / NONE_OBSERVED` no longer shows as “1 plugin” on decoupled frontends (e.g. Next.js)
+- **readme.txt soft-404** — HTML error pages rejected when fetching plugin readme for version hints
+- **Attribution false positives** — ignore nav `title="powered by …"` credits; require footer/context for linked designer lines; treat AI “Powered by” as tooling, not site designer
 
 ### Changed (report UX polish — owner default)
 
 - **Owner guide** — expanded “What this report is (and is not)” for non-devs: how to read scores, tool comparison (ZAP, Nuclei, etc.), dev/QA suggestions (`report_about_section.html`)
 - **Branding footer** — three-line footer with finding count; only **muzar.io** linked (`report_branding_footer_body.html`)
-- **Score clarity** — Hygiene/Leak protection show **/100**; Exposure labeled **Leak protection** in UI (higher = safer; 100 = no leaks)
+- **Score clarity** — Hygiene and **Leak protection** (Exposure in JSON) use color bands (good/fair/poor/critical); Exposure labeled **Leak protection** in UI (higher = safer; 100 = no leaks)
 - **Dashboard header** — framework/verdict tags aligned right; white section titles + conventional light-blue URL links
-- **Discovery layout** — 50/50 probe/site columns; compact focus-pie legend
-- **Executive summary** — removed redundant verdict pill (banner + score strip remain)
+- **Discovery layout** — 50/50 probe/site columns with matched scroll heights; probe status badges inline with URL + hint on second line; compact focus-pie legend
+- **Extensions section** — “Plugins / Extensions” heading, registry summary line, fold-panel table; empty state + Next.js note when no plugin paths in public HTML
+- **Metric chips** — clickable when count &gt; 0 (anchors to Findings sections); Expected + SEO tables under Technical tab
+- **robots.txt** — fold-panel widget aligned with path probe results style
+- **Category health** — bottom alert strip for failing categories; scrollable when many items
+- **Executive summary** — tighter verdict banner spacing; removed redundant verdict pill (banner + score strip remain)
 - **Readability** — brighter prose colors (`--text-soft`) in owner guide section
 
 ### Deferred (Stage 5 remainder)

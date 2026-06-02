@@ -13,10 +13,11 @@ Stage 2   Tier 1 collectors + v1 parity    ✓
 Stage 3   Scoring + analyzers + audit_run  ✓ (parity polish ongoing)
 Stage 4   Report templates + PDF           ✓
 Stage 5   Tier 2 + Tier 2b modules         ← in progress (2.1.0a1)
-          · extensions (WP/Django/Laravel/Rails)
+          · extensions (WP/Django/Laravel/Rails) — full homepage HTML via scan_html ✓
           · DNS enrichment (A/MX/NS/ASN/WHOIS)
           · owner combined report (default HTML)
-          · report polish (guide, footer, leak-protection labels, discovery grid)
+          · report polish (guide, footer, leak-protection labels, discovery grid,
+            extensions table, plugin chip fix, attribution hardening) ✓
           · baseline diff ✓
 Stage 6   Tier 3 modules + packaging
 ```
@@ -131,8 +132,10 @@ packaging>=24.0
 - [x] WordPress auto-detect loads `profiles/wordpress/extensions.yaml`
 - [x] Django / Laravel / Rails profiles shipped with passive signals + registry compare
 - [x] `probe.mode: observed_only` — no readme GET for undetected slugs (v1 fix)
+- [x] Plugin fingerprint from **full homepage HTML** (`collectors.html` → `scan_html`), not truncated framework body
 - [x] Free plugins compared to wordpress.org API
 - [x] Premium slugs → VERIFY findings, not false “stale”
+- [x] Report chip + empty state honest when zero plugins observed (decoupled frontends)
 - [ ] Auth-required CVEs default to VERIFY class (deferred — `plugin_vuln` module)
 - [x] `hygiene_caps.PLUGIN: 30` enforced in scoring tests
 - [ ] CVE fixtures from research doc drive pytest golden files

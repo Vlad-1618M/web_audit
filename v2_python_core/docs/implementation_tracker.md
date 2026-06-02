@@ -32,7 +32,8 @@ See [CHANGELOG.md](../CHANGELOG.md) for release notes.
 | **rate_limit** | `collectors/rate_limit.py` ✓ | `analyzers/rate_limit.py` ✓ | wired ✓ | ✓ | **2** |
 | **cors** | `collectors/cors.py` ✓ | `analyzers/cors.py` ✓ | wired ✓ | ✓ | **2** |
 | **framework** detect | `collectors/framework.py` ✓ | `analyzers/framework.py` ✓ | wired ✓ | ✓ | **2–3** |
-| **html** (DOM inventory) | `collectors/html.py` ✓ (+ `sitemap.py`, `site_discovery.py`, `attribution.py`) | `analyzers/html.py` ✓ | wired ✓ | ✓ | **2–3 / 5** |
+| **html** (DOM inventory) | `collectors/html.py` ✓ (+ `sitemap.py`, `site_discovery.py`; stores `scan_html`) | `analyzers/html.py` ✓ | wired ✓ | ✓ | **2–3 / 5** |
+| **attribution** (designer credit) | `collectors/attribution.py` ✓ (footer/context rules) | report card via `render/context.py` ✓ | wired ✓ | ✓ | **5** ✓ |
 | **scoring** | n/a | n/a | `scoring/engine.py` ✓ | ✓ | 1 (partial 3) |
 | **render** | n/a | `render/html.py`, `render/txt.py`, `render/pdf.py`, `render/reports.py` ✓ | wired ✓ | ✓ | **4** ✓ |
 | **render helpers** | n/a | `dns_display`, `probe_status`, `extension_display`, `robots_display`, `report_metrics`, `focus_pie`, `system_info` ✓ | wired ✓ | ✓ | **4 / 5** ✓ |
@@ -175,7 +176,9 @@ Document intentional deltas in this file under **Parity deltas** when behavior d
 | Permissions-Policy missing | INFO, unscored | same | ✓ |
 | DNS | scored SPF/DMARC + report cards (A/MX/NS/ASN) | n/a | new signal |
 | PDF | browser print default | browser print | optional WeasyPrint |
-| Plugins/extensions | unified `extensions` pipeline + profiles | readme.txt blind probes | Tier 2b ✓ (CVE cache deferred) |
+| Plugins/extensions | unified `extensions` pipeline + profiles; HTML from `scan_html` | readme.txt blind probes | Tier 2b ✓ (CVE cache deferred) |
+| Plugin count in report | artifact row count + honest empty state | v1 N/A | v2 UX only |
+| Attribution | footer/context linked credits only | grep-style HTML scan | hardened 2.1.0a1 |
 | Site config | YAML | INI `site.conf` | Tier 3 migrator |
 
 Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
@@ -203,4 +206,4 @@ Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
 
 ---
 
-*Last updated: Stage 5 alpha 2.1.0a1 — owner report polish (2026-06).*
+*Last updated: Stage 5 alpha 2.1.0a1 — plugin scan_html fix, attribution hardening, owner report polish (2026-06).*

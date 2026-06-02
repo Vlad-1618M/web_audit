@@ -115,6 +115,22 @@ audit_logs/<date>_<your-site>/audit_run.json
 
 Your developer can turn that into an HTML report (default **owner** variant: Security dashboard + Executive summary on one page, Technical details on a second tab). Mockups of standalone variants are in [mockups/reports/](../mockups/reports/).
 
+### Reading the owner report (quick guide)
+
+| Tab / section | What to look at |
+|---------------|-----------------|
+| **Security dashboard** | Hygiene + **Leak protection** scores, verdict, metric chips (Critical, Plugins, …) |
+| **Executive summary** | Plain-language timeline of what mattered |
+| **Technical details** | Full findings tables, DNS cards, site discovery URLs, **Plugins / Extensions** |
+| **Plugins / Extensions** | WordPress (or other stack) components seen in public HTML — **0 is normal** on sites where the homepage is not WordPress (e.g. Next.js front-end) |
+| **Bottom guide** | “What this report is (and is not)” — compares Web Audit to ZAP, pentests, SEO tools |
+
+Re-render an saved scan without re-running checks:
+
+```bash
+webaudit report audit_logs/<folder>/audit_run.json
+```
+
 ---
 
 ## Help commands

@@ -102,7 +102,7 @@ collectors:
     check_asn: true            # Team Cymru DNS — no dig required
     use_host_tools: true       # detect dig/whois/host/mtr; run whois when present
   html:
-    prefer_full_homepage_fetch: true
+    prefer_full_homepage_fetch: true   # full body stored as scan_html — used by extensions + attribution
     max_sitemap_urls: 500
   tls:
     enabled: true
@@ -287,6 +287,17 @@ webaudit config explain scoring.hygiene_weights
 ```
 
 No scan, no network — for dev shops reviewing a config before handoff.
+
+---
+
+## Pipeline artifacts (HTML → extensions)
+
+| Key | Set by | Used by |
+|-----|--------|---------|
+| `artifacts.inventory.html.scan_html` | `_step_html` when homepage fetched | `_step_extensions`, attribution in report |
+| `artifacts.inventory.framework.body` | `_step_framework` (~8 KB sample) | Framework scoring only; extensions fallback |
+
+Keep `collectors.html.prefer_full_homepage_fetch: true` unless you intentionally reuse the framework sample only.
 
 ---
 

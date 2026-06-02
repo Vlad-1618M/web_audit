@@ -85,7 +85,9 @@ sequenceDiagram
   J->>U: HTML + PDF + TXT
 ```
 
-> **Current (2.1.0a1):** Full Tier 1 pipeline + Stage 5 alpha — extensions, SEO surface, DNS enrichment (A/MX/NS/ASN), report polish. Diagram shows the complete Tier 1 target architecture.
+> **Current (2.1.0a1):** Full Tier 1 pipeline + Stage 5 alpha — extensions (reads `scan_html`), SEO surface, DNS enrichment (A/MX/NS/ASN), owner report polish. Diagram shows the complete Tier 1 target architecture.
+
+**Extensions step (2.1.0a1):** After HTML collection, `pipeline._step_extensions` fingerprints plugins/packages from `artifacts.inventory.html.scan_html` (full homepage). Framework fingerprint body is fallback only.
 
 ---
 

@@ -20,11 +20,11 @@ Reference: repo root `web_audit.sh` (read-only). v2 code lives in `v2_python_cor
 | CORS | origin probes | `collectors/cors` + `analyzers/cors` | ✓ |
 | Framework | `detect_framework()` | `collectors/framework` + `analyzers/framework` | ✓ |
 | HTML inventory | regex + misc URL scan | `collectors/html` + `site_discovery` + `sitemap` (BeautifulSoup) | ✓ improved |
-| Designer credit | `extract_designer_from_html()` | `collectors/attribution` + report card | ✓ |
+| Designer credit | `extract_designer_from_html()` | `collectors/attribution` + report card (footer/context rules) | ✓ hardened (2.1.0a1) |
 | Image inventory | sampled page images | `collectors/html` (favicon, og:image, lazy-load) | ✓ improved |
 | Scoring | Hygiene / Exposure | `scoring/engine.py` | ✓ |
 | Reports | HTML/JSON/TXT | Jinja templates + `audit_run.json` | ✓ improved |
-| Plugin versions | `check_plugin_versions()` | `collectors/extensions/` + `analyzers/extensions` | ✓ improved (2.1.0a1) |
+| Plugin versions | `check_plugin_versions()` | `collectors/extensions/` + `analyzers/extensions` (HTML from `scan_html`) | ✓ improved (2.1.0a1) |
 | DNS | — | `collectors/dns` + `analyzers/dns` | **new in v2** |
 | ASN / WHOIS | — | `collectors/asn` + `collectors/net_tools` | **new in v2** |
 

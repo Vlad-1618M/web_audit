@@ -35,6 +35,7 @@ class AuditArtifacts(BaseModel):
     policy: dict[str, Any] = Field(default_factory=dict)
     inventory: dict[str, Any] = Field(default_factory=dict)
     plugins: dict[str, Any] = Field(default_factory=dict)
+    extensions: dict[str, Any] = Field(default_factory=dict)
     seo_surface: dict[str, Any] = Field(default_factory=dict)
 
 

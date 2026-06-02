@@ -17,6 +17,7 @@ from rich.console import Console
 
 from webaudit.config.settings import load_settings
 from webaudit.cli.completion_cmd import completion_app, rewrite_legacy_completion_argv
+from webaudit.cli.diff_cmd import diff_command
 from webaudit.cli.output_ui import handle_open_outputs, print_scan_summary
 from webaudit.cli.report_cmd import report_command
 from webaudit.cli.scan_progress import ScanProgress, Verbosity, resolve_verbosity
@@ -123,7 +124,7 @@ def report(
     ] = None,
     variant: Annotated[
         str | None,
-        typer.Option("--variant", help="Report template: technical, executive, minimal, dashboard, digest"),
+        typer.Option("--variant", help="Report template: owner, technical, executive, minimal, dashboard, digest"),
     ] = None,
     theme: Annotated[
         str | None,
@@ -155,6 +156,25 @@ def report(
         output=output,
         open_outputs=open_outputs,
     )
+
+
+@app.command("diff")
+def diff(
+    baseline: Annotated[
+        Path,
+        typer.Argument(help="Baseline audit_run.json (older run)"),
+    ],
+    current: Annotated[
+        Path,
+        typer.Argument(help="Current audit_run.json (newer run)"),
+    ],
+    json_out: Annotated[
+        bool,
+        typer.Option("--json", help="Print diff as JSON"),
+    ] = False,
+) -> None:
+    """Compare two audit runs — regressions, improvements, and resolved issues."""
+    diff_command(baseline, current, json_out=json_out)
 
 
 def cli_entry() -> None:

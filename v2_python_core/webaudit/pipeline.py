@@ -22,9 +22,13 @@ from webaudit.analyzers.framework import analyze_framework
 from webaudit.analyzers.headers import analyze_headers
 from webaudit.analyzers.html import analyze_html
 from webaudit.analyzers.paths import analyze_paths
+from webaudit.analyzers.extensions import analyze_extensions
+from webaudit.analyzers.extension_compare import registry_for_framework, registry_meta
 from webaudit.analyzers.policy import analyze_policy
 from webaudit.analyzers.rate_limit import analyze_rate_limit
+from webaudit.analyzers.seo_surface import analyze_seo_surface
 from webaudit.analyzers.tls import analyze_tls
+from webaudit.collectors.extensions import collect_extensions
 from webaudit.collectors.artifacts import collect_artifacts
 from webaudit.collectors.cookies import collect_cookies
 from webaudit.collectors.cors import collect_cors
@@ -38,6 +42,7 @@ from webaudit.collectors.tls import collect_tls
 from webaudit.config.settings import Settings
 from webaudit.models.finding import Finding
 from webaudit.cli.scan_progress import STEP_LABELS, step_enabled
+from webaudit.profiles.loader import load_framework_profile
 
 
 @dataclass
@@ -95,6 +100,11 @@ def _step_dns(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, An
         check_caa=settings.collectors.dns.check_caa,
         check_dnssec=settings.collectors.dns.check_dnssec,
         check_aaaa=settings.collectors.dns.check_aaaa,
+        check_a=settings.collectors.dns.check_a,
+        check_mx=settings.collectors.dns.check_mx,
+        check_ns=settings.collectors.dns.check_ns,
+        check_asn=settings.collectors.dns.check_asn,
+        use_host_tools=settings.collectors.dns.use_host_tools,
     )
     return analyze_dns(probe, settings.collectors.dns), {"dns": probe.to_artifact()}
 
@@ -211,49 +221,180 @@ def _step_html(
     if not settings.collectors.html.enabled:
         return [], {}
 
+    from webaudit.collectors.site_discovery import enrich_site_inventory
+    from webaudit.collectors.sitemap import collect_sitemap_urls
+
     html_settings = settings.collectors.html
     framework_artifact = result.artifacts.get("inventory", {}).get("framework", {})
-    body = framework_artifact.get("body", "")
+    framework_body = framework_artifact.get("body", "")
 
-    if body:
+    use_framework_body = (
+        bool(framework_body)
+        and not html_settings.prefer_full_homepage_fetch
+        and not html_settings.fetch_if_missing
+    )
+
+    if use_framework_body:
         probe = HtmlProbeResult(
             target_url=settings.target.url,
-            body=body,
+            body=framework_body,
             pages_scanned=1,
         )
         probe.inventory = parse_html_inventory(
-            body,
+            framework_body,
             target_url=settings.target.url,
             check_mixed_content=html_settings.check_mixed_content,
             check_forms=html_settings.check_forms,
             max_internal_links=html_settings.max_internal_links_sample,
+            max_site_links=html_settings.max_site_links,
+            max_images=html_settings.max_images,
         )
-    elif html_settings.fetch_if_missing:
+    else:
+        body = framework_body if framework_body and not html_settings.prefer_full_homepage_fetch else ""
         probe = collect_html(
             settings.target.url,
+            body=body,
             user_agent=settings.runtime.user_agent,
             timeout_seconds=settings.runtime.timeout_seconds,
             max_body_bytes=html_settings.max_body_bytes,
+            max_internal_links=html_settings.max_internal_links_sample,
+            max_site_links=html_settings.max_site_links,
+            max_images=html_settings.max_images,
         )
-        if probe.body:
+        if probe.body and not probe.inventory.site_links:
             probe.inventory = parse_html_inventory(
                 probe.body,
                 target_url=settings.target.url,
                 check_mixed_content=html_settings.check_mixed_content,
                 check_forms=html_settings.check_forms,
                 max_internal_links=html_settings.max_internal_links_sample,
+                max_site_links=html_settings.max_site_links,
+                max_images=html_settings.max_images,
             )
-    else:
-        probe = HtmlProbeResult(target_url=settings.target.url)
+
+    artifacts_data = result.artifacts.get("inventory", {}).get("artifacts", {})
+    sitemap_raw = (artifacts_data.get("sitemap") or {}).get("raw") or ""
+    sitemap_urls: list[str] = []
+    if sitemap_raw:
+        sitemap_urls, _child_sitemaps = collect_sitemap_urls(
+            settings.target.url,
+            sitemap_raw,
+            user_agent=settings.runtime.user_agent,
+            timeout_seconds=settings.runtime.timeout_seconds,
+            max_urls=html_settings.max_sitemap_urls,
+            max_sitemap_bytes=settings.collectors.artifacts.max_sitemap_bytes,
+        )
+
+    pages_sampled, sitemap_count = enrich_site_inventory(
+        probe.inventory,
+        target_url=settings.target.url,
+        sitemap_urls=sitemap_urls,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+        max_sample_pages=html_settings.max_sample_pages,
+        max_body_bytes=html_settings.max_body_bytes,
+        max_site_links=html_settings.max_site_links,
+        max_images=html_settings.max_images,
+        check_mixed_content=html_settings.check_mixed_content,
+        check_forms=html_settings.check_forms,
+    )
+    probe.inventory.pages_sampled = max(probe.pages_scanned, pages_sampled)
+    probe.inventory.sitemap_urls_parsed = sitemap_count
+    probe.pages_scanned = probe.inventory.pages_sampled
 
     findings = analyze_html(probe, html_settings)
     artifact = probe.to_artifact()
+    body_for_attr = probe.body or framework_body
+    from webaudit.collectors.attribution import extract_attribution
+
+    attribution = extract_attribution(body_for_attr, base_url=settings.target.url)
     artifact.pop("body", None)
-    return findings, {"inventory": {"html": artifact}}
+    return findings, {
+        "inventory": {
+            "html": artifact,
+            "attribution": attribution.to_dict(),
+        }
+    }
+
+
+_EXTENSION_FRAMEWORKS = frozenset({"wordpress", "django", "laravel", "rails", "php"})
+
+
+def _step_extensions(
+    settings: Settings,
+    result: PipelineResult,
+) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    if not settings.collectors.extensions.enabled:
+        return [], {}
+
+    framework = settings.target.framework
+    if framework not in _EXTENSION_FRAMEWORKS:
+        return [], {}
+
+    profile = load_framework_profile(framework)
+    if profile is None:
+        return [], {}
+
+    framework_artifact = result.artifacts.get("inventory", {}).get("framework", {})
+    body = framework_artifact.get("body", "")
+    headers_artifact = result.artifacts.get("headers", {})
+    header_map = headers_artifact.get("headers") or {}
+
+    if not body and framework != "php":
+        return [], {}
+
+    probe = collect_extensions(
+        settings.target.url,
+        framework,
+        body,
+        headers=header_map,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+        profile=profile,
+    )
+    findings = analyze_extensions(
+        probe,
+        profile,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+    )
+    artifact = probe.to_artifact()
+    registry = registry_for_framework(framework)
+    if registry:
+        artifact["registry"] = registry
+        meta = registry_meta(registry)
+        if meta:
+            artifact["registry_label"] = meta["label"]
+            artifact["registry_home"] = meta["home"]
+    artifact["profile"] = f"{framework}/extensions.yaml"
+    return findings, {"extensions": artifact, "plugins": artifact if framework == "wordpress" else {}}
+
+
+def _step_seo_surface(
+    settings: Settings,
+    result: PipelineResult,
+) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    seo_settings = settings.collectors.seo_surface
+    if not seo_settings.enabled:
+        return [], {}
+
+    framework_artifact = result.artifacts.get("inventory", {}).get("framework", {})
+    body = framework_artifact.get("body", "")
+    artifacts_data = result.artifacts.get("inventory", {}).get("artifacts", {})
+
+    findings, summary = analyze_seo_surface(body, artifacts_data, seo_settings)
+    return findings, {"seo_surface": summary}
 
 
 # Stage 2+: register new steps here in planned order (see docs/implementation_tracker.md)
-_CONTEXT_STEPS = frozenset({"_step_policy", "_step_artifacts", "_step_framework", "_step_html"})
+_CONTEXT_STEPS = frozenset({
+    "_step_policy",
+    "_step_artifacts",
+    "_step_framework",
+    "_step_html",
+    "_step_extensions",
+    "_step_seo_surface",
+})
 _PIPELINE: tuple[Callable[..., tuple[list[Finding], dict[str, dict[str, Any]]]], ...] = (
     _step_headers,
     _step_framework,
@@ -266,6 +407,8 @@ _PIPELINE: tuple[Callable[..., tuple[list[Finding], dict[str, dict[str, Any]]]],
     _step_artifacts,
     _step_cors,
     _step_html,
+    _step_extensions,
+    _step_seo_surface,
 )
 
 

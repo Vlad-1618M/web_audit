@@ -44,7 +44,11 @@ def run_audit(settings: Settings, *, progress: ScanProgress | None = None) -> Au
         progress.scan_start(target_url)
 
     pipeline = run_pipeline(settings, progress=progress)
-    scores = score_findings(pipeline.findings, settings.scoring.hygiene_weights)
+    scores = score_findings(
+        pipeline.findings,
+        settings.scoring.hygiene_weights,
+        scoring=settings.scoring,
+    )
 
     if progress:
         progress.scoring(scores)
@@ -58,6 +62,9 @@ def run_audit(settings: Settings, *, progress: ScanProgress | None = None) -> Au
         tls=pipeline.artifacts.get("tls", {}),
         policy=pipeline.artifacts.get("policy", {}),
         inventory=pipeline.artifacts.get("inventory", {}),
+        plugins=pipeline.artifacts.get("plugins", {}),
+        extensions=pipeline.artifacts.get("extensions", {}),
+        seo_surface=pipeline.artifacts.get("seo_surface", {}),
     )
 
     run = AuditRun(

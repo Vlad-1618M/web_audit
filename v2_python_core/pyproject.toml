@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "webaudit"
-version = "2.0.0b1"
+version = "2.1.0a1"
 description = "Web Audit v2 — external security hygiene for public websites"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -21,6 +21,7 @@ dependencies = [
   "cryptography>=42.0",
   "beautifulsoup4>=4.12",
   "jinja2>=3.1",
+  "packaging>=24.0",
 ]
 
 [project.optional-dependencies]
@@ -41,6 +42,11 @@ packages = ["webaudit"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "webaudit/config/defaults.yaml" = "webaudit/config/defaults.yaml"
+"webaudit/profiles/wordpress/extensions.yaml" = "webaudit/profiles/wordpress/extensions.yaml"
+"webaudit/profiles/django/extensions.yaml" = "webaudit/profiles/django/extensions.yaml"
+"webaudit/profiles/laravel/extensions.yaml" = "webaudit/profiles/laravel/extensions.yaml"
+"webaudit/profiles/rails/extensions.yaml" = "webaudit/profiles/rails/extensions.yaml"
+"webaudit/profiles/generic/extensions.yaml" = "webaudit/profiles/generic/extensions.yaml"
 "webaudit/templates/reports/technical/report.html" = "webaudit/templates/reports/technical/report.html"
 "webaudit/templates/reports/technical/report.css" = "webaudit/templates/reports/technical/report.css"
 "webaudit/templates/reports/executive/report.html" = "webaudit/templates/reports/executive/report.html"
@@ -52,6 +58,8 @@ packages = ["webaudit"]
 "webaudit/templates/reports/digest/report.html" = "webaudit/templates/reports/digest/report.html"
 "webaudit/templates/reports/digest/report.css" = "webaudit/templates/reports/digest/report.css"
 "webaudit/templates/reports/_shared/head_print_dark.html" = "webaudit/templates/reports/_shared/head_print_dark.html"
+"webaudit/templates/reports/_shared/discovery_section.html" = "webaudit/templates/reports/_shared/discovery_section.html"
+"webaudit/templates/reports/_shared/cert_summary_section.html" = "webaudit/templates/reports/_shared/cert_summary_section.html"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

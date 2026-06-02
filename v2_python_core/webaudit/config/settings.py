@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class RuntimeSettings(BaseModel):
@@ -53,6 +53,11 @@ class DnsCollectorSettings(BaseModel):
     check_caa: bool = True
     check_dnssec: bool = True
     check_aaaa: bool = True
+    check_a: bool = True
+    check_mx: bool = True
+    check_ns: bool = True
+    check_asn: bool = True
+    use_host_tools: bool = True
 
 
 class TlsCollectorSettings(BaseModel):
@@ -101,9 +106,36 @@ class HtmlCollectorSettings(BaseModel):
     enabled: bool = True
     check_mixed_content: bool = True
     check_forms: bool = True
+    prefer_full_homepage_fetch: bool = True
     max_body_bytes: int = Field(default=65536, ge=1000, le=500_000)
     max_internal_links_sample: int = Field(default=50, ge=1, le=500)
+    max_site_links: int = Field(default=1000, ge=1, le=5000)
+    max_images: int = Field(default=500, ge=1, le=5000)
+    max_sample_pages: int = Field(default=8, ge=1, le=32)
+    max_sitemap_urls: int = Field(default=500, ge=1, le=5000)
     fetch_if_missing: bool = True
+
+
+class WpPluginsCollectorSettings(BaseModel):
+    """Stage 5 / Tier 2b — framework extension fingerprint (plugins, packages, gems)."""
+
+    enabled: bool = True
+
+
+ExtensionsCollectorSettings = WpPluginsCollectorSettings
+
+
+class SeoSurfaceSettings(BaseModel):
+    """Stage 5 / Tier 2c — discoverability checks (INFO/VERIFY only)."""
+
+    enabled: bool = True
+    check_meta_robots: bool = True
+    check_canonical: bool = True
+    check_meta_description: bool = True
+    check_open_graph: bool = False
+    check_robots_blocks: bool = True
+    check_sitemap: bool = True
+    sitemap_empty_threshold: int = Field(default=1, ge=0, le=100)
 
 
 class CollectorsSettings(BaseModel):
@@ -115,6 +147,22 @@ class CollectorsSettings(BaseModel):
     cors: CorsCollectorSettings = Field(default_factory=CorsCollectorSettings)
     framework: FrameworkCollectorSettings = Field(default_factory=FrameworkCollectorSettings)
     html: HtmlCollectorSettings = Field(default_factory=HtmlCollectorSettings)
+    extensions: ExtensionsCollectorSettings = Field(default_factory=ExtensionsCollectorSettings)
+    wp_plugins: ExtensionsCollectorSettings = Field(default_factory=ExtensionsCollectorSettings)
+    seo_surface: SeoSurfaceSettings = Field(default_factory=SeoSurfaceSettings)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _merge_legacy_wp_plugins(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        if "wp_plugins" in data and "extensions" not in data:
+            data = dict(data)
+            data["extensions"] = data["wp_plugins"]
+        elif "extensions" in data and "wp_plugins" not in data:
+            data = dict(data)
+            data["wp_plugins"] = data["extensions"]
+        return data
 
 
 class HygieneWeights(BaseModel):
@@ -126,11 +174,13 @@ class HygieneWeights(BaseModel):
 
 class ScoringSettings(BaseModel):
     hygiene_weights: HygieneWeights = Field(default_factory=HygieneWeights)
+    hygiene_caps: dict[str, int] = Field(default_factory=lambda: {"PLUGIN": 30, "PLUGIN_CVE": 30})
+    plugin_worst_wins: bool = True
     seo_surface_affects_scores: bool = False
 
 
 class ReportSettings(BaseModel):
-    variant: str = "technical"
+    variant: str = "owner"
     theme: str = "dark"
 
 

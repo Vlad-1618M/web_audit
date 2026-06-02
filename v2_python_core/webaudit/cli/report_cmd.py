@@ -34,7 +34,7 @@ def report_command(
     ] = None,
     variant: Annotated[
         str | None,
-        typer.Option("--variant", help="Report template: technical, executive, minimal, dashboard, digest"),
+        typer.Option("--variant", help="Report template: owner, technical, executive, minimal, dashboard, digest"),
     ] = None,
     theme: Annotated[
         str | None,

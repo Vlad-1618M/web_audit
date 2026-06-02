@@ -115,6 +115,7 @@ v2_python_core/
 │   │   └── engine.py           # Hygiene, Exposure, Verdict
 │   ├── storage/
 │   │   └── runs.py             # audit_logs/ writer
+│   ├── pipeline.py             # Stage registry — add collectors here
 │   └── orchestrator.py
 └── tests/unit/                 # pytest (14 tests)
 ```

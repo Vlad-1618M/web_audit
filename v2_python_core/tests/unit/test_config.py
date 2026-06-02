@@ -17,6 +17,8 @@ def test_defaults_load():
     assert settings.target.url == "https://example.com"
     assert settings.runtime.timeout_seconds == 15
     assert settings.collectors.dns.check_dmarc is True
+    assert settings.paths.sensitive_builtin is True
+    assert settings.paths.max_probe_urls == 250
 
 
 def test_merge_user_config(tmp_path: Path):

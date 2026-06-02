@@ -27,6 +27,13 @@ class TargetSettings(BaseModel):
     framework: Literal["auto", "django", "wordpress", "laravel", "rails", "php", "unknown"] = "auto"
 
 
+class PathsSettings(BaseModel):
+    """Stage 2 — sensitive path probes (Exposure). Stub wired in defaults.yaml; collector TBD."""
+
+    sensitive_builtin: bool = True
+    max_probe_urls: int = Field(default=250, ge=1, le=2000)
+
+
 class DnsCollectorSettings(BaseModel):
     enabled: bool = True
     check_spf: bool = True
@@ -72,6 +79,7 @@ class Settings(BaseModel):
     webaudit_version: str = "2.0"
     runtime: RuntimeSettings = Field(default_factory=RuntimeSettings)
     target: TargetSettings = Field(default_factory=TargetSettings)
+    paths: PathsSettings = Field(default_factory=PathsSettings)
     collectors: CollectorsSettings = Field(default_factory=CollectorsSettings)
     scoring: ScoringSettings = Field(default_factory=ScoringSettings)
     report: ReportSettings = Field(default_factory=ReportSettings)

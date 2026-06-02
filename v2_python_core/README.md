@@ -54,6 +54,8 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 
 | Document | Purpose |
 |----------|---------|
+| [docs/implementation_tracker.md](docs/implementation_tracker.md) | **Built vs planned** — module status, extension contract, Stage 2 backlog |
+| [CHANGELOG.md](CHANGELOG.md) | Release history; Unreleased = next Stage 2 work |
 | [docs/getting_started_plain.md](docs/getting_started_plain.md) | **Non-technical** — install, scan, tab completion explained simply |
 | [dev-venv.sh](dev-venv.sh) | Local `.venv` setup, activate, teardown (Mac/Linux) |
 | [docs/stages.md](docs/stages.md) | Delivery stages; Tier 1 → Tier 2 → Tier 3 stacking |
@@ -131,6 +133,8 @@ v2_python_core/
 │   ├── analyzers/              # headers, dns
 │   ├── scoring/                # engine.py
 │   ├── storage/                # audit_logs writer
+│   ├── pipeline.py             # scan step registry (add Stage 2 here)
+│   ├── orchestrator.py
 │   └── models/
 ├── tests/unit/
 ├── mockups/                    # static previews (reports, config, diagrams)

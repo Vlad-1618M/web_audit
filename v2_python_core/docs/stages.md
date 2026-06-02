@@ -33,6 +33,8 @@ Stages are **sequential**. Tiers are **feature bundles** that land across stages
 
 **Not in Stage 1:** paths, TLS, cookies, HTML reports, PDF, framework profiles, Tier 2b plugins.
 
+Track built vs planned modules: [implementation_tracker.md](implementation_tracker.md) · [CHANGELOG.md](../CHANGELOG.md)
+
 ---
 
 ## Tier definitions

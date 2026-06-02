@@ -9,6 +9,7 @@ runtime:
 target:
   framework: auto
 
+# Stage 2 — paths collector reads paths.* (see docs/implementation_tracker.md)
 paths:
   sensitive_builtin: true
   max_probe_urls: 250

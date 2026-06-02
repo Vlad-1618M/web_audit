@@ -67,6 +67,27 @@ def _apply_detected_framework(settings: Settings, effective: str) -> None:
         settings.target.framework = effective  # type: ignore[assignment]
 
 
+_EXTENSION_FRAMEWORKS = frozenset({"wordpress", "django", "laravel", "rails", "php"})
+
+
+def _framework_hint_from_robots_raw(robots_raw: str) -> str | None:
+    text = robots_raw.lower()
+    if any(token in text for token in ("wp-admin", "wp-content", "wp-includes")):
+        return "wordpress"
+    return None
+
+
+def _framework_hint_from_robots(result: PipelineResult) -> str | None:
+    robots_raw = (
+        result.artifacts.get("inventory", {})
+        .get("artifacts", {})
+        .get("robots", {})
+        .get("raw", "")
+        or ""
+    )
+    return _framework_hint_from_robots_raw(robots_raw)
+
+
 def _step_framework(
     settings: Settings,
     result: PipelineResult,
@@ -197,7 +218,22 @@ def _step_artifacts(
     paths_data = result.artifacts.get("inventory", {}).get("paths", {})
     open_paths = paths_data.get("paths", [])
     findings = analyze_artifacts(probe, settings.collectors.artifacts, open_paths=open_paths)
-    return findings, {"inventory": {"artifacts": probe.to_artifact()}}
+    artifact = probe.to_artifact()
+    inventory_update: dict[str, Any] = {"artifacts": artifact}
+    if settings.target.framework not in _EXTENSION_FRAMEWORKS:
+        hinted = _framework_hint_from_robots_raw((artifact.get("robots") or {}).get("raw") or "")
+        if hinted:
+            _apply_detected_framework(settings, hinted)
+            fw = result.artifacts.get("inventory", {}).get("framework", {})
+            if str(fw.get("effective_framework") or "unknown") in {"unknown", "auto", ""}:
+                inventory_update["framework"] = {
+                    **fw,
+                    "detected": hinted,
+                    "effective_framework": hinted,
+                    "confidence": "low",
+                    "signals": "robots.txt",
+                }
+    return findings, {"inventory": inventory_update}
 
 
 def _step_cors(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
@@ -223,6 +259,7 @@ def _step_html(
 
     from webaudit.collectors.site_discovery import enrich_site_inventory
     from webaudit.collectors.sitemap import collect_sitemap_urls
+    from webaudit.collectors.bot_challenge import is_bot_challenge
 
     html_settings = settings.collectors.html
     framework_artifact = result.artifacts.get("inventory", {}).get("framework", {})
@@ -240,15 +277,17 @@ def _step_html(
             body=framework_body,
             pages_scanned=1,
         )
-        probe.inventory = parse_html_inventory(
-            framework_body,
-            target_url=settings.target.url,
-            check_mixed_content=html_settings.check_mixed_content,
-            check_forms=html_settings.check_forms,
-            max_internal_links=html_settings.max_internal_links_sample,
-            max_site_links=html_settings.max_site_links,
-            max_images=html_settings.max_images,
-        )
+        probe.bot_challenge = is_bot_challenge(framework_body)
+        if not probe.bot_challenge:
+            probe.inventory = parse_html_inventory(
+                framework_body,
+                target_url=settings.target.url,
+                check_mixed_content=html_settings.check_mixed_content,
+                check_forms=html_settings.check_forms,
+                max_internal_links=html_settings.max_internal_links_sample,
+                max_site_links=html_settings.max_site_links,
+                max_images=html_settings.max_images,
+            )
     else:
         body = framework_body if framework_body and not html_settings.prefer_full_homepage_fetch else ""
         probe = collect_html(
@@ -285,7 +324,7 @@ def _step_html(
             max_sitemap_bytes=settings.collectors.artifacts.max_sitemap_bytes,
         )
 
-    pages_sampled, sitemap_count = enrich_site_inventory(
+    pages_sampled, sitemap_count, homepage_body = enrich_site_inventory(
         probe.inventory,
         target_url=settings.target.url,
         sitemap_urls=sitemap_urls,
@@ -298,6 +337,21 @@ def _step_html(
         check_mixed_content=html_settings.check_mixed_content,
         check_forms=html_settings.check_forms,
     )
+    if homepage_body and len(homepage_body) > len(probe.body or ""):
+        probe.body = homepage_body
+        probe.bot_challenge = False
+        if probe.inventory.link_count == 0:
+            probe.inventory = parse_html_inventory(
+                homepage_body,
+                target_url=settings.target.url,
+                check_mixed_content=html_settings.check_mixed_content,
+                check_forms=html_settings.check_forms,
+                max_internal_links=html_settings.max_internal_links_sample,
+                max_site_links=html_settings.max_site_links,
+                max_images=html_settings.max_images,
+            )
+    elif probe.body and is_bot_challenge(probe.body, status_code=probe.http_status):
+        probe.bot_challenge = not probe.inventory.site_links and probe.inventory.link_count == 0
     probe.inventory.pages_sampled = max(probe.pages_scanned, pages_sampled)
     probe.inventory.sitemap_urls_parsed = sitemap_count
     probe.pages_scanned = probe.inventory.pages_sampled
@@ -318,9 +372,6 @@ def _step_html(
     }
 
 
-_EXTENSION_FRAMEWORKS = frozenset({"wordpress", "django", "laravel", "rails", "php"})
-
-
 def _step_extensions(
     settings: Settings,
     result: PipelineResult,
@@ -330,7 +381,12 @@ def _step_extensions(
 
     framework = settings.target.framework
     if framework not in _EXTENSION_FRAMEWORKS:
-        return [], {}
+        hinted = _framework_hint_from_robots(result)
+        if hinted:
+            framework = hinted
+            _apply_detected_framework(settings, hinted)
+        else:
+            return [], {}
 
     profile = load_framework_profile(framework)
     if profile is None:

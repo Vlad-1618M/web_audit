@@ -541,10 +541,26 @@ section.block h2 { font-size: 1.35rem; color: var(--cyan); margin-bottom: 0.5rem
 .focus-scan-stack { display: flex; flex-direction: column; gap: 1.25rem; }
 .focus-status-block { border-top: 1px solid var(--border); padding-top: 1rem; }
 .focus-status-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 0.65rem; }
-.metric-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.65rem; }
-.metric-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem 0.75rem; text-align: center; }
-.metric-chip .metric-n { font-size: 1.35rem; font-weight: 700; }
-.metric-chip .metric-l { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; }
+.metric-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 0.65rem; }
+.metric-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+  text-align: center;
+  min-width: 0;
+}
+.metric-chip .metric-n { font-size: 1.35rem; font-weight: 700; line-height: 1.1; }
+.metric-chip .metric-l {
+  font-size: 0.64rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  margin-top: 0.2rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 .metric-chip.critical .metric-n { color: #ff6b9d; }
 .metric-chip.high .metric-n { color: var(--coral); }
 .metric-chip.medium .metric-n { color: var(--gold); }

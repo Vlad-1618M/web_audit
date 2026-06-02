@@ -27,13 +27,13 @@
 <div class="timeline">
   {% for item in digest_timeline %}
   <div class="t-item {{ item.tone }}">
-    <div class="cat">{{ item.category }}</div>
+    {% include "timeline_cat.html" %}
     <h3>{{ item.title }}</h3>
     <p>{{ item.detail }}</p>
   </div>
   {% else %}
   <div class="t-item ok">
-    <div class="cat">Summary</div>
+    <div class="cat"><span class="cat-name">Summary</span></div>
     <h3>No urgent issues</h3>
     <p>This external scan did not surface scored action items.</p>
   </div>

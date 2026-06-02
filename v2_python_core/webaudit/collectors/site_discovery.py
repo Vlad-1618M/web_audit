@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 from urllib.parse import urlparse
 
+from webaudit.collectors.bot_challenge import is_bot_challenge
 from webaudit.collectors.html import HtmlInventory, parse_html_inventory
 from webaudit.collectors.url_utils import same_origin
 
@@ -82,8 +83,11 @@ def enrich_site_inventory(
     check_mixed_content: bool,
     check_forms: bool,
     client: Any | None = None,
-) -> tuple[int, int]:
-    """Add sitemap URLs and sample additional pages; returns (pages_sampled, sitemap_url_count)."""
+) -> tuple[int, int, str]:
+    """Add sitemap URLs and sample additional pages.
+
+    Returns (pages_sampled, sitemap_url_count, homepage_body).
+    """
     import httpx
 
     seen = {item["url"] for item in inventory.site_links}
@@ -112,11 +116,15 @@ def enrich_site_inventory(
         if len(sample_urls) >= max_sample_pages:
             break
 
-    own_client = client is None and len(sample_urls) > 1
+    needs_fetch = any(
+        page_url != target_url or inventory.link_count == 0 for page_url in sample_urls
+    )
+    own_client = client is None and needs_fetch
     if own_client:
         client = httpx.Client(timeout=timeout_seconds, follow_redirects=True)
 
     pages_sampled = 0
+    homepage_body = ""
     headers = {"User-Agent": user_agent}
 
     try:
@@ -124,14 +132,18 @@ def enrich_site_inventory(
             if page_url == target_url and inventory.link_count > 0:
                 pages_sampled += 1
                 continue
+            if client is None:
+                continue
             try:
                 response = client.get(page_url, headers=headers)
                 body = response.text[:max_body_bytes]
             except httpx.HTTPError:
                 continue
-            if not body.strip():
+            if not body.strip() or is_bot_challenge(body, status_code=response.status_code):
                 continue
             pages_sampled += 1
+            if page_url == target_url:
+                homepage_body = body
             page_path = urlparse(page_url).path or "/"
             page_inv = parse_html_inventory(
                 body,
@@ -156,7 +168,7 @@ def enrich_site_inventory(
         if own_client and client is not None:
             client.close()
 
-    return pages_sampled, len(sitemap_urls)
+    return pages_sampled, len(sitemap_urls), homepage_body
 
 
 def _looks_like_sitemap_url(url: str) -> bool:

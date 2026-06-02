@@ -55,6 +55,8 @@ def run_audit(settings: Settings, *, progress: ScanProgress | None = None) -> Au
 
     framework_artifact = pipeline.artifacts.get("inventory", {}).get("framework", {})
     effective_framework = framework_artifact.get("effective_framework", settings.target.framework)
+    if settings.target.framework not in {"auto", "unknown", ""}:
+        effective_framework = settings.target.framework
 
     artifacts = AuditArtifacts(
         headers=pipeline.artifacts.get("headers", {}),

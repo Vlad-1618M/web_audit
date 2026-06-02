@@ -43,7 +43,7 @@
       <tbody>
         {% for row in extension_section.rows %}
         <tr>
-          <td><code>{{ row.name }}</code>{% if row.tier %} <span class="pill tier-{{ row.tier }}">{{ row.tier }}</span>{% endif %}</td>
+          <td><code>{{ row.name }}</code>{% if row.tier %} <span class="pill tier-{{ row.tier }}" title="Watchlist priority">{{ row.tier }}</span>{% endif %}</td>
           <td>{{ row.detected_version }}</td>
           <td>{{ row.latest_version }}</td>
           <td><span class="ext-status {{ row.status_tone }}">{{ row.status }}</span></td>

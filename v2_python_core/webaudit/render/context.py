@@ -20,6 +20,7 @@ from webaudit.collectors.tls_cert import (
 )
 from webaudit.render.discoverability_display import build_discoverability_section
 from webaudit.render.dns_display import build_dns_cards, build_whois_card, format_net_tools
+from webaudit.render.finding_display import enrich_findings_table, tls_result_tone
 from webaudit.render.extension_display import build_extension_section
 from webaudit.render.focus_pie import build_focus_pie_slices, focus_pie_conic_gradient
 from webaudit.render.probe_status import build_probe_status_row
@@ -122,53 +123,54 @@ def _dns_net_tools_note(artifacts: dict[str, Any]) -> str:
     return format_net_tools(dns.get("net_tools") or {})
 
 
+def _tls_row(check: str, result: str) -> dict[str, str]:
+    return {
+        "check": check,
+        "result": result,
+        "result_tone": tls_result_tone(check, result),
+    }
+
+
 def _tls_rows(artifacts: dict[str, Any]) -> list[dict[str, str]]:
     tls = artifacts.get("tls", {})
     rows: list[dict[str, str]] = []
     cert = tls.get("certificate") or {}
 
     if cert:
-        rows.append(
-            {
-                "check": "Certificate status",
-                "result": str(cert.get("status") or "UNKNOWN"),
-            }
-        )
+        rows.append(_tls_row("Certificate status", str(cert.get("status") or "UNKNOWN")))
         if cert.get("issuer_display") or cert.get("issuer"):
             rows.append(
-                {
-                    "check": "Issued by (CA)",
-                    "result": str(cert.get("issuer_display") or cert.get("issuer", ""))[:120],
-                }
+                _tls_row(
+                    "Issued by (CA)",
+                    str(cert.get("issuer_display") or cert.get("issuer", ""))[:120],
+                )
             )
         if cert.get("subject_cn") or cert.get("subject"):
             rows.append(
-                {
-                    "check": "Issued to (CN)",
-                    "result": str(cert.get("subject_cn") or cert.get("subject", ""))[:120],
-                }
+                _tls_row(
+                    "Issued to (CN)",
+                    str(cert.get("subject_cn") or cert.get("subject", ""))[:120],
+                )
             )
         if cert.get("not_before"):
-            rows.append({"check": "Valid from", "result": format_cert_datetime(cert["not_before"])})
+            rows.append(_tls_row("Valid from", format_cert_datetime(cert["not_before"])))
         if cert.get("not_after"):
             rows.append(
-                {
-                    "check": "Valid until",
-                    "result": f"{format_cert_datetime(cert['not_after'])} ({format_days_left(cert.get('days_left'))})",
-                }
+                _tls_row(
+                    "Valid until",
+                    f"{format_cert_datetime(cert['not_after'])} ({format_days_left(cert.get('days_left'))})",
+                )
             )
         if cert.get("hostname_match") is not None:
-            rows.append(
-                {
-                    "check": "Hostname match",
-                    "result": "Yes" if cert.get("hostname_match") else f"No — {cert.get('hostname_note', '')}",
-                }
+            host_result = (
+                "Yes" if cert.get("hostname_match") else f"No — {cert.get('hostname_note', '')}"
             )
+            rows.append(_tls_row("Hostname match", host_result))
         if cert.get("san"):
             preview = ", ".join(cert["san"][:6])
             if len(cert["san"]) > 6:
                 preview += f" (+{len(cert['san']) - 6} more)"
-            rows.append({"check": "SAN names", "result": preview})
+            rows.append(_tls_row("SAN names", preview))
 
     for entry in tls.get("versions") or []:
         label = f"TLS {entry.get('version', '?')}"
@@ -176,9 +178,9 @@ def _tls_rows(artifacts: dict[str, Any]) -> list[dict[str, str]]:
             result = entry.get("negotiated") or "SUPPORTED"
         else:
             result = entry.get("error") or "UNAVAILABLE"
-        rows.append({"check": label, "result": str(result)})
+        rows.append(_tls_row(label, str(result)))
     if cert.get("chain_length"):
-        rows.append({"check": "Chain length", "result": f"{cert['chain_length']} certificate(s)"})
+        rows.append(_tls_row("Chain length", f"{cert['chain_length']} certificate(s)"))
     return rows
 
 
@@ -529,6 +531,16 @@ def _alert_strip(findings: list[Finding], *, limit: int = 5) -> str:
     return " · ".join(items) if items else "No action items"
 
 
+def _action_alert_tone(finding: Finding) -> str:
+    if finding.severity == Severity.CRITICAL:
+        return "critical"
+    if finding.severity == Severity.HIGH:
+        return "high"
+    if finding.severity == Severity.MEDIUM:
+        return "medium"
+    return "medium"
+
+
 def _alert_strip_items(findings: list[Finding], *, limit: int = 5) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     for finding in findings:
@@ -538,6 +550,7 @@ def _alert_strip_items(findings: list[Finding], *, limit: int = 5) -> list[dict[
             {
                 "label": finding.item,
                 "anchor": _technical_anchor_for_finding(finding),
+                "tone": _action_alert_tone(finding),
             }
         )
         if len(rows) >= limit:
@@ -587,6 +600,8 @@ def _digest_timeline(findings: list[Finding], *, limit: int = 8) -> list[dict[st
         items.append(
             {
                 "tone": tone,
+                "category_label": finding.category,
+                "status_label": finding.severity.value,
                 "category": f"{finding.category} · {finding.severity.value}",
                 "title": finding.item,
                 "detail": finding.detail or finding.status,
@@ -642,8 +657,11 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
         "exposure_band": _exposure_band(run.scores.exposure),
         "findings": run.findings,
         "action_findings": groups["action"],
+        "action_findings_rows": enrich_findings_table(groups["action"], "action"),
         "verify_findings": groups["verify"],
+        "verify_findings_rows": enrich_findings_table(groups["verify"], "verify"),
         "expected_findings": groups["expected"],
+        "expected_findings_rows": enrich_findings_table(groups["expected"], "expected"),
         "info_findings": groups["info"],
         "seo_findings": seo_findings,
         "discoverability_section": discoverability_section,

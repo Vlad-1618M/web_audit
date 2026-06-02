@@ -1,0 +1,5 @@
+{# Timeline category line — category name (violet) + status (matches bullet tone) #}
+<div class="cat">
+  <span class="cat-name">{{ item.category_label or item.category }}</span>{% if item.status_label %}
+  <span class="cat-sep"> · </span><span class="cat-status cat-status-{{ item.tone }}">{{ item.status_label }}</span>{% endif %}
+</div>

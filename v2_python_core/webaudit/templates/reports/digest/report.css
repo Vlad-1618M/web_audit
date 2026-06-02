@@ -307,9 +307,21 @@ body > * { position: relative; z-index: 1; }
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--violet);
   margin-bottom: 0.25rem;
 }
+
+.t-item .cat-name {
+  color: var(--violet);
+}
+
+.t-item .cat-sep {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.t-item .cat-status-critical { color: var(--coral); font-weight: 700; }
+.t-item .cat-status-warn { color: var(--gold); font-weight: 700; }
+.t-item .cat-status-ok { color: var(--lime); font-weight: 700; }
 
 .t-item h3 {
   font-size: 1rem;

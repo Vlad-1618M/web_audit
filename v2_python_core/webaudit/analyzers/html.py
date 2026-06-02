@@ -29,6 +29,21 @@ def analyze_html(probe: HtmlProbeResult, settings: HtmlCollectorSettings) -> lis
             )
         ]
 
+    if probe.bot_challenge and not probe.inventory.site_links and probe.inventory.link_count == 0:
+        from webaudit.collectors.bot_challenge import bot_challenge_detail
+
+        return [
+            Finding.from_check(
+                category="HTML",
+                item="Homepage HTML",
+                status="BLOCKED",
+                severity=Severity.MEDIUM,
+                detail=bot_challenge_detail(status_code=probe.http_status),
+                class_=FindingClass.VERIFY,
+                scored=False,
+            )
+        ]
+
     if not probe.body:
         return [
             Finding.from_check(

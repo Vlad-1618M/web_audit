@@ -70,10 +70,7 @@ def step_enabled(step_name: str, settings: Settings) -> bool:
         case "_step_html":
             return settings.collectors.html.enabled
         case "_step_extensions":
-            return (
-                settings.collectors.extensions.enabled
-                and settings.target.framework in {"wordpress", "django", "laravel", "rails", "php"}
-            )
+            return settings.collectors.extensions.enabled
         case "_step_seo_surface":
             return settings.collectors.seo_surface.enabled
     return True

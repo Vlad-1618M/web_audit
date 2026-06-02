@@ -12,7 +12,11 @@ Stage 1   Core skeleton + config + CLI     ✓
 Stage 2   Tier 1 collectors + v1 parity    ✓
 Stage 3   Scoring + analyzers + audit_run  ✓ (parity polish ongoing)
 Stage 4   Report templates + PDF           ✓
-Stage 5   Tier 2 + Tier 2b modules         ← next (Tier 1 **shipped** in 2.0.0b1)
+Stage 5   Tier 2 + Tier 2b modules         ← in progress (2.1.0a1)
+          · extensions (WP/Django/Laravel/Rails)
+          · DNS enrichment (A/MX/NS/ASN/WHOIS)
+          · report polish (DNS cards, probe colors, robots, metrics)
+          · baseline diff ✓
 Stage 6   Tier 3 modules + packaging
 ```
 
@@ -51,7 +55,7 @@ Track built vs planned modules: [implementation_tracker.md](implementation_track
 | `collectors.paths` | Sensitive path list + config extras | httpx |
 | `collectors.headers` | Response header capture | httpx |
 | `collectors.tls` | Versions, chain, ciphers, cert dates | **ssl**, **cryptography** |
-| `collectors.dns` | SPF, DMARC, AAAA, CAA, DNSSEC | **dnspython** |
+| `collectors.dns` | SPF, DMARC, A, AAAA, MX, NS, CAA, DNSSEC; ASN via Cymru DNS; optional host `whois` | **dnspython** (+ optional `whois` binary) |
 | `collectors.cookies` | Set-Cookie parsing | httpx, **http.cookies** |
 | `collectors.rate_limit` | Login GET burst + invalid POST | httpx |
 | `collectors.artifacts` | robots, security.txt, sitemap | httpx |
@@ -95,19 +99,19 @@ webaudit[pdf]      → weasyprint
 - [x] DOM-based HTML inventory (BeautifulSoup)
 - [x] Five HTML templates wired
 - [x] PDF — browser print (default); optional WeasyPrint headless
-- [x] pytest on scoring, config, collectors, analyzers, render (~85 tests)
+- [x] pytest on scoring, config, collectors, analyzers, render (~142 unit tests)
 
 ---
 
-### Tier 2b — Framework extension intelligence (v2.1+, WordPress first)
+### Tier 2b — Framework extension intelligence (v2.1+, multi-framework)
 
-**Purpose:** Data-driven plugin/package detection via **framework profiles** — fixes v1 blind readme probing, adds version compare and optional CVE cache.
+**Purpose:** Data-driven plugin/package/gem detection via **framework profiles** — fixes v1 blind readme probing, adds version compare and optional CVE cache.
 
 | Module | Responsibility | Libraries |
 |--------|----------------|-----------|
 | `config.profiles` | Detect framework → load `profiles/{fw}/extensions.yaml` | pyyaml, pydantic |
-| `collectors.wp_plugins` | Slug/version from HTML `?ver=`, readme.txt | httpx, beautifulsoup4 |
-| `analyzers.wp_plugins` | wp.org latest compare, stale heuristics | httpx, **packaging** |
+| `collectors.extensions` | Unified dispatch: WP plugins, Django/Laravel packages, Rails gems | httpx, beautifulsoup4 |
+| `analyzers.extensions` | Registry compare (wp.org, PyPI, Packagist, RubyGems) | httpx, **packaging** |
 | `analyzers.plugin_vuln` | CVE match from cache / WPScan | httpx, sqlite |
 | `storage.vuln_cache` | `(slug, version)` TTL cache | sqlite3 |
 
@@ -123,12 +127,13 @@ packaging>=24.0
 
 **Tier 2b exit criteria:**
 
-- [ ] WordPress auto-detect loads `profiles/wordpress/extensions.yaml`
-- [ ] `probe.mode: observed_only` — no readme GET for undetected slugs (v1 fix)
-- [ ] Free plugins compared to wordpress.org API
-- [ ] Premium slugs → VERIFY findings, not false “stale”
-- [ ] Auth-required CVEs default to VERIFY class
-- [ ] `hygiene_caps.PLUGIN: 30` enforced in scoring tests
+- [x] WordPress auto-detect loads `profiles/wordpress/extensions.yaml`
+- [x] Django / Laravel / Rails profiles shipped with passive signals + registry compare
+- [x] `probe.mode: observed_only` — no readme GET for undetected slugs (v1 fix)
+- [x] Free plugins compared to wordpress.org API
+- [x] Premium slugs → VERIFY findings, not false “stale”
+- [ ] Auth-required CVEs default to VERIFY class (deferred — `plugin_vuln` module)
+- [x] `hygiene_caps.PLUGIN: 30` enforced in scoring tests
 - [ ] CVE fixtures from research doc drive pytest golden files
 
 ---
@@ -146,11 +151,11 @@ packaging>=24.0
 
 **Tier 2c exit criteria:**
 
-- [ ] All `SEO_SURFACE` findings default to INFO or VERIFY — never ACTION
-- [ ] `scoring.seo_surface_affects_scores: false` enforced in tests
+- [x] All `SEO_SURFACE` findings default to INFO or VERIFY — never ACTION
+- [x] `scoring.seo_surface_affects_scores: false` enforced in tests
 - [ ] Executive report shows one informational “Discoverability” block
-- [ ] No “SEO success %” or ranking language anywhere in UI
-- [ ] pytest: `noindex` homepage → VERIFY; missing meta description → INFO
+- [x] No “SEO success %” or ranking language anywhere in UI
+- [x] pytest: `noindex` homepage → VERIFY; missing meta description → INFO
 
 ---
 
@@ -179,7 +184,7 @@ playwright>=1.42    # extra: webaudit[js]
 **Tier 2 exit criteria:**
 
 - [ ] `--js` flag runs Playwright pass when installed
-- [ ] Baseline diff in CLI and report
+- [x] Baseline diff in CLI (`webaudit diff`)
 - [ ] GraphQL / OpenAPI findings when exposed
 - [ ] Integration tests with recorded httpx cassettes (**pytest-httpx** or **vcrpy**)
 
@@ -195,7 +200,7 @@ playwright>=1.42    # extra: webaudit[js]
 | `analyzers.cve` | Version → CVE hint (VERIFY class) | **nvdlib** or cached CPE map |
 | `analyzers.plugin_vuln` | WP plugin CVE from shipped snapshot | sqlite + weekly JSON |
 | `analyzers.takeover` | CNAME → known-bad SaaS targets | dnspython + rules yaml |
-| `collectors.whois` | Registrar expiry | **python-whois** |
+| `collectors.whois` | Registrar expiry (library fallback) | **python-whois** — optional; host `whois` binary used first when present (2.1.0a1) |
 | `collectors.http3` | QUIC/HTTP3 probe where supported | httpx (when capable) |
 | `config.migrate` | Import v1 INI → v2 YAML | custom |
 | `packaging` | pipx, Homebrew, deb | external tooling |

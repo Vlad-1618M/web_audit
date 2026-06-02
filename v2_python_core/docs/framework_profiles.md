@@ -40,7 +40,7 @@ flowchart TD
   FW -->|forced| LOAD[load profiles/framework/extensions.yaml]
   DET --> CONF{confidence >= min?}
   CONF -->|yes| LOAD
-  CONF -->|no| GEN[load profiles/generic/php.yaml]
+  CONF -->|no| GEN[load profiles/generic/extensions.yaml]
   LOAD --> MERGE[merge site.extensions]
   GEN --> MERGE
   MERGE --> RUN[collectors + analyzers per merged config]
@@ -58,7 +58,7 @@ webaudit/profiles/
   django/extensions.yaml
   laravel/extensions.yaml
   rails/extensions.yaml
-  generic/php.yaml
+  generic/extensions.yaml
 ```
 
 **Mockups (this repo today):**
@@ -153,7 +153,7 @@ extensions:
 | **django** | `django/extensions.yaml` | app / package hint | DEBUG, admin static, optional lockfile path |
 | **laravel** | `laravel/extensions.yaml` | composer hint | debug pages, exposed vendor (bad) |
 | **rails** | `rails/extensions.yaml` | gem hint | info endpoints, static paths |
-| **generic/php** | `generic/php.yaml` | — | version disclosure only; no vuln DB |
+| **generic** | `generic/extensions.yaml` | — | version disclosure only; no vuln DB |
 
 Django does **not** reuse WordPress plugin logic — same pipeline, different profile.
 

@@ -2,7 +2,7 @@
 
 *YAML-driven scanner settings — global defaults, per-site overrides, no magic constants buried in Python.*
 
-**Stage 1 status:** `load_settings()` merges shipped `defaults.yaml` → `~/.config/webaudit/config.yaml` → project `webaudit.yaml` → `--config` / `--site-config` CLI flags. Site profiles and framework profile auto-load are **Tier 2**.
+**Stage 1 status:** `load_settings()` merges shipped `defaults.yaml` → `~/.config/webaudit/config.yaml` → project `webaudit.yaml` → `--config` / `--site-config` CLI flags. Framework profile auto-load is **live (2.1.0a1)**.
 
 ---
 
@@ -86,7 +86,7 @@ misc:
 
 collectors:
   extensions:
-    enabled: true            # Tier 2b — off until module ships
+    enabled: true            # Tier 2b — multi-framework (2.1.0a1)
     vuln_cache_path: ~/.local/share/webaudit/vuln_cache.db
   dns:
     enabled: true
@@ -96,6 +96,14 @@ collectors:
     check_caa: true
     check_dnssec: true
     check_aaaa: true
+    check_a: true
+    check_mx: true
+    check_ns: true
+    check_asn: true            # Team Cymru DNS — no dig required
+    use_host_tools: true       # detect dig/whois/host/mtr; run whois when present
+  html:
+    prefer_full_homepage_fetch: true
+    max_sitemap_urls: 500
   tls:
     enabled: true
     check_deprecated_versions: true
@@ -124,9 +132,11 @@ scoring:
     HIGH: 10
     MEDIUM: 4
     LOW: 1
-  hygiene_caps:              # Tier 2b — prevent plugin pile-on
+  hygiene_caps:              # Tier 2b — prevent extension pile-on
     PLUGIN: 30
     PLUGIN_CVE: 30
+    PACKAGE: 30
+    GEM: 30
   show_risk_index: false     # Tier 2
   hard_stops:
     - env_exposed
@@ -136,7 +146,7 @@ scoring:
   seo_surface_affects_scores: false   # Tier 2c — must stay false in shipped defaults
 
 report:
-  variant: executive         # executive | technical | minimal | dashboard | digest
+  variant: owner             # owner | executive | technical | minimal | dashboard | digest
   theme: dark                # dark | light | print
   language: en
 

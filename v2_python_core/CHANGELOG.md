@@ -8,6 +8,37 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ## [Unreleased]
 
+### Added (Stage 5 — Tier 2b / 2c / baseline diff + report polish)
+
+- **Owner combined report** — default `owner` variant: framed **Security dashboard** + unified **Executive summary** (digest timeline merged in); **focus pie chart** (Hygiene/Exposure/SEO) replaces score rings; Technical tab with draggable sidebar
+- **Fold panels** — probe URLs, site URLs, images, and path probes **unfolded by default**; clearer chevron toggle bars (“Click to fold or unfold”)
+- **Shared report partials** — `digest_body`, `executive_body`, `technical_main` reused by standalone variants
+- **DNS enrichment** — A, MX, NS records via dnspython; **ASN** via Team Cymru DNS (`collectors/asn.py`); optional host **`whois`** when binary present (`collectors/net_tools.py`); host tool detection stored in artifact + report footer note
+- **DNS report cards** — plain-English summaries for SPF/DMARC/CAA/A/AAAA/MX/NS/ASN/DNSSEC + optional WHOIS registration card (`render/dns_display.py`)
+- **Site discovery** — full homepage fetch, sitemap index expansion, multi-page link sampling (`collectors/sitemap.py`, `site_discovery.py`); favicon/og/twitter/lazy-load image collection
+- **Report UX** — HTTP status convention colors vs semantic outcome (`render/probe_status.py`); metric chips row; parsed robots.txt section; extensions section with registry links (all frameworks); designer attribution card; muzar.io footer; clickable target URLs; path probes legend/collapse fixes
+- **Framework profiles** — `webaudit/profiles/{wordpress,django,laravel,rails,generic}/extensions.yaml` + `profiles/loader.py`
+- **Unified extensions pipeline** — `collectors/extensions/` dispatches by framework:
+  - **WordPress** — HTML asset slugs + readme.txt + wp.org compare (plugins)
+  - **Django** — DEBUG/traceback signals + Django/package version hints + PyPI compare
+  - **Laravel** — Whoops/debug signals + Packagist compare for `laravel/framework`
+  - **Rails** — asset/CSRF signals + RubyGems compare for `rails` and watchlist gems
+  - **PHP/generic** — Server / X-Powered-By version disclosure signals
+- **`analyzers/extensions.py`** + registry compare (`wp.org`, PyPI, Packagist, RubyGems)
+- Finding categories: `PLUGIN*` (WP), `PACKAGE*` (Django/Laravel), `GEM*` (Rails)
+- **`analyzers/seo_surface`** — meta robots, canonical, description, robots/sitemap cross-check (INFO/VERIFY only)
+- **Scoring caps** — `hygiene_caps` for PLUGIN/PACKAGE/GEM + `plugin_worst_wins`
+- **`webaudit diff`** — compare two `audit_run.json` files
+- Config: `collectors.extensions` (alias `wp_plugins`), `collectors.seo_surface`, `collectors.dns.{check_a,check_mx,check_ns,check_asn,use_host_tools}`, `collectors.html.prefer_full_homepage_fetch`
+- Artifact key: `artifacts.extensions` (+ legacy `artifacts.plugins` for WordPress); `artifacts.dns.{records,whois,net_tools}`
+
+### Deferred (Stage 5 remainder)
+
+- Playwright `--js` collector
+- GraphQL/OpenAPI discovery
+- Broken internal links (`analyzers.links`)
+- Plugin CVE cache / WPScan (`analyzers.plugin_vuln`)
+
 ---
 
 ## [2.0.0b1] — 2026-06-02

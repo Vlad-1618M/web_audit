@@ -10,6 +10,7 @@ Update this file **whenever** a module lands or a contract changes. Cross-check 
 
 | Tag | Date | Notes |
 |-----|------|-------|
+| **2.1.0a1** | 2026-05 | **Stage 5 alpha** — Tier 2b extensions (multi-framework), DNS enrichment (A/MX/NS/ASN/WHOIS), report polish, baseline diff |
 | **2.0.0b1** | 2026-06 | **Tier 1 complete** — all v1-equivalent modules, reports, CLI polish |
 | **2.0.0a1** | 2026-05 | Stage 1 alpha — CLI, config, headers + DNS, scoring, `audit_run.json` |
 
@@ -22,7 +23,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for release notes.
 | Module | Collector | Analyzer | Orchestrator | Tests | Stage |
 |--------|-----------|----------|--------------|-------|-------|
 | **headers** | `collectors/headers.py` ✓ | `analyzers/headers.py` ✓ | wired ✓ | ✓ | 1 |
-| **dns** | `collectors/dns.py` ✓ | `analyzers/dns.py` ✓ | wired ✓ | ✓ | 1 |
+| **dns** | `collectors/dns.py` ✓ (+ `asn.py`, `net_tools.py`) | `analyzers/dns.py` ✓ | wired ✓ | ✓ | 1 / 5 |
 | **paths** | `collectors/paths.py` ✓ | `analyzers/paths.py` ✓ | wired ✓ | ✓ | **2** |
 | **tls** | `collectors/tls.py` ✓ | `analyzers/tls.py` ✓ | wired ✓ | ✓ | **2** |
 | **policy** (CSP/HSTS parse) | — (uses headers artifact) | `analyzers/policy.py` ✓ | wired ✓ | ✓ | **2** |
@@ -31,10 +32,15 @@ See [CHANGELOG.md](../CHANGELOG.md) for release notes.
 | **rate_limit** | `collectors/rate_limit.py` ✓ | `analyzers/rate_limit.py` ✓ | wired ✓ | ✓ | **2** |
 | **cors** | `collectors/cors.py` ✓ | `analyzers/cors.py` ✓ | wired ✓ | ✓ | **2** |
 | **framework** detect | `collectors/framework.py` ✓ | `analyzers/framework.py` ✓ | wired ✓ | ✓ | **2–3** |
-| **html** (DOM inventory) | `collectors/html.py` ✓ | `analyzers/html.py` ✓ | wired ✓ | ✓ | **2–3** |
+| **html** (DOM inventory) | `collectors/html.py` ✓ (+ `sitemap.py`, `site_discovery.py`, `attribution.py`) | `analyzers/html.py` ✓ | wired ✓ | ✓ | **2–3 / 5** |
 | **scoring** | n/a | n/a | `scoring/engine.py` ✓ | ✓ | 1 (partial 3) |
 | **render** | n/a | `render/html.py`, `render/txt.py`, `render/pdf.py`, `render/reports.py` ✓ | wired ✓ | ✓ | **4** ✓ |
-| **profiles** (WP/Django YAML) | — | — | — | — | 5 / 2b |
+| **render helpers** | n/a | `dns_display`, `probe_status`, `extension_display`, `robots_display`, `report_metrics`, `system_info` ✓ | wired ✓ | ✓ | **4 / 5** ✓ |
+| **profiles** (WP/Django/Laravel/Rails YAML) | `profiles/loader.py` ✓ | — | wired ✓ | ✓ | **5 / 2b** ✓ |
+| **extensions** (multi-framework) | `collectors/extensions/` ✓ | `analyzers/extensions.py` ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
+| **wp_plugins** (WP HTML/readme) | via `collectors/extensions/wordpress.py` ✓ | via unified analyzer ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
+| **seo_surface** | — (uses framework HTML + artifacts) | `analyzers/seo_surface.py` ✓ | wired ✓ | ✓ | **5 / 2c** ✓ |
+| **diff** | n/a | n/a | `scoring/diff.py` + `cli/diff_cmd.py` ✓ | ✓ | **5 / 2** ✓ |
 
 **Do not rename** shipped modules (`headers`, `dns`) — tests and `audit_run.json` artifacts depend on keys.
 
@@ -105,12 +111,13 @@ Register new work in `webaudit/pipeline.py` (preferred) or append in `orchestrat
 | Key | Owner stage | Status |
 |-----|-------------|--------|
 | `headers` | 1 | live |
-| `dns` | 1 | live |
+| `dns` | 1 / 5 | live — records + optional `whois` + `net_tools` |
 | `tls` | 2 | live |
 | `policy` | 2 | live |
 | `inventory` | 2–3 | live (paths) |
-| `plugins` | 5 / 2b | reserved |
-| `seo_surface` | 5 / 2c | reserved |
+| `plugins` | 5 / 2b | live (WP mirror of extensions) |
+| `extensions` | 5 / 2b | live |
+| `seo_surface` | 5 / 2c | live |
 
 ---
 
@@ -166,9 +173,9 @@ Document intentional deltas in this file under **Parity deltas** when behavior d
 |------|----------|-----|-------|
 | HSTS at CDN edge | ACTION if missing | VERIFY if CDN detected | Open — Tier 1 polish backlog |
 | Permissions-Policy missing | INFO, unscored | same | ✓ |
-| DNS | scored SPF/DMARC | n/a | new signal |
+| DNS | scored SPF/DMARC + report cards (A/MX/NS/ASN) | n/a | new signal |
 | PDF | browser print default | browser print | optional WeasyPrint |
-| Plugins/CVE | not shipped | readme.txt probes | Tier 2b |
+| Plugins/extensions | unified `extensions` pipeline + profiles | readme.txt blind probes | Tier 2b ✓ (CVE cache deferred) |
 | Site config | YAML | INI `site.conf` | Tier 3 migrator |
 
 Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
@@ -196,4 +203,4 @@ Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
 
 ---
 
-*Last updated: Tier 1 release 2.0.0b1 (2026-06).*
+*Last updated: Stage 5 alpha 2.1.0a1 (2026-05).*

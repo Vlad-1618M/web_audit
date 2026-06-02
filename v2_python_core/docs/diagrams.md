@@ -139,7 +139,7 @@ flowchart TB
   subgraph DETECT["Framework detect"]
     FW{"auto / forced"}
     PROF["profiles/{framework}/extensions.yaml"]
-    GEN["profiles/generic/php.yaml"]
+    GEN["profiles/generic/extensions.yaml"]
   end
 
   subgraph CORE["Python core"]
@@ -232,7 +232,7 @@ sequenceDiagram
   else Django / Laravel
     D->>P: load django|laravel profile
   else unknown
-    D->>P: load generic/php.yaml
+    D->>P: load generic/extensions.yaml
   end
   P->>O: merge site.extensions overrides
   O->>C: run enabled collectors only

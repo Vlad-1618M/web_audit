@@ -85,39 +85,32 @@ sequenceDiagram
   J->>U: HTML + PDF + TXT
 ```
 
-> **Stage 1 alpha today:** orchestrator runs **headers + DNS** collectors only; writes `audit_run.json` with scores. Framework profiles, path/TLS collectors, and Jinja render are planned (diagram shows full Tier 1 target).
+> **Current (2.1.0a1):** Full Tier 1 pipeline + Stage 5 alpha — extensions, SEO surface, DNS enrichment (A/MX/NS/ASN), report polish. Diagram shows the complete Tier 1 target architecture.
 
 ---
 
-## Package structure (implemented — Stage 1 alpha)
+## Package structure (implemented — 2.1.0a1)
+
+See [implementation_tracker.md](implementation_tracker.md) for the live module table. Summary:
 
 ```text
 v2_python_core/
-├── dev-venv.sh                 # local .venv setup / activate / teardown
+├── dev-venv.sh
 ├── pyproject.toml
 ├── webaudit/
-│   ├── cli/
-│   │   ├── main.py             # typer: scan, completion subcommands
-│   │   └── completion_cmd.py   # Tab completion install/status/uninstall
-│   ├── config/
-│   │   ├── settings.py         # YAML merge + pydantic Settings
-│   │   └── defaults.yaml
-│   ├── models/
-│   │   ├── finding.py
-│   │   └── run.py              # AuditRun JSON contract
-│   ├── collectors/
-│   │   ├── headers.py
-│   │   └── dns.py
-│   ├── analyzers/
-│   │   ├── headers.py
-│   │   └── dns.py
-│   ├── scoring/
-│   │   └── engine.py           # Hygiene, Exposure, Verdict
-│   ├── storage/
-│   │   └── runs.py             # audit_logs/ writer
-│   ├── pipeline.py             # Stage registry — add collectors here
-│   └── orchestrator.py
-└── tests/unit/                 # pytest (14 tests)
+│   ├── cli/                    # scan, report, diff, completion
+│   ├── config/                 # settings.py + defaults.yaml
+│   ├── collectors/             # headers, dns (+ asn, net_tools), paths, tls, …
+│   ├── collectors/extensions/  # wordpress, django, laravel, rails, generic
+│   ├── analyzers/              # per-domain analyzers + extensions, seo_surface
+│   ├── profiles/               # shipped framework YAML
+│   ├── scoring/                # engine.py, diff.py
+│   ├── render/                 # html, txt, pdf + dns_display, probe_status, …
+│   ├── pipeline.py
+│   └── models/
+├── templates/reports/          # Jinja HTML + CSS (five variants)
+├── tests/unit/                 # pytest (~142 tests)
+└── docs/
 ```
 
 ---
@@ -154,13 +147,13 @@ webaudit/
 │   ├── rate_limit.py
 │   ├── artifacts.py
 │   ├── cors.py
-│   ├── wp_plugins.py        # Tier 2b — readme, asset URLs
+│   ├── extensions/          # Tier 2b — unified WP/Django/Laravel/Rails
 │   └── js.py                # Tier 2 — playwright
 ├── analyzers/
 │   ├── policy.py
 │   ├── html_dom.py
 │   ├── framework.py
-│   ├── wp_plugins.py        # Tier 2b — stale compare
+│   ├── extensions.py        # Tier 2b — registry compare
 │   ├── plugin_vuln.py       # Tier 2b/3 — CVE cache
 │   ├── seo_surface.py       # Tier 2c — INFO/VERIFY only
 │   ├── cors.py
@@ -184,7 +177,8 @@ profiles/                    # shipped YAML — NOT Python code
 ├── wordpress/extensions.yaml
 ├── django/extensions.yaml
 ├── laravel/extensions.yaml
-└── generic/php.yaml
+├── rails/extensions.yaml
+└── generic/extensions.yaml
 
 templates/reports/           # NOT inside webaudit package
 ├── executive/
@@ -228,7 +222,9 @@ tests/
 
 ### dnspython
 
-- Standard for DNS in Python — SPF/DMARC/CAA/AAAA without `dig` subprocess portability hell.
+- Standard for DNS in Python — SPF/DMARC/CAA/A/AAAA/MX/NS without `dig` subprocess portability hell.
+- ASN enrichment uses the same resolver against Team Cymru DNS (`origin.asn.cymru.com`).
+- Optional host `whois` binary (not dnspython) for registrar summary when `use_host_tools: true`.
 - Query timeouts fit my config model.
 
 ### cryptography + ssl (stdlib)

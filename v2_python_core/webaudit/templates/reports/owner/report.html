@@ -33,8 +33,8 @@
 
         {% include "executive_summary_body.html" %}
 
-        <footer class="owner-overview-footer">
-          Web Audit v{{ webaudit_version }} · Owner report · Framework {{ framework }}
+        <footer class="owner-overview-footer report-footer">
+          {% include "report_branding_footer_body.html" %}
         </footer>
       </div>
     </div>

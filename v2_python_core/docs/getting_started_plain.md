@@ -103,8 +103,8 @@ Typical output:
 | Line | Meaning |
 |------|---------|
 | **Hygiene** (0–100) | How well the site is configured (headers, DNS, etc.). Higher is better. |
-| **Exposure** (0–100) | Whether sensitive files look reachable from outside. 100 = nothing obvious leaked. |
-| **Verdict** | Plain label: **PASS**, **NEEDS_ATTENTION**, or **AT_RISK**. |
+| **Leak protection** (0–100) | Same as the **Exposure** score in JSON — whether sensitive files look reachable from outside. **100/100 = nothing obvious leaked** (good). |
+| **Verdict** | Plain label: **PASS**, **NEEDS ATTENTION**, or **AT_RISK**. |
 | **Findings** | Count of individual checks (missing header, missing DMARC, etc.). |
 
 The full detail is in a JSON file:
@@ -113,7 +113,23 @@ The full detail is in a JSON file:
 audit_logs/<date>_<your-site>/audit_run.json
 ```
 
-Your developer can turn that into an HTML report as v2 matures. Mockups of those reports are in [mockups/reports/](../mockups/reports/).
+Your developer can turn that into an HTML report (default **owner** variant: Security dashboard + Executive summary on one page, Technical details on a second tab). Mockups of standalone variants are in [mockups/reports/](../mockups/reports/).
+
+### Reading the owner report (quick guide)
+
+| Tab / section | What to look at |
+|---------------|-----------------|
+| **Security dashboard** | Hygiene + **Leak protection** scores, verdict, metric chips (Critical, Plugins, …) |
+| **Executive summary** | Plain-language timeline of what mattered |
+| **Technical details** | Full findings tables, DNS cards, site discovery URLs, **Plugins / Extensions** |
+| **Plugins / Extensions** | WordPress (or other stack) components seen in public HTML — **0 is normal** on sites where the homepage is not WordPress (e.g. Next.js front-end) |
+| **Bottom guide** | “What this report is (and is not)” — compares Web Audit to ZAP, pentests, SEO tools |
+
+Re-render an saved scan without re-running checks:
+
+```bash
+webaudit report audit_logs/<folder>/audit_run.json
+```
 
 ---
 
@@ -131,7 +147,7 @@ Your developer can turn that into an HTML report as v2 matures. Mockups of those
 
 | Role | Typical action |
 |------|----------------|
-| **Site owner** | Ask for a scan; read Verdict + Hygiene/Exposure; share `audit_run.json` or future PDF with your dev. |
+| **Site owner** | Ask for a scan; open the HTML report; read Verdict + Hygiene + Leak protection; use “What this report is (and is not)” at the bottom for context. |
 | **Developer / agency** | Run setup once, run scans in CI or locally, fix ACTION items in the report. |
 | **You (dev on this repo)** | Use `./dev-venv.sh` to create/remove the local toolbox; run `pytest` before changes. |
 

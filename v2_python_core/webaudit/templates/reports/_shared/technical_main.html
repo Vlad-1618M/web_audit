@@ -1,0 +1,169 @@
+{# Full technical detail — findings, DNS, TLS, probes, extensions, inventory #}
+<section id="scores">
+  <div class="score-row">
+    <div class="chip score-band {{ hygiene_band }}"><div class="l">Hygiene</div><div class="n">{{ scores.hygiene }}</div></div>
+    <div class="chip score-band {{ exposure_band }}"><div class="l">Exposure</div><div class="n">{{ scores.exposure }}</div></div>
+    <div class="chip verdict"><div class="l">Verdict</div><div class="n">{{ scores.verdict }}</div></div>
+  </div>
+  {% set metric_chips_link_mode = "anchor" %}
+  {% include "metric_chips_row.html" %}
+</section>
+
+{% include "cert_summary_section.html" %}
+
+<section id="findings">
+  <h2 id="findings-action">Action findings ({{ action_findings|length }})</h2>
+  {% if action_findings %}
+  <table>
+    <thead>
+      <tr>
+        <th>Sev</th>
+        <th>Category</th>
+        <th>Item</th>
+        <th>Status</th>
+        <th>Class</th>
+        <th>Detail</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in action_findings %}
+      <tr>
+        <td><span class="sev {{ f.severity.value }}">{{ f.severity.value }}</span></td>
+        <td>{{ f.category }}</td>
+        <td>{{ f.item }}</td>
+        <td>{{ f.status }}</td>
+        <td><span class="class-tag">{{ f.class_.value }}</span></td>
+        <td>{{ f.detail }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="meta-inline">No scored ACTION findings.</p>
+  {% endif %}
+
+  {% if verify_findings %}
+  <h2 id="findings-verify" style="margin-top:1.5rem">Verify ({{ verify_findings|length }})</h2>
+  <table>
+    <thead>
+      <tr><th>Category</th><th>Item</th><th>Status</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      {% for f in verify_findings %}
+      <tr>
+        <td>{{ f.category }}</td>
+        <td>{{ f.item }}</td>
+        <td>{{ f.status }}</td>
+        <td>{{ f.detail }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if expected_findings %}
+  <h2 id="findings-expected" style="margin-top:1.5rem">Expected ({{ expected_findings|length }})</h2>
+  <table>
+    <thead>
+      <tr><th>Category</th><th>Item</th><th>Status</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      {% for f in expected_findings %}
+      <tr>
+        <td>{{ f.category }}</td>
+        <td>{{ f.item }}</td>
+        <td>{{ f.status }}</td>
+        <td>{{ f.detail }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if seo_findings %}
+  <h2 id="findings-seo" style="margin-top:1.5rem">SEO surface ({{ seo_findings|length }})</h2>
+  <table>
+    <thead>
+      <tr><th>Sev</th><th>Item</th><th>Status</th><th>Class</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      {% for f in seo_findings %}
+      <tr>
+        <td><span class="sev {{ f.severity.value }}">{{ f.severity.value }}</span></td>
+        <td>{{ f.item }}</td>
+        <td>{{ f.status }}</td>
+        <td><span class="class-tag">{{ f.class_.value }}</span></td>
+        <td>{{ f.detail }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</section>
+
+{% if dns_cards %}
+<section id="dns">
+  <h2>DNS &amp; email surface</h2>
+  <p class="discovery-intro">
+    DNS records that affect email trust and how browsers find your site.
+    Technical values are shown below each card; read the summary line for plain English.
+    {% if dns_net_tools_note %}
+    <span class="meta-inline dns-tools-note">Host tools: {{ dns_net_tools_note }}.</span>
+    {% endif %}
+  </p>
+  <div class="dns-grid">
+    {% for card in dns_cards %}
+    <div class="dns-card">
+      <h3>{{ card.label }} <span class="dns-full-name">— {{ card.title }}</span></h3>
+      <p class="dns-desc">{{ card.description }}</p>
+      <p class="dns-summary {{ card.summary_tone }}">{{ card.summary }}</p>
+      <code>{{ card.value }}</code>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if tls_rows %}
+<section id="tls">
+  <h2>TLS protocol versions</h2>
+  <p class="discovery-intro">Which TLS versions the server accepts during handshake probes.</p>
+  <table>
+    <thead><tr><th>Check</th><th>Result</th></tr></thead>
+    <tbody>
+      {% for row in tls_rows %}
+      <tr><td>{{ row.check }}</td><td>{{ row.result }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+{% include "robots_section.html" %}
+
+{% include "path_probes_section.html" %}
+
+{% include "extensions_section.html" %}
+
+{% include "discovery_section.html" %}
+
+{% include "attribution_section.html" %}
+
+<section id="inventory">
+  <h2>Inventory summary</h2>
+  <table>
+    <thead><tr><th>Bucket</th><th>Count</th></tr></thead>
+    <tbody>
+      {% for row in inventory_rows %}
+      <tr><td>{{ row.bucket }}</td><td>{{ row.count }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if policy.hsts_detail or policy.csp_detail %}
+  <h2 style="margin-top:1.5rem">Policy parse</h2>
+  {% if policy.hsts_detail %}<p class="meta-inline"><strong>HSTS:</strong> {{ policy.hsts_detail }}</p>{% endif %}
+  {% if policy.csp_detail %}<pre class="evidence">{{ policy.csp_detail }}</pre>{% endif %}
+  {% endif %}
+</section>
+
+{% include "report_footer.html" %}

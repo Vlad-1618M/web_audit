@@ -1,0 +1,17 @@
+<section id="report-system" class="report-system">
+  <h2>Report generation</h2>
+  <table class="system-table">
+    <tbody>
+      <tr><th>Audit host</th><td>{{ report_footer.audit_host }}</td></tr>
+      <tr><th>Architecture</th><td>{{ report_footer.architecture }}</td></tr>
+      <tr><th>OS</th><td>{{ report_footer.os_pretty }}</td></tr>
+      <tr><th>Kernel</th><td>{{ report_footer.kernel }}</td></tr>
+      <tr><th>Shell</th><td>{{ report_footer.shell }}</td></tr>
+      <tr><th>Python</th><td>{{ report_footer.python }}</td></tr>
+      <tr><th>System</th><td><code>{{ report_footer.system }}</code></td></tr>
+    </tbody>
+  </table>
+  <footer class="report-footer">
+    {% include "report_branding_footer_body.html" %}
+  </footer>
+</section>

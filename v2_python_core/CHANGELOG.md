@@ -8,6 +8,58 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ## [Unreleased]
 
+### Added (Stage 5 — Tier 2b / 2c / baseline diff + report polish)
+
+- **Owner combined report** — default `owner` variant: framed **Security dashboard** + unified **Executive summary** (digest timeline merged in); **focus pie chart** (Hygiene/Exposure/SEO) replaces score rings; Technical tab with draggable sidebar
+- **Fold panels** — probe URLs, site URLs, images, and path probes **unfolded by default**; clearer chevron toggle bars (“Click to fold or unfold”)
+- **Shared report partials** — `digest_body`, `executive_body`, `technical_main` reused by standalone variants
+- **DNS enrichment** — A, MX, NS records via dnspython; **ASN** via Team Cymru DNS (`collectors/asn.py`); optional host **`whois`** when binary present (`collectors/net_tools.py`); host tool detection stored in artifact + report footer note
+- **DNS report cards** — plain-English summaries for SPF/DMARC/CAA/A/AAAA/MX/NS/ASN/DNSSEC + optional WHOIS registration card (`render/dns_display.py`)
+- **Site discovery** — full homepage fetch, sitemap index expansion, multi-page link sampling (`collectors/sitemap.py`, `site_discovery.py`); favicon/og/twitter/lazy-load image collection
+- **Report UX** — HTTP status convention colors vs semantic outcome (`render/probe_status.py`); metric chips row; parsed robots.txt section; extensions section with registry links (all frameworks); designer attribution card; muzar.io footer; clickable target URLs; path probes legend/collapse fixes
+- **Framework profiles** — `webaudit/profiles/{wordpress,django,laravel,rails,generic}/extensions.yaml` + `profiles/loader.py`
+- **Unified extensions pipeline** — `collectors/extensions/` dispatches by framework:
+  - **WordPress** — HTML asset slugs + readme.txt + wp.org compare (plugins)
+  - **Django** — DEBUG/traceback signals + Django/package version hints + PyPI compare
+  - **Laravel** — Whoops/debug signals + Packagist compare for `laravel/framework`
+  - **Rails** — asset/CSRF signals + RubyGems compare for `rails` and watchlist gems
+  - **PHP/generic** — Server / X-Powered-By version disclosure signals
+- **`analyzers/extensions.py`** + registry compare (`wp.org`, PyPI, Packagist, RubyGems)
+- Finding categories: `PLUGIN*` (WP), `PACKAGE*` (Django/Laravel), `GEM*` (Rails)
+- **`analyzers/seo_surface`** — meta robots, canonical, description, robots/sitemap cross-check (INFO/VERIFY only)
+- **Scoring caps** — `hygiene_caps` for PLUGIN/PACKAGE/GEM + `plugin_worst_wins`
+- **`webaudit diff`** — compare two `audit_run.json` files
+- Config: `collectors.extensions` (alias `wp_plugins`), `collectors.seo_surface`, `collectors.dns.{check_a,check_mx,check_ns,check_asn,use_host_tools}`, `collectors.html.prefer_full_homepage_fetch`
+- Artifact key: `artifacts.extensions` (+ legacy `artifacts.plugins` for WordPress); `artifacts.dns.{records,whois,net_tools}`; `artifacts.inventory.html.scan_html` (full homepage body for extensions + attribution)
+
+### Fixed
+
+- **WordPress plugin detection** — extensions step reads full homepage HTML (`scan_html` from HTML collector), not the truncated framework fingerprint body (~8 KB cap); fixes under-counting on real WP sites
+- **Plugin chip count** — dashboard “Plugins” chip uses detected extension rows from artifacts; `PLUGIN_INFO / NONE_OBSERVED` no longer shows as “1 plugin” on decoupled frontends (e.g. Next.js)
+- **readme.txt soft-404** — HTML error pages rejected when fetching plugin readme for version hints
+- **Attribution false positives** — ignore nav `title="powered by …"` credits; require footer/context for linked designer lines; treat AI “Powered by” as tooling, not site designer
+
+### Changed (report UX polish — owner default)
+
+- **Owner guide** — expanded “What this report is (and is not)” for non-devs: how to read scores, tool comparison (ZAP, Nuclei, etc.), dev/QA suggestions (`report_about_section.html`)
+- **Branding footer** — three-line footer with finding count; only **muzar.io** linked (`report_branding_footer_body.html`)
+- **Score clarity** — Hygiene and **Leak protection** (Exposure in JSON) use color bands (good/fair/poor/critical); Exposure labeled **Leak protection** in UI (higher = safer; 100 = no leaks)
+- **Dashboard header** — framework/verdict tags aligned right; white section titles + conventional light-blue URL links
+- **Discovery layout** — 50/50 probe/site columns with matched scroll heights; probe status badges inline with URL + hint on second line; compact focus-pie legend
+- **Extensions section** — “Plugins / Extensions” heading, registry summary line, fold-panel table; empty state + Next.js note when no plugin paths in public HTML
+- **Metric chips** — clickable when count &gt; 0 (anchors to Findings sections); Expected + SEO tables under Technical tab
+- **robots.txt** — fold-panel widget aligned with path probe results style
+- **Category health** — bottom alert strip for failing categories; scrollable when many items
+- **Executive summary** — tighter verdict banner spacing; removed redundant verdict pill (banner + score strip remain)
+- **Readability** — brighter prose colors (`--text-soft`) in owner guide section
+
+### Deferred (Stage 5 remainder)
+
+- Playwright `--js` collector
+- GraphQL/OpenAPI discovery
+- Broken internal links (`analyzers.links`)
+- Plugin CVE cache / WPScan (`analyzers.plugin_vuln`)
+
 ---
 
 ## [2.0.0b1] — 2026-06-02

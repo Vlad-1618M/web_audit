@@ -1,0 +1,27 @@
+framework: rails
+fingerprint_unit: gem
+min_detection_confidence: 0.65
+
+probe:
+  mode: observed_only
+  sources:
+    - html_assets
+    - headers
+
+compare:
+  rubygems_api: true
+
+scoring:
+  hygiene_cap: 15
+
+watchlist:
+  - package: rails
+    tier: critical
+  - package: puma
+    tier: medium
+  - package: sidekiq
+    tier: medium
+
+signals:
+  rails_assets: INFO
+  x_powered_by: LOW

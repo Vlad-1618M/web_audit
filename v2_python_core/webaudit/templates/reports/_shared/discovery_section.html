@@ -1,0 +1,110 @@
+{# Site discovery — probes, site URLs, images #}
+{% from "probe_status_badges.html" import probe_status_legend, probe_status_inline, probe_status_hint %}
+
+<section id="discovery">
+  <h2>Site discovery</h2>
+  <p class="discovery-intro">
+    Click URLs to open in a new tab. <span class="pill probe">Probe</span> paths are security checks
+    (.env, wp-admin, …). <span class="pill site">Site</span> links are real routes from homepage HTML and sitemap.
+  </p>
+
+  <div class="discovery-layout">
+    <div class="discovery-row discovery-row-pair">
+      <div class="discovery-panel">
+        <h3>Security probe URLs <span class="count">({{ probe_url_count }})</span></h3>
+        {% if probe_urls %}
+        <details class="fold-panel" open>
+          <summary class="fold-toggle">
+            <span class="fold-chevron" aria-hidden="true"></span>
+            <span class="fold-title">Probe list</span>
+            <span class="fold-count">{{ probe_url_count }}</span>
+            <span class="fold-hint">Click to fold or unfold</span>
+          </summary>
+          {{ probe_status_legend() }}
+          <ul class="link-list probe-link-list">
+            {% for row in probe_urls[:250] %}
+            <li class="probe-link-item">
+              <span class="pill probe">Probe</span>
+              <div class="probe-link-row">
+                <a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.url }}</a>
+                {{ probe_status_inline(row) }}
+              </div>
+              {{ probe_status_hint(row) }}
+            </li>
+            {% endfor %}
+          </ul>
+          {% if probe_url_count > 250 %}
+          <p class="meta-inline">Showing first 250 of {{ probe_url_count }} probe URLs.</p>
+          {% endif %}
+        </details>
+        {% else %}
+        <p class="meta-inline">No path probes recorded.</p>
+        {% endif %}
+      </div>
+
+      <div class="discovery-panel">
+        <h3>Site URLs <span class="count">({{ site_url_catalogued }} catalogued · {{ pages_sampled }} page(s) sampled · {{ sitemap_urls_parsed }} from sitemap)</span></h3>
+        {% if site_urls %}
+        <details class="fold-panel" open>
+          <summary class="fold-toggle">
+            <span class="fold-chevron" aria-hidden="true"></span>
+            <span class="fold-title">Site link list</span>
+            <span class="fold-count">{{ site_url_count }}{% if site_url_catalogued > site_url_count %} / {{ site_url_catalogued }}{% endif %}</span>
+            <span class="fold-hint">Click to fold or unfold</span>
+          </summary>
+          <ul class="link-list site-link-list">
+            {% for row in site_urls[:500] %}
+            <li>
+              <span class="pill site">Site</span>
+              <a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.url }}</a>
+              <span class="link-meta">{{ row.source }} · {{ row.notes }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+          {% if site_url_catalogued > 500 %}
+          <p class="meta-inline">Showing first 500 of {{ site_url_catalogued }} catalogued site URLs.</p>
+          {% elif site_url_count > 500 %}
+          <p class="meta-inline">Showing first 500 URLs.</p>
+          {% endif %}
+        </details>
+        {% else %}
+        <p class="meta-inline">No homepage or sitemap links catalogued.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="discovery-row discovery-row-full">
+      <div class="discovery-panel">
+        <h3>Images, favicons &amp; logos <span class="count">({{ image_catalogued }} catalogued{% if image_tag_count %} · {{ image_tag_count }} &lt;img&gt; tag(s) on homepage{% endif %})</span></h3>
+        {% if image_rows %}
+        <details class="fold-panel" open>
+          <summary class="fold-toggle">
+            <span class="fold-chevron" aria-hidden="true"></span>
+            <span class="fold-title">Image list</span>
+            <span class="fold-count">{{ image_count }}{% if image_catalogued > image_count %} / {{ image_catalogued }}{% endif %}</span>
+            <span class="fold-hint">Click to fold or unfold</span>
+          </summary>
+          <ul class="link-list image-link-list">
+            {% for row in image_rows[:500] %}
+            <li class="image-link-item">
+              <span class="pill kind">{{ row.kind }}</span>
+              <div class="image-link-row">
+                <a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.url }}</a>
+                <span class="link-meta image-page-meta">page {{ row.source }}</span>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+          {% if image_catalogued > 500 %}
+          <p class="meta-inline">Showing first 500 of {{ image_catalogued }} catalogued assets (PNG, JPG, SVG, favicons, og:image, …).</p>
+          {% elif image_count > 500 %}
+          <p class="meta-inline">Showing first 500 assets.</p>
+          {% endif %}
+        </details>
+        {% else %}
+        <p class="meta-inline">No &lt;img&gt;, favicon, logo, or social preview assets found in sampled pages.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>

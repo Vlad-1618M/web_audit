@@ -1,0 +1,83 @@
+{# Security dashboard — framed like executive summary; pie chart replaces score rings #}
+{% from "site_link.html" import site_link %}
+
+<section class="block dashboard-block">
+  <div class="dashboard-header-row">
+    <div class="section-heading-row">
+      <h2>Security dashboard</h2>
+      <p class="url section-heading-url">{{ site_link(target_href, target_url) }}</p>
+    </div>
+    <div class="tag-row dashboard-tags">
+      <span class="tag c">{{ framework }}</span>
+      <span class="tag m">{{ scores.verdict.replace('_', ' ') }}</span>
+      {% if scores.exposure == 100 %}
+      <span class="tag g">No leaks</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric score-band {{ hygiene_band }}">
+      <div class="val">{{ scores.hygiene }}</div>
+      <div class="lbl">Hygiene score</div>
+      <div class="metric-hint">Higher = better hardened</div>
+    </div>
+    <div class="metric score-band {{ exposure_band }}">
+      <div class="val">{{ scores.exposure }}</div>
+      <div class="lbl">Leak protection</div>
+      <div class="metric-hint">{% if scores.exposure >= 100 %}No sensitive paths leaked{% else %}Higher = fewer public leaks{% endif %}</div>
+    </div>
+    <div class="metric gold">
+      <div class="val">{{ probe_count }}</div>
+      <div class="lbl">Path probes</div>
+    </div>
+    <div class="metric violet">
+      <div class="val">{{ action_count }}</div>
+      <div class="lbl">Action items</div>
+    </div>
+  </div>
+
+  <div class="panels dashboard-panels">
+    <div class="panel inner-panel category-health-panel">
+      <h3 class="subsection-title">Category health</h3>
+      <div class="category-health-bars">
+        {% for row in category_health %}
+        <div class="bar-row">
+          <span class="name">{{ row.name }}</span>
+          <div class="bar-track">
+            <div class="bar-fill {{ row.level }}" style="width: {{ row.width_pct }}%"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="alert-strip{% if alert_strip_items and is_combined_report %} alert-strip-actionable{% endif %}">
+        <span class="alert-strip-icon" aria-hidden="true">⚠</span>
+        <div class="alert-strip-body">
+          {% if alert_strip_items %}
+          <ul class="alert-strip-links">
+            {% for item in alert_strip_items %}
+            <li>
+              {% if is_combined_report %}
+              <button type="button" class="alert-link" data-owner-tab="technical" data-tech-anchor="{{ item.anchor }}" title="Open technical details">{{ item.label }}</button>
+              {% else %}
+              <span class="alert-link-text">{{ item.label }}</span>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+          {% if is_combined_report %}
+          <span class="alert-strip-hint">Click any item for technical details</span>
+          {% endif %}
+          {% else %}
+          <span class="alert-empty">No action items</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="panel inner-panel">
+      <h3 class="subsection-title">Scan focus</h3>
+      {% include "focus_pie_chart.html" %}
+    </div>
+  </div>
+</section>

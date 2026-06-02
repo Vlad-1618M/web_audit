@@ -1,0 +1,101 @@
+{# Plain-language guide for site owners — how to read this report and what to do next #}
+<div class="report-about">
+  <p class="report-about-lead">
+    This document is a <strong>passive, external hygiene snapshot</strong> of your public website — the same
+    kind of signals a visitor, search engine, or opportunistic attacker could observe <em>without logging in</em>.
+    It is written for owners, managers, and non-developers first; technical evidence lives in the
+    {% if is_combined_report %}
+    <button type="button" class="link-tab" data-owner-tab="technical">Technical details</button> tab.
+    {% else %}
+    technical report variant or the saved <code>audit_run.json</code> file.
+    {% endif %}
+  </p>
+
+  <h4 class="report-about-heading">How to read this report</h4>
+  <ul class="report-about-list">
+    <li><strong>Security dashboard</strong> — high-level scores (Hygiene, Exposure) and where the scan focused attention. Hygiene covers configuration and hardening; Exposure covers sensitive paths and leaks.</li>
+    <li><strong>Executive summary</strong> — plain-language verdict, priority timeline, and “fix first” items you can forward to your team.</li>
+    <li><strong>Finding status chips</strong> — counts by severity. <em>Critical</em> and <em>High action</em> usually need a developer soon; <em>Verify</em> means “confirm in your hosting panel or with your vendor.”</li>
+    <li><strong>Site discovery</strong> — URLs and assets catalogued from the homepage and sitemap. <span class="pill probe">Probe</span> rows are deliberate security checks (e.g. <code>/.env</code>); <span class="pill site">Site</span> rows are normal public pages.</li>
+    <li><strong>Technical details</strong> — evidence tables, DNS/TLS/certificate cards, headers, cookies, and extension versions for engineers.</li>
+  </ul>
+
+  <h4 class="report-about-heading">What this report <em>is</em></h4>
+  <ul class="report-about-list">
+    <li>A repeatable <strong>outside-in check</strong> you can run after deployments, DNS changes, or certificate renewals.</li>
+    <li>A way to catch <strong>obvious misconfigurations</strong> — missing security headers, exposed admin paths, weak TLS, email authentication gaps (SPF/DMARC), and outdated plugins when detectable from the outside.</li>
+    <li>A <strong>conversation starter</strong> between owners and developers: what is urgent vs. what can wait.</li>
+    <li><strong>Free and local</strong> — scans run on your machine; no account or cloud upload is required for the audit itself.</li>
+  </ul>
+
+  <h4 class="report-about-heading">What this report is <em>not</em></h4>
+  <ul class="report-about-list">
+    <li><strong>Not a penetration test.</strong> We do not attempt to exploit vulnerabilities, bypass authentication, or chain attacks.</li>
+    <li><strong>Not authenticated testing.</strong> We cannot see member areas, checkout flows, or admin consoles that require a login.</li>
+    <li><strong>Not a CDN/WAF replacement.</strong> Edge providers (Cloudflare, Fastly, AWS CloudFront, etc.) may block or rewrite what we see; always review their dashboards too.</li>
+    <li><strong>Not compliance certification.</strong> Passing this scan does not mean PCI, HIPAA, SOC 2, or ISO approval.</li>
+    <li><strong>Not a guarantee.</strong> A clean report today does not prevent issues tomorrow — configuration drift and new releases happen continuously.</li>
+  </ul>
+
+  <h4 class="report-about-heading">Web Audit vs. deeper security tooling</h4>
+  <p class="muted-text">
+    Web Audit Pro is intentionally scoped: fast, readable, and safe for routine owner checks. Many mature
+    open-source and commercial tools go further because they use <strong>active probing</strong>,
+    authenticated sessions, larger vulnerability databases, or dedicated research teams.
+  </p>
+
+  <div class="report-about-compare">
+    <div class="report-about-col">
+      <h5>This tool (Web Audit Pro)</h5>
+      <p class="compare-label good">Strengths</p>
+      <ul class="report-about-list compact">
+        <li>Plain-language owner report</li>
+        <li>Passive / low-disruption external view</li>
+        <li>Runs locally; good for quick regression checks</li>
+        <li>Framework-aware plugin/extension hints</li>
+      </ul>
+      <p class="compare-label warn">Limits</p>
+      <ul class="report-about-list compact">
+        <li>No logged-in or multi-step user flows</li>
+        <li>Limited JavaScript / SPA depth (unless extended)</li>
+        <li>Cannot see internal CDN/WAF rule sets</li>
+        <li>Not a substitute for expert manual review</li>
+      </ul>
+    </div>
+    <div class="report-about-col">
+      <h5>Stronger open-source &amp; community tools</h5>
+      <p class="compare-label good">Why they are more advanced</p>
+      <ul class="report-about-list compact">
+        <li><a href="https://www.zaproxy.org/" target="_blank" rel="noopener">OWASP ZAP</a> — full DAST scanner with spidering, active tests, and authenticated scan profiles.</li>
+        <li><a href="https://github.com/projectdiscovery/nuclei" target="_blank" rel="noopener">Nuclei</a> — thousands of community templates for known CVEs and misconfigurations.</li>
+        <li><a href="https://github.com/sullo/nikto" target="_blank" rel="noopener">Nikto</a> — deep web-server and CGI checks beyond passive headers.</li>
+        <li><a href="https://www.greenbone.net/en/community/" target="_blank" rel="noopener">Greenbone / OpenVAS</a> — broad network and service vulnerability management.</li>
+        <li><a href="https://github.com/drwetter/testssl.sh" target="_blank" rel="noopener">testssl.sh</a> — exhaustive TLS/cipher analysis.</li>
+        <li><a href="https://wpscan.com/" target="_blank" rel="noopener">WPScan</a> — WordPress-specific vulnerability intelligence (when applicable).</li>
+      </ul>
+      <p class="compare-label warn">Trade-offs</p>
+      <ul class="report-about-list compact">
+        <li>Steeper learning curve; often aimed at security engineers</li>
+        <li>Active scans can trigger WAF alerts or rate limits if misconfigured</li>
+        <li>More false positives — needs skilled triage</li>
+        <li>Some features require paid tiers or separate infrastructure</li>
+      </ul>
+    </div>
+  </div>
+
+  <h4 class="report-about-heading">Suggestions for your developer or QA team</h4>
+  <ul class="report-about-list">
+    <li>Fix <strong>Critical</strong> and <strong>High action</strong> items first; schedule <strong>Verify</strong> items with your host or CDN vendor.</li>
+    <li>Re-run this audit after each production deploy and compare saved <code>audit_run.json</code> files (<code>webaudit diff</code>).</li>
+    <li>Add header/TLS checks to CI (e.g. curl smoke tests or Mozilla Observatory in pipeline).</li>
+    <li>Schedule periodic <strong>authenticated</strong> scans (ZAP, Burp Suite Community) on staging before major releases.</li>
+    <li>Keep plugins, themes, and server packages on a documented update cadence; remove unused extensions.</li>
+    <li>Review CDN/WAF, certificate, and DNS dashboards — many findings here are confirmed or dismissed faster with vendor logs.</li>
+  </ul>
+
+  <p class="report-about-note muted-text">
+    <strong>Permission:</strong> Run scans only on sites you own or have explicit authorization to test.
+    If you need formal assurance for investors, insurers, or regulators, engage a qualified penetration
+    testing firm in addition to routine automated hygiene checks.
+  </p>
+</div>

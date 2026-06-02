@@ -1,0 +1,30 @@
+{# Sensitive path probe table — open by default for a complete first view #}
+{% from "probe_status_badges.html" import probe_status_legend %}
+{% if path_rows %}
+<section id="paths">
+  <h2>Sensitive path probes <span class="count">({{ path_row_count }})</span></h2>
+  <p class="discovery-intro meta-inline">Every configured security check path probed during this scan — not a random sample.</p>
+  <details class="fold-panel" open>
+    <summary class="fold-toggle">
+      <span class="fold-chevron" aria-hidden="true"></span>
+      <span class="fold-title">Path probe results</span>
+      <span class="fold-count">{{ path_row_count }}</span>
+      <span class="fold-hint">Click to fold or unfold</span>
+    </summary>
+    {{ probe_status_legend() }}
+    <table>
+      <thead><tr><th>Path</th><th>HTTP</th><th>Result</th><th>Meaning</th></tr></thead>
+      <tbody>
+        {% for row in path_rows %}
+        <tr>
+          <td><code>{{ row.path }}</code></td>
+          <td><span class="http-status {{ row.status_code_tone }}">{{ row.status_code }}</span></td>
+          <td><span class="probe-note {{ row.note_tone }}">{{ row.note_label }}</span></td>
+          <td><span class="probe-hint {{ row.outcome_tone }}">{{ row.outcome_hint }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </details>
+</section>
+{% endif %}

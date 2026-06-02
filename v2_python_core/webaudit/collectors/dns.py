@@ -20,9 +20,17 @@ class DnsProbeResult:
     domain: str
     records: dict[str, Any] = field(default_factory=dict)
     errors: dict[str, str] = field(default_factory=dict)
+    net_tools: dict[str, bool] = field(default_factory=dict)
+    whois: dict[str, str] = field(default_factory=dict)
 
     def to_artifact(self) -> dict[str, Any]:
-        return {"domain": self.domain, "records": self.records, "errors": self.errors}
+        return {
+            "domain": self.domain,
+            "records": self.records,
+            "errors": self.errors,
+            "net_tools": self.net_tools,
+            "whois": self.whois,
+        }
 
 
 def _registrable_domain(hostname: str) -> str:
@@ -55,8 +63,16 @@ def collect_dns(
     check_caa: bool = True,
     check_dnssec: bool = True,
     check_aaaa: bool = True,
+    check_a: bool = True,
+    check_mx: bool = True,
+    check_ns: bool = True,
+    check_asn: bool = True,
+    use_host_tools: bool = True,
 ) -> DnsProbeResult:
     from urllib.parse import urlparse
+
+    from webaudit.collectors.asn import lookup_asns_for_ips
+    from webaudit.collectors.net_tools import detect_net_tools, optional_whois_domain
 
     host = urlparse(target_url).hostname or target_url
     domain = _registrable_domain(host)
@@ -66,6 +82,9 @@ def collect_dns(
     resolver.lifetime = timeout_seconds
 
     result = DnsProbeResult(domain=domain)
+    if use_host_tools:
+        result.net_tools = detect_net_tools()
+        result.whois = optional_whois_domain(domain, timeout_seconds=min(timeout_seconds, 10))
 
     if check_spf:
         try:
@@ -97,6 +116,14 @@ def collect_dns(
         except dns.exception.DNSException as exc:
             result.errors["caa"] = str(exc)
 
+    if check_a:
+        try:
+            result.records["a"] = _query(resolver, host, "A")
+        except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.exception.Timeout):
+            result.records["a"] = []
+        except dns.exception.DNSException as exc:
+            result.errors["a"] = str(exc)
+
     if check_aaaa:
         try:
             result.records["aaaa"] = _query(resolver, host, "AAAA")
@@ -104,6 +131,22 @@ def collect_dns(
             result.records["aaaa"] = []
         except dns.exception.DNSException as exc:
             result.errors["aaaa"] = str(exc)
+
+    if check_mx:
+        try:
+            result.records["mx"] = _query(resolver, domain, "MX")
+        except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.exception.Timeout):
+            result.records["mx"] = []
+        except dns.exception.DNSException as exc:
+            result.errors["mx"] = str(exc)
+
+    if check_ns:
+        try:
+            result.records["ns"] = _query(resolver, domain, "NS")
+        except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.exception.Timeout):
+            result.records["ns"] = []
+        except dns.exception.DNSException as exc:
+            result.errors["ns"] = str(exc)
 
     if check_dnssec:
         try:
@@ -113,5 +156,12 @@ def collect_dns(
             result.records["dnssec"] = "UNSIGNED"
         except dns.exception.DNSException as exc:
             result.errors["dnssec"] = str(exc)
+
+    if check_asn:
+        ips = list(result.records.get("a") or []) + list(result.records.get("aaaa") or [])
+        if ips:
+            result.records["asn"] = lookup_asns_for_ips(ips, resolver)
+        else:
+            result.records["asn"] = []
 
     return result

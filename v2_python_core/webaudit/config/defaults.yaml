@@ -31,6 +31,11 @@ collectors:
     check_caa: true
     check_dnssec: true
     check_aaaa: true
+    check_a: true
+    check_mx: true
+    check_ns: true
+    check_asn: true
+    use_host_tools: true
   tls:
     enabled: true
     check_deprecated_versions: true
@@ -67,9 +72,27 @@ collectors:
     enabled: true
     check_mixed_content: true
     check_forms: true
+    prefer_full_homepage_fetch: true
     max_body_bytes: 65536
     max_internal_links_sample: 50
+    max_site_links: 1000
+    max_images: 500
+    max_sample_pages: 8
+    max_sitemap_urls: 500
     fetch_if_missing: true
+  extensions:
+    enabled: true
+  wp_plugins:
+    enabled: true
+  seo_surface:
+    enabled: true
+    check_meta_robots: true
+    check_canonical: true
+    check_meta_description: true
+    check_open_graph: false
+    check_robots_blocks: true
+    check_sitemap: true
+    sitemap_empty_threshold: 1
 
 scoring:
   hygiene_weights:
@@ -77,10 +100,18 @@ scoring:
     HIGH: 10
     MEDIUM: 4
     LOW: 1
+  hygiene_caps:
+    PLUGIN: 30
+    PLUGIN_CVE: 30
+    PACKAGE: 15
+    PACKAGE_CVE: 15
+    GEM: 15
+    GEM_CVE: 15
+  plugin_worst_wins: true
   seo_surface_affects_scores: false
 
 report:
-  variant: technical
+  variant: owner
   theme: dark
 
 output:

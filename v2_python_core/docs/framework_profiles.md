@@ -40,7 +40,7 @@ flowchart TD
   FW -->|forced| LOAD[load profiles/framework/extensions.yaml]
   DET --> CONF{confidence >= min?}
   CONF -->|yes| LOAD
-  CONF -->|no| GEN[load profiles/generic/php.yaml]
+  CONF -->|no| GEN[load profiles/generic/extensions.yaml]
   LOAD --> MERGE[merge site.extensions]
   GEN --> MERGE
   MERGE --> RUN[collectors + analyzers per merged config]
@@ -58,7 +58,7 @@ webaudit/profiles/
   django/extensions.yaml
   laravel/extensions.yaml
   rails/extensions.yaml
-  generic/php.yaml
+  generic/extensions.yaml
 ```
 
 **Mockups (this repo today):**
@@ -153,9 +153,26 @@ extensions:
 | **django** | `django/extensions.yaml` | app / package hint | DEBUG, admin static, optional lockfile path |
 | **laravel** | `laravel/extensions.yaml` | composer hint | debug pages, exposed vendor (bad) |
 | **rails** | `rails/extensions.yaml` | gem hint | info endpoints, static paths |
-| **generic/php** | `generic/php.yaml` | — | version disclosure only; no vuln DB |
+| **generic** | `generic/extensions.yaml` | — | version disclosure only; no vuln DB |
 
 Django does **not** reuse WordPress plugin logic — same pipeline, different profile.
+
+---
+
+## HTML source for plugin fingerprinting (2.1.0a1)
+
+WordPress plugin slugs are extracted from `/wp-content/plugins/<slug>/` URLs in page HTML. The extensions pipeline step reads:
+
+```text
+artifacts.inventory.html.scan_html   ← preferred (full homepage from collectors.html)
+artifacts.inventory.framework.body   ← fallback only (~8 KB cap for fingerprint scoring)
+```
+
+**Why:** Framework detection stores a short body sample for speed. Plugin assets often appear later in the document (footer scripts, lazy-loaded CSS). Using `scan_html` avoids under-counting on real WordPress sites while keeping framework fingerprint lightweight.
+
+**Decoupled frontends:** If the public homepage is Next.js (or similar) with no `wp-content/plugins/` paths, the report shows **0 plugins** and may note that WordPress may run behind the scenes — not a failed scan.
+
+Requires `collectors.html.prefer_full_homepage_fetch: true` (shipped default). See [config.md](config.md).
 
 ---
 

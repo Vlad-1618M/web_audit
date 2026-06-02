@@ -56,3 +56,20 @@ def test_summarize_headers_step():
     assert "HTTP 200" in summary
     assert "1 findings" in summary
     assert details
+
+
+def test_summarize_policy_step_string_artifacts():
+    findings = []
+    summary, details = summarize_step(
+        "_step_policy",
+        findings,
+        {
+            "policy": {
+                "hsts_detail": "max-age=31536000, includeSubDomains (raw: max-age=31536000)",
+                "csp_detail": "default-src 'self'",
+            }
+        },
+    )
+    assert "HSTS max-age=31536000" in summary
+    assert "CSP yes" in summary
+    assert details

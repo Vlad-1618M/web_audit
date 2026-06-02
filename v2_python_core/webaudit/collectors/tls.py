@@ -14,6 +14,13 @@ from datetime import datetime, timezone
 from typing import Any, Callable
 from urllib.parse import urlparse
 
+from webaudit.collectors.tls_cert import (
+    cert_lifecycle_status,
+    issuer_display_name,
+    rfc4514_attr,
+    validate_hostname,
+)
+
 
 @dataclass
 class TlsVersionResult:
@@ -34,21 +41,37 @@ class TlsVersionResult:
 @dataclass
 class TlsCertificateInfo:
     subject: str | None = None
+    subject_cn: str | None = None
     issuer: str | None = None
+    issuer_cn: str | None = None
+    issuer_org: str | None = None
+    issuer_display: str | None = None
+    not_before: str | None = None
     not_after: str | None = None
     days_left: int | None = None
+    status: str = "UNKNOWN"
     san: list[str] = field(default_factory=list)
     chain_length: int = 0
+    hostname_match: bool | None = None
+    hostname_note: str | None = None
     error: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "subject": self.subject,
+            "subject_cn": self.subject_cn,
             "issuer": self.issuer,
+            "issuer_cn": self.issuer_cn,
+            "issuer_org": self.issuer_org,
+            "issuer_display": self.issuer_display,
+            "not_before": self.not_before,
             "not_after": self.not_after,
             "days_left": self.days_left,
+            "status": self.status,
             "san": self.san,
             "chain_length": self.chain_length,
+            "hostname_match": self.hostname_match,
+            "hostname_note": self.hostname_note,
             "error": self.error,
         }
 
@@ -123,13 +146,37 @@ def _default_handshake(
         return False, None, str(exc)
 
 
-def _parse_certificate_der(der: bytes, chain_length: int) -> TlsCertificateInfo:
+def _parse_certificate_der(
+    der: bytes,
+    chain_length: int,
+    *,
+    hostname: str | None = None,
+) -> TlsCertificateInfo:
     from cryptography import x509
+    from cryptography.x509.oid import NameOID
 
     cert = x509.load_der_x509_certificate(der)
     subject = cert.subject.rfc4514_string()
     issuer = cert.issuer.rfc4514_string()
+    subject_cn = None
+    issuer_cn = None
+    issuer_org = None
+    try:
+        subject_cn = cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
+    except IndexError:
+        subject_cn = rfc4514_attr(subject, "CN")
+    try:
+        issuer_cn = cert.issuer.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
+    except IndexError:
+        issuer_cn = rfc4514_attr(issuer, "CN")
+    try:
+        issuer_org = cert.issuer.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)[0].value
+    except IndexError:
+        issuer_org = rfc4514_attr(issuer, "O")
+
+    not_before_dt = cert.not_valid_before_utc
     not_after_dt = cert.not_valid_after_utc
+    not_before = not_before_dt.isoformat()
     not_after = not_after_dt.isoformat()
     now = datetime.now(timezone.utc)
     days_left = (not_after_dt - now).days
@@ -141,13 +188,28 @@ def _parse_certificate_der(der: bytes, chain_length: int) -> TlsCertificateInfo:
     except x509.ExtensionNotFound:
         pass
 
+    hostname_match = None
+    hostname_note = None
+    if hostname:
+        hostname_match, hostname_note = validate_hostname(hostname, subject=subject, san=san)
+
+    display = issuer_display_name(issuer=issuer, issuer_org=issuer_org, issuer_cn=issuer_cn)
+
     return TlsCertificateInfo(
         subject=subject,
+        subject_cn=str(subject_cn) if subject_cn else None,
         issuer=issuer,
+        issuer_cn=str(issuer_cn) if issuer_cn else None,
+        issuer_org=str(issuer_org) if issuer_org else None,
+        issuer_display=display,
+        not_before=not_before,
         not_after=not_after,
         days_left=days_left,
+        status=cert_lifecycle_status(days_left),
         san=san,
         chain_length=chain_length,
+        hostname_match=hostname_match,
+        hostname_note=hostname_note,
     )
 
 
@@ -163,7 +225,7 @@ def _default_fetch_certificate(host: str, port: int, timeout: float) -> TlsCerti
                     return TlsCertificateInfo(error="No peer certificate returned")
                 chain = ssock.getpeercert_chain() if hasattr(ssock, "getpeercert_chain") else None
                 chain_length = len(chain) if chain else 1
-                return _parse_certificate_der(der, chain_length)
+                return _parse_certificate_der(der, chain_length, hostname=host)
     except ssl.SSLError as exc:
         return TlsCertificateInfo(error=str(exc))
     except OSError as exc:

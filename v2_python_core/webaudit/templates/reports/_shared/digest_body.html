@@ -1,0 +1,41 @@
+{# Owner digest — timeline + score strip (no outer wrap) #}
+{% from "site_link.html" import site_link %}
+<div class="digest-top">
+  <p class="brand">{{ host_label }}</p>
+  <h2 class="digest-kicker">Security digest</h2>
+  <p class="url">{{ site_link(target_href, target_url) }} · {{ scanned_at }}</p>
+  <div class="verdict-pill">
+    {{ verdict_label }}{% if scores.exposure == 100 %} — no leaks detected{% endif %}
+  </div>
+</div>
+
+<div class="score-strip">
+  <div class="score-cell score-band {{ hygiene_band }}">
+    <div class="n">{{ scores.hygiene }}</div>
+    <div class="l">Hygiene score</div>
+  </div>
+  <div class="score-cell score-band {{ exposure_band }}">
+    <div class="n">{{ scores.exposure }}</div>
+    <div class="l">Leak protection{% if scores.exposure >= 100 %} · no leaks{% endif %}</div>
+  </div>
+  <div class="score-cell v">
+    <div class="n">{{ scores.verdict.replace('_', ' ') }}</div>
+    <div class="l">Verdict</div>
+  </div>
+</div>
+
+<div class="timeline">
+  {% for item in digest_timeline %}
+  <div class="t-item {{ item.tone }}">
+    <div class="cat">{{ item.category }}</div>
+    <h3>{{ item.title }}</h3>
+    <p>{{ item.detail }}</p>
+  </div>
+  {% else %}
+  <div class="t-item ok">
+    <div class="cat">Summary</div>
+    <h3>No urgent issues</h3>
+    <p>This external scan did not surface scored action items.</p>
+  </div>
+  {% endfor %}
+</div>

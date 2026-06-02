@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from enum import IntEnum
 from typing import Any
 
@@ -23,6 +24,8 @@ STEP_LABELS: dict[str, tuple[str, str]] = {
     "_step_artifacts": ("artifacts", "robots.txt, security.txt, sitemap"),
     "_step_cors": ("cors", "CORS reflection probes"),
     "_step_html": ("html", "DOM inventory and mixed content"),
+    "_step_extensions": ("extensions", "Framework extensions / packages"),
+    "_step_seo_surface": ("seo_surface", "Discoverability (INFO only)"),
 }
 
 
@@ -66,6 +69,13 @@ def step_enabled(step_name: str, settings: Settings) -> bool:
             return settings.collectors.cors.enabled
         case "_step_html":
             return settings.collectors.html.enabled
+        case "_step_extensions":
+            return (
+                settings.collectors.extensions.enabled
+                and settings.target.framework in {"wordpress", "django", "laravel", "rails", "php"}
+            )
+        case "_step_seo_surface":
+            return settings.collectors.seo_surface.enabled
     return True
 
 
@@ -147,15 +157,35 @@ def summarize_step(
             if isinstance(v, dict) and v.get("supported")
         ]
         days = cert.get("days_left")
-        summary = f"TLS {', '.join(versions) or '?'} · cert ~{days}d · {note.replace('[yellow]', '').replace('[/yellow]', '')}"
-        if cert.get("subject"):
-            details.append(f"subject: {cert['subject'][:90]}")
+        issuer = cert.get("issuer_display") or cert.get("issuer") or "—"
+        status = cert.get("status") or "—"
+        days_part = f"~{days}d left" if days is not None else "expiry unknown"
+        summary = (
+            f"{issuer} · {status} · {days_part} · TLS {', '.join(versions) or '?'} · "
+            f"{note.replace('[yellow]', '').replace('[/yellow]', '')}"
+        )
+        if cert.get("hostname_match") is False:
+            details.append(f"hostname mismatch: {cert.get('hostname_note', '')[:100]}")
+        if cert.get("not_after"):
+            details.append(f"expires: {cert.get('not_after', '')[:40]}")
 
     elif step_name == "_step_policy":
         art = artifact_parts.get("policy", {})
-        hsts = art.get("hsts_detail") or {}
-        csp = art.get("csp_detail") or {}
-        summary = f"HSTS max-age={hsts.get('max_age', '—')} · CSP={'yes' if csp.get('present') else 'no'} · {note.replace('[yellow]', '').replace('[/yellow]', '')}"
+        hsts = art.get("hsts_detail")
+        csp = art.get("csp_detail")
+        hsts_part = "—"
+        if isinstance(hsts, str) and hsts:
+            match = re.search(r"max-age=(\d+)", hsts, re.IGNORECASE)
+            hsts_part = f"max-age={match.group(1)}" if match else "present"
+        csp_part = "yes" if csp else "no"
+        summary = (
+            f"HSTS {hsts_part} · CSP {csp_part} · "
+            f"{note.replace('[yellow]', '').replace('[/yellow]', '')}"
+        )
+        if isinstance(hsts, str) and hsts:
+            details.append(hsts[:120])
+        if isinstance(csp, str) and csp:
+            details.append(csp[:120])
 
     elif step_name == "_step_cookies":
         art = artifact_parts.get("inventory", {}).get("cookies", {})
@@ -192,6 +222,26 @@ def summarize_step(
             f"{art.get('pages_scanned', 0)} page(s) · "
             f"{inv.get('link_count', 0)} links · {note.replace('[yellow]', '').replace('[/yellow]', '')}"
         )
+
+    elif step_name == "_step_extensions":
+        art = artifact_parts.get("extensions", {})
+        count = art.get("extension_count", 0)
+        unit = art.get("unit", "extension")
+        fw = art.get("framework", "?")
+        summary = f"{fw} · {count} {unit}(s) · {note.replace('[yellow]', '').replace('[/yellow]', '')}"
+        for item in (art.get("extensions") or [])[:5]:
+            if isinstance(item, dict):
+                name = item.get("name", "?")
+                ver = item.get("version") or "?"
+                details.append(f"{name} v{ver}")
+        for signal in (art.get("signals") or [])[:3]:
+            if isinstance(signal, dict):
+                details.append(f"signal: {signal.get('key')} ({signal.get('status')})")
+
+    elif step_name == "_step_seo_surface":
+        art = artifact_parts.get("seo_surface", {})
+        checks = art.get("checks_run", 0)
+        summary = f"{checks} check(s) · {note.replace('[yellow]', '').replace('[/yellow]', '')}"
 
     else:
         summary = note.replace("[yellow]", "").replace("[/yellow]", "")

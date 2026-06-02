@@ -1,0 +1,74 @@
+{# HTTPS certificate at-a-glance — onboarding-friendly summary #}
+{% from "site_link.html" import site_link %}
+{% if cert_summary %}
+<section id="certificate" class="cert-section">
+  <div class="cert-hero {{ cert_summary.status_class }}">
+    <div class="cert-hero-top">
+      <div>
+        <p class="cert-kicker">HTTPS certificate</p>
+        <h2>{{ cert_summary.status_label }}</h2>
+        <p class="cert-headline">{{ cert_summary.headline }}</p>
+      </div>
+      <div class="cert-status-pill {{ cert_summary.status_class }}">{{ cert_summary.status_label }}</div>
+    </div>
+
+    {% if cert_summary.available %}
+    <div class="cert-grid">
+      <div class="cert-card">
+        <div class="cert-label">Issued by (CA)</div>
+        <div class="cert-value">{{ cert_summary.issuer_display }}</div>
+        {% if cert_summary.issuer_detail %}
+        <div class="cert-sub">{{ cert_summary.issuer_detail[:140] }}{% if cert_summary.issuer_detail|length > 140 %}…{% endif %}</div>
+        {% endif %}
+      </div>
+      <div class="cert-card">
+        <div class="cert-label">Issued to</div>
+        <div class="cert-value">
+          {% if cert_summary.subject_href %}
+          {{ site_link(cert_summary.subject_href, cert_summary.subject_cn) }}
+          {% else %}
+          {{ cert_summary.subject_cn }}
+          {% endif %}
+        </div>
+        <div class="cert-sub">Scanned host: {% if cert_summary.host_href %}{{ site_link(cert_summary.host_href, cert_summary.host) }}{% else %}{{ cert_summary.host }}{% endif %}</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-label">Valid until</div>
+        <div class="cert-value">{{ cert_summary.not_after }}</div>
+        <div class="cert-sub cert-days {{ cert_summary.status_class }}">{{ cert_summary.days_left_label }}</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-label">Valid from</div>
+        <div class="cert-value">{{ cert_summary.not_before }}</div>
+        <div class="cert-sub">{{ cert_summary.chain_length }} cert(s) in chain</div>
+      </div>
+    </div>
+
+    {% if cert_summary.san_links %}
+    <div class="cert-san">
+      <span class="cert-label">Also covers:</span>
+      {% for item in cert_summary.san_links %}
+      {{ site_link(item.href, item.name, 'san-link') }}
+      {% endfor %}
+      {% if cert_summary.san_extra %}
+      <span class="cert-sub">+{{ cert_summary.san_extra }} more</span>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if cert_summary.issues %}
+    <div class="cert-issues">
+      <div class="cert-label">Issues to review</div>
+      <ul>
+        {% for issue in cert_summary.issues %}
+        <li>{{ issue }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% elif cert_summary.available %}
+    <p class="cert-ok-note">No certificate timing or hostname issues detected in this scan.</p>
+    {% endif %}
+  </div>
+</section>
+{% endif %}

@@ -92,7 +92,10 @@ I have used **httpx** and **dnspython** before; they are proven choices for me, 
 
 **DNS & domain hygiene**
 
-- SPF, DMARC, DKIM selector discovery
+- SPF, DMARC, DKIM selector discovery (DKIM optional/off by default)
+- A, AAAA, MX, NS records in report + JSON
+- ASN / hosting network (Team Cymru DNS lookup)
+- Optional domain WHOIS when `whois` binary on audit host
 - IPv6 (AAAA) published vs reachable
 - Passive subdomain hints (CT API — Tier 2)
 
@@ -116,10 +119,11 @@ I have used **httpx** and **dnspython** before; they are proven choices for me, 
 - OpenAPI/Swagger discovery (Tier 2)
 - Richer WordPress/Django/Laravel signals
 - **WordPress plugin intelligence (Tier 2b)** — framework profile auto-load, version compare, auth-aware CVE, no “nulled” accusations in output
-- **Django/Laravel profiles** — debug/dependency VERIFY signals (not WP plugin model forced on them)
+- **Django/Laravel/Rails profiles (Tier 2b)** — package/gem registry compare + debug/disclosure VERIFY signals
 
 **UX & audience**
 
+- **Owner** report variant (default) — Security dashboard + Executive summary + Technical tab; owner guide; honest plugin/extension counts
 - **Executive** report variant — plain language, traffic-light summary
 - **Technical** report variant — findings tables, remediation, evidence
 - **Minimal** report variant — one-page printable handoff for dev shops
@@ -146,7 +150,7 @@ I have used **httpx** and **dnspython** before; they are proven choices for me, 
 | **M2 — Tier 1 parity+** | v1-equivalent checks in Python + DNS + TLS depth |
 | **M3 — Reports** | Three template variants + PDF |
 | **M4 — Tier 2** | JS pass, API probes, baselines |
-| **M4b — Tier 2b** | Framework profiles, WP plugin/version/CVE module |
+| **M4b — Tier 2b** | Framework profiles, multi-framework extension/version module | ← **2.1.0a1 (alpha)** |
 | **M4c — Tier 2c** | SEO surface checks (INFO/VERIFY only) |
 | **M5 — Tier 3** | CT subdomains, vuln snapshot, SARIF export |
 | **M6 — Install** | pipx, Homebrew formula, docs for non-terminal users |

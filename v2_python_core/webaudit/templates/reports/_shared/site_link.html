@@ -1,0 +1,4 @@
+{# Clickable target URL — use wherever the scanned site hostname appears #}
+{% macro site_link(url, label=None, class_name='site-link') %}
+<a href="{{ url if url.startswith('http') else 'https://' ~ url }}" class="{{ class_name }}" target="_blank" rel="noopener">{{ label or url }}</a>
+{% endmacro %}

@@ -74,21 +74,23 @@ scoring:
     HEADERS: 30   # max 30 points off from header issues per run
 ```
 
-Default: **no caps** (v1 behavior). **Tier 2b default for plugins:**
+Default: **no caps** (v1 behavior). **Tier 2b default for extensions:**
 
 ```yaml
 scoring:
   hygiene_caps:
     PLUGIN: 30
     PLUGIN_CVE: 30
-  plugin_worst_wins: true   # optional — use highest-severity plugin finding only
+    PACKAGE: 30      # Django / Laravel
+    GEM: 30          # Rails
+  plugin_worst_wins: true   # optional — use highest-severity extension finding only
 ```
 
 ---
 
 ## Plugin & extension findings (Tier 2b)
 
-Categories: `PLUGIN`, `PLUGIN_CVE`, `PLUGIN_VERIFY`, `PLUGIN_INFO`.
+Categories: `PLUGIN*` (WordPress), `PACKAGE*` (Django/Laravel), `GEM*` (Rails), plus shared `*_VERIFY` / `*_INFO` variants.
 
 | Finding | Class | Scored | Hygiene | Exposure |
 |---------|-------|--------|---------|----------|
@@ -133,6 +135,8 @@ Full check list: [seo_surface.md](seo_surface.md).
 ## Exposure score (0–100)
 
 **Question:** *Are secrets or sensitive files reachable?*
+
+**UI label (2.1.0a1 reports):** **Leak protection** with **/100** suffix — e.g. `100/100` means no obvious public leaks (good), not “100% exposed.”
 
 **Start:** `exposure = 100`
 

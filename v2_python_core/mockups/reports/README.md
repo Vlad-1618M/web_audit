@@ -15,6 +15,7 @@ Five dark-theme HTML report variants for Web Audit v2. **CSS lives in sibling fi
 
 | ID | Audience | Files |
 |----|----------|-------|
+| **Owner (default in Pro)** | Site owner + dev — combined dashboard + executive + technical tab | Live templates: `templates/reports/owner/` |
 | **A · Executive** | Site owner, non-technical | [variant-a-executive.html](variant-a-executive.html) + [executive.css](executive.css) |
 | **B · Technical** | Developers, dev shops | [variant-b-technical.html](variant-b-technical.html) + [technical.css](technical.css) |
 | **C · Minimal** | One-page handoff / print / PDF | [variant-c-minimal.html](variant-c-minimal.html) + [minimal.css](minimal.css) |

@@ -56,6 +56,8 @@ def render_txt(run: AuditRun, *, variant: str = "technical", theme: str = "dark"
         lines.append("-" * 72)
         for card in ctx["dns_cards"]:
             lines.append(f"  {card['label']}: {card['value']}")
+            if card.get("summary"):
+                lines.append(f"      {card['summary']}")
         lines.append("")
 
     lines.extend(

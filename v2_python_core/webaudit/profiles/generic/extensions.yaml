@@ -1,0 +1,25 @@
+framework: generic
+fingerprint_unit: runtime
+min_detection_confidence: 0.0
+
+probe:
+  mode: observed_only
+  sources:
+    - version_disclosure
+    - readme_exposure
+
+compare:
+  wporg_api: false
+  pypi_api: false
+  packagist_api: false
+  rubygems_api: false
+
+scoring:
+  hygiene_cap: 10
+
+watchlist: []
+
+signals:
+  server_version_header: LOW
+  x_powered_by: LOW
+  exposed_readme: MEDIUM

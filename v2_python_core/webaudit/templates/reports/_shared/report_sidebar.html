@@ -1,0 +1,26 @@
+{# Resizable technical report sidebar #}
+<aside class="sidebar" id="report-sidebar">
+  <h1>Web Audit v2</h1>
+  {% from "site_link.html" import site_link %}
+  <p class="target">{{ site_link(target_href, target_url) }}</p>
+  {% if show_sidebar_back %}
+  <p class="sidebar-back no-print">
+    <button type="button" class="link-tab" data-owner-tab="overview">← Back to owner summary</button>
+  </p>
+  {% endif %}
+  <nav class="nav">
+    <a href="#scores">Scores</a>
+    {% if cert_summary %}<a href="#certificate">Certificate</a>{% endif %}
+    <a href="#findings">Findings</a>
+    {% if dns_cards %}<a href="#dns">DNS</a>{% endif %}
+    {% if tls_rows %}<a href="#tls">TLS</a>{% endif %}
+    {% if robots_section %}<a href="#robots">robots.txt</a>{% endif %}
+    {% if path_rows %}<a href="#paths">Path probes</a>{% endif %}
+    {% if extension_section %}<a href="#extensions">Plugins</a>{% endif %}
+    <a href="#attribution">Designer</a>
+    <a href="#discovery">Site discovery</a>
+    <a href="#inventory">Inventory</a>
+    <a href="#report-system">System</a>
+  </nav>
+</aside>
+<div class="sidebar-resizer no-print" id="sidebar-resizer" title="Drag to resize sidebar" aria-label="Resize sidebar"></div>

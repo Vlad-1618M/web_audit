@@ -4,6 +4,8 @@ Reference: repo root `web_audit.sh` (read-only). v2 code lives in `v2_python_cor
 
 **Tier 1 sign-off (2.0.0b1):** All v1-equivalent checks are implemented in Python. Intentional deltas are listed below.
 
+**Stage 5 (2.1.0a1):** Tier 2b extensions + DNS enrichment + report polish — extends v1; not all rows are v1 parity.
+
 ## Module mapping
 
 | v1 area | v1 (approx.) | v2 module | Parity |
@@ -17,27 +19,41 @@ Reference: repo root `web_audit.sh` (read-only). v2 code lives in `v2_python_cor
 | Artifacts | robots, security.txt | `collectors/artifacts` + `analyzers/artifacts` | ✓ |
 | CORS | origin probes | `collectors/cors` + `analyzers/cors` | ✓ |
 | Framework | `detect_framework()` | `collectors/framework` + `analyzers/framework` | ✓ |
-| HTML inventory | regex misc | `collectors/html` + `analyzers/html` (BeautifulSoup) | ✓ improved |
+| HTML inventory | regex + misc URL scan | `collectors/html` + `site_discovery` + `sitemap` (BeautifulSoup) | ✓ improved |
+| Designer credit | `extract_designer_from_html()` | `collectors/attribution` + report card (footer/context rules) | ✓ hardened (2.1.0a1) |
+| Image inventory | sampled page images | `collectors/html` (favicon, og:image, lazy-load) | ✓ improved |
 | Scoring | Hygiene / Exposure | `scoring/engine.py` | ✓ |
-| Reports | HTML/JSON/TXT | Jinja templates + `audit_run.json` | ✓ |
+| Reports | HTML/JSON/TXT | Jinja templates + `audit_run.json` | ✓ improved |
+| Plugin versions | `check_plugin_versions()` | `collectors/extensions/` + `analyzers/extensions` (HTML from `scan_html`) | ✓ improved (2.1.0a1) |
 | DNS | — | `collectors/dns` + `analyzers/dns` | **new in v2** |
-| Plugin versions | `check_plugin_versions()` | — | **Tier 2b** (profiles) |
+| ASN / WHOIS | — | `collectors/asn` + `collectors/net_tools` | **new in v2** |
 
 ## Intentional deltas
 
-| Area | v1 | v2 (2.0.0b1) | Follow-up |
+| Area | v1 | v2 (2.1.0a1) | Follow-up |
 |------|-----|--------------|-----------|
-| HSTS missing at CDN edge | VERIFY when CDN detected | ACTION (CDN not used for HSTS downgrade yet) | Tier 1 polish or 2.0.0 |
+| HSTS missing at CDN edge | VERIFY when CDN detected | ACTION (CDN not used for HSTS downgrade yet) | Tier 1 polish |
 | PDF export | Browser `window.print()` only | Browser print (default) + optional WeasyPrint | By design |
-| Plugin/CVE probes | Hardcoded readme.txt list | Not shipped | Tier 2b |
+| Plugin/CVE probes | Hardcoded readme.txt list for high-risk slugs | Observed-only + framework profiles; no blind readme GET | Tier 2b ✓; CVE cache deferred |
+| Plugin compare scope | WordPress readme + WPScan hints | WP + Django/Laravel/Rails registry compare | v2-only extension |
 | INI site config | `site.conf` | YAML (`webaudit.yaml`, `--site-config`) | Tier 3 migrator |
 | Output layout | User-chosen dir in v1 | `audit_logs/<stamp>_<host>/` | Documented |
+| Designer findings | ATTRIBUTION checks in JSON | Same checks + dedicated report section | v2 UX only |
+| Link discovery depth | Homepage + limited sampling | Full homepage fetch + sitemap index children | v2 improved |
 
 ## v2-only additions (not parity gaps)
 
-- DNS: SPF, DMARC, CAA, AAAA, DNSSEC
+- DNS: SPF, DMARC, CAA, A, AAAA, MX, NS, DNSSEC
+- ASN lookup (Team Cymru DNS) for site IPv4/IPv6
+- Optional domain WHOIS when `whois` binary exists on audit host
+- Host net-tool detection note in report (`dig`, `whois`, `host`, `mtr`, `traceroute`)
 - Structured `audit_run.json` (schema 2.0)
-- Five HTML report variants + TXT + `webaudit report`
+- Six HTML report variants + TXT + `webaudit report` (default **`owner`**: combined dashboard + executive + technical tab)
+- Owner guide section: how to read the report, tool comparison, dev/QA suggestions
+- Metric chips, plain-English DNS cards, leak-protection **/100** score labels in UI
+- Framework extension intelligence (WordPress plugins, Django/Laravel packages, Rails gems)
+- SEO surface analyzer (INFO/VERIFY only)
+- `webaudit diff` baseline comparison
 - Scan progress: default step logs, `-v` / `-q`
 - Post-scan `--open` (html/json/all/none)
 
@@ -50,4 +66,4 @@ cd v2_python_core
 .venv/bin/python -m pytest -q
 ```
 
-Automated v1-vs-v2 golden fixtures: planned; unit tests mock I/O today.
+Automated v1-vs-v2 golden fixtures: planned; unit tests mock I/O today (~145 unit tests).

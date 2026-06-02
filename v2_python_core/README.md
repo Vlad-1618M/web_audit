@@ -1,6 +1,6 @@
 # Web Audit v2 — Python Core
 
-**Status:** **Tier 1 complete (2.0.0b1)** — full scan pipeline, reports, `webaudit scan` / `webaudit report`. Tier 2 (profiles, plugins, SEO) is Stage 5.
+**Status:** **2.1.0a1 (Stage 5 alpha)** — Tier 1 complete; Tier 2b extensions (full-HTML plugin fingerprint), DNS enrichment, SEO surface, baseline diff, and owner-report polish landing in Pro.
 
 This directory is the blueprint for **Web Audit v2**. It lives beside the public **v1 bash** tool (`web_audit.sh` at the repo root). I am **not replacing v1** — people use it today, and it stays frozen as the zero-install shell edition.
 
@@ -37,11 +37,11 @@ That is v2.
 
 | | v1 (bash) | v2 (Python) |
 |---|-----------|-------------|
-| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (Stage 1 alpha) |
+| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (2.1.0a1) |
 | **Audience** | Devs, CI, SSH boxes | Devs **and** non-technical site owners |
 | **Install** | curl + openssl + zsh/bash | `pipx install webaudit` (or similar) |
 | **Architecture** | Monolith script | Modular collectors, analyzers, scorers, renderers |
-| **Reports** | HTML with browser “Save as PDF” | HTML templates **outside** Python + **native PDF** export |
+| **Reports** | HTML with browser “Save as PDF” | **`owner`** combined HTML (default) + five standalone variants; native PDF optional |
 | **Scope** | External hygiene snapshot | Same philosophy, **deeper signal** (DNS, TLS, DOM, optional JS) |
 
 v1 remains **Audit Lite** — zero dependencies, Unix-first, public forever.
@@ -55,7 +55,7 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 | Document | Purpose |
 |----------|---------|
 | [docs/implementation_tracker.md](docs/implementation_tracker.md) | **Built vs planned** — module status, extension contract, Stage 2 backlog |
-| [CHANGELOG.md](CHANGELOG.md) | Release history; Unreleased = next Stage 2 work |
+| [CHANGELOG.md](CHANGELOG.md) | Release history; Unreleased = in-progress Stage 5 work |
 | [docs/getting_started_plain.md](docs/getting_started_plain.md) | **Non-technical** — install, scan, tab completion explained simply |
 | [dev-venv.sh](dev-venv.sh) | Local `.venv` setup, activate, teardown (Mac/Linux) |
 | [docs/stages.md](docs/stages.md) | Delivery stages; Tier 1 → Tier 2 → Tier 3 stacking |
@@ -68,7 +68,8 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 | [docs/seo_surface.md](docs/seo_surface.md) | Tier 2c discoverability — INFO/VERIFY only, not scored |
 | [docs/diagrams.md](docs/diagrams.md) | Mermaid architecture diagrams (dark theme) |
 | [mockups/diagrams/index.html](mockups/diagrams/index.html) | **Live diagram viewer** (browser) |
-| [mockups/reports/README.md](mockups/reports/README.md) | Five HTML report variants + [gallery index](mockups/reports/index.html) |
+| [tests/parity/PARITY.md](tests/parity/PARITY.md) | v1 bash ↔ v2 Pro parity matrix |
+| [mockups/reports/README.md](mockups/reports/README.md) | HTML report variants + [gallery index](mockups/reports/index.html) (live default: **`owner`**) |
 | [mockups/config/](mockups/config/) | Example YAML configs + [framework profiles](mockups/config/profiles/) |
 
 ---
@@ -124,27 +125,25 @@ Full friendly guide: **[docs/getting_started_plain.md](docs/getting_started_plai
 
 ```text
 v2_python_core/
-├── dev-venv.sh                 # local venv helper
+├── dev-venv.sh
 ├── pyproject.toml
-├── webaudit/                   ← Python package (Stage 1 alpha)
-│   ├── cli/                    # scan + completion commands
+├── webaudit/                   ← Python package (2.1.0a1)
+│   ├── cli/                    # scan, report, diff, completion
 │   ├── config/                 # settings.py + defaults.yaml
-│   ├── collectors/             # headers, dns (more Tier 1 later)
-│   ├── analyzers/              # headers, dns
-│   ├── scoring/                # engine.py
-│   ├── storage/                # audit_logs writer
-│   ├── pipeline.py             # scan step registry (add Stage 2 here)
-│   ├── orchestrator.py
+│   ├── collectors/             # headers, dns, paths, tls, extensions/, …
+│   ├── analyzers/
+│   ├── profiles/               # wordpress, django, laravel, rails, generic YAML
+│   ├── render/                 # html, txt, pdf + display helpers
+│   ├── scoring/
+│   ├── pipeline.py
 │   └── models/
-├── tests/unit/
-├── mockups/                    # static previews (reports, config, diagrams)
+├── templates/reports/          # Jinja HTML + CSS (owner default + five standalone)
+├── tests/unit/ + tests/parity/
+├── mockups/
 └── docs/
-
-# Planned (not in repo yet as code):
-profiles/                       # wordpress, django, laravel YAML
-templates/reports/              # Jinja HTML + CSS
-webaudit/render/                # PDF export
 ```
+
+Live module status: [docs/implementation_tracker.md](docs/implementation_tracker.md).
 
 ---
 

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit — {{ target_url }} (Technical)</title>
+  {% include "head_print_dark.html" %}
+  <link rel="stylesheet" href="report.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h1>Web Audit v2</h1>
+      <p class="target">{{ target_url }}</p>
+      <nav class="nav">
+        <a href="#scores">Scores</a>
+        <a href="#findings">Findings</a>
+        {% if dns_cards %}<a href="#dns">DNS</a>{% endif %}
+        {% if tls_rows %}<a href="#tls">TLS</a>{% endif %}
+        {% if path_rows %}<a href="#paths">Path probes</a>{% endif %}
+        <a href="#inventory">Inventory</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="toolbar no-print">
+        <button type="button" class="btn-edge-cyan" onclick="window.print()">Print / Save as PDF</button>
+        <span class="hint">Print → Save as PDF. Turn on <strong>Background graphics</strong> to keep the dark theme.</span>
+        <span class="meta-inline">Framework: {{ framework }} ({{ framework_confidence }}) · {{ scanned_at }}</span>
+      </div>
+
+      <section id="scores">
+        <div class="score-row">
+          <div class="chip hygiene"><div class="l">Hygiene</div><div class="n">{{ scores.hygiene }}</div></div>
+          <div class="chip exposure"><div class="l">Exposure</div><div class="n">{{ scores.exposure }}</div></div>
+          <div class="chip verdict"><div class="l">Verdict</div><div class="n">{{ scores.verdict }}</div></div>
+        </div>
+      </section>
+
+      <section id="findings">
+        <h2>Action findings ({{ action_findings|length }})</h2>
+        {% if action_findings %}
+        <table>
+          <thead>
+            <tr>
+              <th>Sev</th>
+              <th>Category</th>
+              <th>Item</th>
+              <th>Status</th>
+              <th>Class</th>
+              <th>Detail</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in action_findings %}
+            <tr>
+              <td><span class="sev {{ f.severity.value }}">{{ f.severity.value[:3] }}</span></td>
+              <td>{{ f.category }}</td>
+              <td>{{ f.item }}</td>
+              <td>{{ f.status }}</td>
+              <td><span class="class-tag">{{ f.class_.value }}</span></td>
+              <td>{{ f.detail }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="meta-inline">No scored ACTION findings.</p>
+        {% endif %}
+
+        {% if verify_findings %}
+        <h2 style="margin-top:1.5rem">Verify ({{ verify_findings|length }})</h2>
+        <table>
+          <thead>
+            <tr><th>Category</th><th>Item</th><th>Status</th><th>Detail</th></tr>
+          </thead>
+          <tbody>
+            {% for f in verify_findings %}
+            <tr>
+              <td>{{ f.category }}</td>
+              <td>{{ f.item }}</td>
+              <td>{{ f.status }}</td>
+              <td>{{ f.detail }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+      </section>
+
+      {% if dns_cards %}
+      <section id="dns">
+        <h2>DNS &amp; email surface</h2>
+        <div class="dns-grid">
+          {% for card in dns_cards %}
+          <div class="dns-card">
+            <h3>{{ card.label }}</h3>
+            <code>{{ card.value }}</code>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      {% if tls_rows %}
+      <section id="tls">
+        <h2>TLS &amp; certificate</h2>
+        <table>
+          <thead><tr><th>Check</th><th>Result</th></tr></thead>
+          <tbody>
+            {% for row in tls_rows %}
+            <tr><td>{{ row.check }}</td><td>{{ row.result }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+      {% endif %}
+
+      {% if path_rows %}
+      <section id="paths">
+        <h2>Sensitive path probes <small class="meta-inline">(sample)</small></h2>
+        <table>
+          <thead><tr><th>Path</th><th>Status</th><th>Notes</th></tr></thead>
+          <tbody>
+            {% for row in path_rows %}
+            <tr>
+              <td>{{ row.path }}</td>
+              <td>{{ row.status }}</td>
+              <td>{{ row.notes }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+      {% endif %}
+
+      <section id="inventory">
+        <h2>Inventory summary</h2>
+        <table>
+          <thead><tr><th>Bucket</th><th>Count</th></tr></thead>
+          <tbody>
+            {% for row in inventory_rows %}
+            <tr><td>{{ row.bucket }}</td><td>{{ row.count }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% if policy.hsts_detail or policy.csp_detail %}
+        <h2 style="margin-top:1.5rem">Policy parse</h2>
+        {% if policy.hsts_detail %}<p class="meta-inline"><strong>HSTS:</strong> {{ policy.hsts_detail }}</p>{% endif %}
+        {% if policy.csp_detail %}<pre class="evidence">{{ policy.csp_detail }}</pre>{% endif %}
+        {% endif %}
+      </section>
+
+      <footer class="meta-inline" style="margin-top:2rem">
+        Generated by Web Audit v{{ webaudit_version }} · Technical report · {{ findings|length }} total findings
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

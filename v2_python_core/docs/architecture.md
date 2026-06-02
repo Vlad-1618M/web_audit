@@ -85,9 +85,44 @@ sequenceDiagram
   J->>U: HTML + PDF + TXT
 ```
 
+> **Stage 1 alpha today:** orchestrator runs **headers + DNS** collectors only; writes `audit_run.json` with scores. Framework profiles, path/TLS collectors, and Jinja render are planned (diagram shows full Tier 1 target).
+
 ---
 
-## Package structure (planned)
+## Package structure (implemented — Stage 1 alpha)
+
+```text
+v2_python_core/
+├── dev-venv.sh                 # local .venv setup / activate / teardown
+├── pyproject.toml
+├── webaudit/
+│   ├── cli/
+│   │   ├── main.py             # typer: scan, completion subcommands
+│   │   └── completion_cmd.py   # Tab completion install/status/uninstall
+│   ├── config/
+│   │   ├── settings.py         # YAML merge + pydantic Settings
+│   │   └── defaults.yaml
+│   ├── models/
+│   │   ├── finding.py
+│   │   └── run.py              # AuditRun JSON contract
+│   ├── collectors/
+│   │   ├── headers.py
+│   │   └── dns.py
+│   ├── analyzers/
+│   │   ├── headers.py
+│   │   └── dns.py
+│   ├── scoring/
+│   │   └── engine.py           # Hygiene, Exposure, Verdict
+│   ├── storage/
+│   │   └── runs.py             # audit_logs/ writer
+│   ├── pipeline.py             # Stage registry — add collectors here
+│   └── orchestrator.py
+└── tests/unit/                 # pytest (14 tests)
+```
+
+---
+
+## Package structure (full Tier 1 target)
 
 ```text
 webaudit/

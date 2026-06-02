@@ -1,6 +1,8 @@
 # Web Audit v2 — Configuration System
 
-*How I plan to control the entire scanner from YAML — global defaults, per-site overrides, no magic constants buried in Python.*
+*YAML-driven scanner settings — global defaults, per-site overrides, no magic constants buried in Python.*
+
+**Stage 1 status:** `load_settings()` merges shipped `defaults.yaml` → `~/.config/webaudit/config.yaml` → project `webaudit.yaml` → `--config` / `--site-config` CLI flags. Site profiles and framework profile auto-load are **Tier 2**.
 
 ---
 

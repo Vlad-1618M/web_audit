@@ -1,6 +1,6 @@
 # Web Audit v2 — Python Core
 
-**Status:** - Planning & documentation only. No Python code yet.
+**Status:** **Tier 1 complete (2.0.0b1)** — full scan pipeline, reports, `webaudit scan` / `webaudit report`. Tier 2 (profiles, plugins, SEO) is Stage 5.
 
 This directory is the blueprint for **Web Audit v2**. It lives beside the public **v1 bash** tool (`web_audit.sh` at the repo root). I am **not replacing v1** — people use it today, and it stays frozen as the zero-install shell edition.
 
@@ -37,7 +37,7 @@ That is v2.
 
 | | v1 (bash) | v2 (Python) |
 |---|-----------|-------------|
-| **Location** | Repo root `web_audit.sh` | This directory → future `webaudit` package |
+| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (Stage 1 alpha) |
 | **Audience** | Devs, CI, SSH boxes | Devs **and** non-technical site owners |
 | **Install** | curl + openssl + zsh/bash | `pipx install webaudit` (or similar) |
 | **Architecture** | Monolith script | Modular collectors, analyzers, scorers, renderers |
@@ -54,7 +54,10 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 
 | Document | Purpose |
 |----------|---------|
-| [docs/roadmap.md](docs/roadmap.md) | What I plan to build and how v2 improves on bash |
+| [docs/implementation_tracker.md](docs/implementation_tracker.md) | **Built vs planned** — module status, extension contract, Stage 2 backlog |
+| [CHANGELOG.md](CHANGELOG.md) | Release history; Unreleased = next Stage 2 work |
+| [docs/getting_started_plain.md](docs/getting_started_plain.md) | **Non-technical** — install, scan, tab completion explained simply |
+| [dev-venv.sh](dev-venv.sh) | Local `.venv` setup, activate, teardown (Mac/Linux) |
 | [docs/stages.md](docs/stages.md) | Delivery stages; Tier 1 → Tier 2 → Tier 3 stacking |
 | [docs/architecture.md](docs/architecture.md) | Module layout, libraries, data flow, diagrams |
 | [docs/scoring.md](docs/scoring.md) | Math for Hygiene, Exposure, verdicts, baselines |
@@ -82,22 +85,65 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 
 ---
 
-## Planned package layout (future)
+## Quick start (dev)
+
+```bash
+cd v2_python_core
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+webaudit scan https://example.com
+pytest
+```
+
+Scan output lands in `./audit_logs/<timestamp>_<host>/audit_run.json`.
+
+Or use the helper script (lists existing envs, age, setup/teardown):
+
+```bash
+./dev-venv.sh setup      # create .venv + install
+eval "$(./dev-venv.sh activate --print)"   # zsh/bash: activate in this window (best for p10k)
+./dev-venv.sh shell      # optional: minimal quiet subshell (skips ~/.zshrc)
+./dev-venv.sh teardown   # remove .venv when finished
+```
+
+### In plain English (non-developers)
+
+**Installing** (`pip install` or `./dev-venv.sh setup`) puts the `webaudit` command on your computer — like installing an app. After that you can run:
+
+```bash
+webaudit scan https://your-site.com
+```
+
+**`webaudit completion install`** adds optional **Tab autocomplete** (see friendly panel after install). **`webaudit completion uninstall`** removes it. **Deleting `.venv` does not remove completion** — they live in different places (`~/.zfunc/` vs project folder).
+
+Full friendly guide: **[docs/getting_started_plain.md](docs/getting_started_plain.md)** — share with site owners or PMs.
+
+---
+
+## Package layout
 
 ```text
-v2_python_core/                 ← docs + mockups today
-webaudit/                       ← Python package (later)
-  cli/
-  config/                       ← pydantic + profiles.py loader
-  collectors/                   ← httpx, dns, tls, wp_plugins (Tier 2b)
-  analyzers/                    ← wp_plugins, plugin_vuln, seo_surface (2c)
-  scoring/
-  storage/                      ← baselines + vuln_cache
-  render/
-profiles/                       ← wordpress, django, laravel YAML (not Python)
-templates/reports/
-tests/
-mockups/                        ← static previews (this repo section)
+v2_python_core/
+├── dev-venv.sh                 # local venv helper
+├── pyproject.toml
+├── webaudit/                   ← Python package (Stage 1 alpha)
+│   ├── cli/                    # scan + completion commands
+│   ├── config/                 # settings.py + defaults.yaml
+│   ├── collectors/             # headers, dns (more Tier 1 later)
+│   ├── analyzers/              # headers, dns
+│   ├── scoring/                # engine.py
+│   ├── storage/                # audit_logs writer
+│   ├── pipeline.py             # scan step registry (add Stage 2 here)
+│   ├── orchestrator.py
+│   └── models/
+├── tests/unit/
+├── mockups/                    # static previews (reports, config, diagrams)
+└── docs/
+
+# Planned (not in repo yet as code):
+profiles/                       # wordpress, django, laravel YAML
+templates/reports/              # Jinja HTML + CSS
+webaudit/render/                # PDF export
 ```
 
 ---

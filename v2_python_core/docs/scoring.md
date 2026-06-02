@@ -18,7 +18,7 @@
 Every analyzer emits a `Finding`:
 
 ```python
-# conceptual — not implemented yet
+# implemented — webaudit/models/finding.py
 Finding(
     category="HEADERS",           # TLS, DNS, PATHS, ...
     item="Content-Security-Policy",

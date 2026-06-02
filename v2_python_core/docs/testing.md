@@ -43,11 +43,13 @@ Goals:
 | **jsonschema** | Validate `audit_run.json` against schema |
 
 ```text
-dev dependencies:
+dev dependencies (pyproject.toml today):
   pytest>=8.0
-  pytest-asyncio>=0.23
   pytest-httpx>=0.30
   pytest-cov>=5.0
+
+planned (Tier 1 complete):
+  pytest-asyncio>=0.23
   freezegun>=1.4
   jsonschema>=4.21
 ```

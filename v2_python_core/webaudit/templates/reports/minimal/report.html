@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit — {{ host_label }} (Minimal Handoff)</title>
+  {% include "head_print_dark.html" %}
+  <link rel="stylesheet" href="report.css">
+</head>
+<body>
+  <div class="page">
+    <div class="toolbar no-print">
+      <button type="button" class="btn-edge-cyan" onclick="window.print()">Print / Save as PDF</button>
+      <span class="hint">Print → Save as PDF. Enable Background graphics for dark theme.</span>
+    </div>
+
+    <header>
+      <h1>External Web Audit — Handoff Sheet</h1>
+      <p class="sub">
+        <strong>Target:</strong> {{ target_url }} &nbsp;|&nbsp;
+        <strong>Host:</strong> {{ host_label }} &nbsp;|&nbsp;
+        <strong>Date:</strong> {{ scanned_at }} &nbsp;|&nbsp;
+        <strong>Tool:</strong> Web Audit v{{ webaudit_version }}
+      </p>
+    </header>
+
+    <div class="summary-box">
+      <div>
+        <span class="num warn-num">{{ scores.hygiene }}</span>
+        Hygiene / 100
+      </div>
+      <div>
+        <span class="num ok-num">{{ scores.exposure }}</span>
+        Exposure / 100
+      </div>
+      <div>
+        <span class="verdict-text">{{ scores.verdict.replace('_', ' ') }}</span>
+        Verdict
+      </div>
+    </div>
+
+    <h2>Priority actions for developer</h2>
+    <ul class="compact">
+      {% for f in action_findings[:10] %}
+      <li>
+        <span class="priority{% if f.severity.value in ['CRITICAL', 'HIGH'] %} priority-high{% endif %}">{{ f.severity.value[:3] }}</span>
+        — {{ f.item }} ({{ f.category }}){% if f.detail %} — {{ f.detail }}{% endif %}
+      </li>
+      {% else %}
+      <li>No scored action items — configuration and exposure look acceptable from this scan.</li>
+      {% endfor %}
+    </ul>
+
+    <h2>Confirmed OK</h2>
+    <ul class="compact">
+      {% for line in ok_highlights %}
+      <li>{{ line }}</li>
+      {% else %}
+      <li>No positive highlights recorded.</li>
+      {% endfor %}
+    </ul>
+
+    <div class="two-col">
+      <div>
+        <h2>Scope</h2>
+        <p>Unauthenticated external GET/HEAD/POST probes only. No login credentials used. Not a penetration test.</p>
+      </div>
+      <div>
+        <h2>Artifacts</h2>
+        <p>Full JSON: <code>audit_run.json</code> in the same folder.<br>
+        Framework: {{ framework }} ({{ framework_confidence }}).</p>
+      </div>
+    </div>
+
+    <footer class="footer">
+      Web Audit v{{ webaudit_version }} · Minimal variant · {{ findings|length }} checks recorded
+    </footer>
+  </div>
+</body>
+</html>

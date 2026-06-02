@@ -14,45 +14,7 @@
       <span class="hint">Print → Save as PDF. Enable Background graphics for dark theme.</span>
     </div>
 
-    <div class="digest-top">
-      <p class="brand">{{ host_label }}</p>
-      <h1>Security digest</h1>
-      <p class="url">{{ target_url }} · {{ scanned_at }}</p>
-      <div class="verdict-pill">
-        {{ verdict_label }}{% if scores.exposure == 100 %} — no leaks detected{% endif %}
-      </div>
-    </div>
-
-    <div class="score-strip">
-      <div class="score-cell h">
-        <div class="n">{{ scores.hygiene }}</div>
-        <div class="l">Hygiene</div>
-      </div>
-      <div class="score-cell e">
-        <div class="n">{{ scores.exposure }}</div>
-        <div class="l">Exposure</div>
-      </div>
-      <div class="score-cell v">
-        <div class="n">{{ scores.verdict.replace('_', ' ') }}</div>
-        <div class="l">Verdict</div>
-      </div>
-    </div>
-
-    <div class="timeline">
-      {% for item in digest_timeline %}
-      <div class="t-item {{ item.tone }}">
-        <div class="cat">{{ item.category }}</div>
-        <h3>{{ item.title }}</h3>
-        <p>{{ item.detail }}</p>
-      </div>
-      {% else %}
-      <div class="t-item ok">
-        <div class="cat">Summary</div>
-        <h3>No urgent issues</h3>
-        <p>This external scan did not surface scored action items.</p>
-      </div>
-      {% endfor %}
-    </div>
+    {% include "digest_body.html" %}
 
     <footer>
       Web Audit v{{ webaudit_version }} · Owner digest · Framework {{ framework }}

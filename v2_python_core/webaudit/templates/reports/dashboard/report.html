@@ -14,73 +14,7 @@
       <span class="hint">Print → Save as PDF. Enable Background graphics for dark theme.</span>
     </div>
 
-    <div class="dash-header">
-      <div>
-        <h1>Security Dashboard</h1>
-        <p class="host">{{ target_url }}</p>
-      </div>
-      <div class="tag-row">
-        <span class="tag c">{{ framework }}</span>
-        <span class="tag m">{{ scores.verdict.replace('_', ' ') }}</span>
-        {% if scores.exposure == 100 %}
-        <span class="tag g">No leaks</span>
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="metrics-grid">
-      <div class="metric cyan">
-        <div class="val">{{ scores.hygiene }}</div>
-        <div class="lbl">Hygiene</div>
-      </div>
-      <div class="metric lime">
-        <div class="val">{{ scores.exposure }}</div>
-        <div class="lbl">Exposure</div>
-      </div>
-      <div class="metric gold">
-        <div class="val">{{ probe_count }}</div>
-        <div class="lbl">Path probes</div>
-      </div>
-      <div class="metric violet">
-        <div class="val">{{ action_count }}</div>
-        <div class="lbl">Action items</div>
-      </div>
-    </div>
-
-    <div class="panels">
-      <div class="panel">
-        <h2>Category health</h2>
-        {% for row in category_health %}
-        <div class="bar-row">
-          <span class="name">{{ row.name }}</span>
-          <div class="bar-track">
-            <div class="bar-fill {{ row.level }}" style="width: {{ row.width_pct }}%"></div>
-          </div>
-        </div>
-        {% endfor %}
-        <div class="alert-strip">⚠ {{ alert_strip }}</div>
-      </div>
-
-      <div class="panel">
-        <h2>Score rings</h2>
-        <div class="ring-wrap">
-          <div class="ring hygiene">
-            <span class="big">{{ scores.hygiene }}</span>
-            <span class="small">Hygiene</span>
-          </div>
-          <div class="ring exposure">
-            <span class="big">{{ scores.exposure }}</span>
-            <span class="small">Exposure</span>
-          </div>
-        </div>
-        <div class="tag-row" style="justify-content: center;">
-          <span class="tag c">{{ pages_scanned }} page(s) scanned</span>
-          {% if cert_days is not none %}
-          <span class="tag g">{{ cert_days }}d cert</span>
-          {% endif %}
-        </div>
-      </div>
-    </div>
+    {% include "dashboard_body.html" %}
 
     <footer>
       Web Audit v{{ webaudit_version }} · Dashboard · {{ scanned_at }}

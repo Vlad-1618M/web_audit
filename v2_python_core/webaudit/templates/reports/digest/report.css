@@ -220,11 +220,9 @@ body > * { position: relative; z-index: 1; }
 
 .digest-top .brand {
   font-size: 2rem;
-  font-weight: 800;
-  background: linear-gradient(90deg, var(--magenta), var(--cyan), var(--violet));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-weight: 700;
+  color: #c5cad6;
+  letter-spacing: -0.01em;
 }
 
 .digest-top .url {

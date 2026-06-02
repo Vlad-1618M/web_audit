@@ -52,7 +52,7 @@ def _sample_run() -> AuditRun:
 
 @pytest.mark.parametrize(
     "variant",
-    ["technical", "executive", "minimal", "dashboard", "digest"],
+    ["owner", "technical", "executive", "minimal", "dashboard", "digest"],
 )
 def test_render_all_html_variants(variant: str):
     html = render_html(_sample_run(), variant=variant)

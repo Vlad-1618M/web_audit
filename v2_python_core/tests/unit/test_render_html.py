@@ -59,9 +59,102 @@ def test_render_technical_html_contains_target_and_findings():
     assert "Content-Security-Policy" in html
     assert "NEEDS_ATTENTION" in html
     assert 'href="report.css"' in html
+    assert "Sender Policy Framework" in html
+    assert 'class="sev HIGH"' in html
+
+
+def test_render_technical_includes_certificate_summary():
+    run = _sample_run()
+    run.artifacts.tls = {
+        "host": "example.com",
+        "certificate": {
+            "subject_cn": "example.com",
+            "issuer_display": "Let's Encrypt",
+            "issuer": "CN=R3,O=Let's Encrypt,C=US",
+            "not_before": "2026-01-01T00:00:00+00:00",
+            "not_after": "2026-07-01T00:00:00+00:00",
+            "days_left": 90,
+            "status": "VALID",
+            "hostname_match": True,
+            "san": ["example.com", "www.example.com"],
+            "chain_length": 2,
+        },
+        "versions": [{"version": "1.3", "supported": True}],
+    }
+    html = render_html(run, variant="technical")
+    assert "HTTPS certificate" in html
+    assert "Let" in html and "Encrypt" in html
+    assert "Valid until" in html
+    assert "days left" in html.lower()
+
+
+def test_render_technical_includes_extensions_and_discovery():
+    run = _sample_run()
+    run.meta.framework = "wordpress"
+    run.artifacts.extensions = {
+        "framework": "wordpress",
+        "unit": "plugin",
+        "extension_count": 1,
+        "extensions": [
+            {"name": "elementor", "version": "3.20.0", "source": "html", "unit": "plugin"},
+        ],
+    }
+    run.artifacts.inventory["html"] = {
+        "pages_scanned": 1,
+        "inventory": {
+            "site_links": [
+                {"url": "https://example.com/about", "kind": "internal", "source": "homepage"},
+            ],
+            "images": [
+                {"url": "https://example.com/favicon.ico", "kind": "favicon", "source": "/"},
+            ],
+            "internal_link_count": 1,
+            "external_link_count": 0,
+        },
+    }
+    run.findings.append(
+        Finding.from_check(
+            category="PLUGIN",
+            item="elementor",
+            status="STALE",
+            severity=Severity.MEDIUM,
+            detail="Behind latest",
+        )
+    )
+    html = render_html(run, variant="technical")
+    assert "WordPress Plugins" in html
+    assert "version check" in html
+    assert "WordPress.org" in html
+    assert "elementor" in html
+    assert "View on registry" in html
+    assert "Site discovery" in html
+    assert "Security probe URLs" in html
+    assert "favicon.ico" in html
+    assert 'target="_blank"' in html
+    assert 'class="http-status http-4xx"' in html
+    assert 'class="probe-note good"' in html or 'class="probe-hint good"' in html
 
 
 def test_render_executive_html():
     html = render_html(_sample_run(), variant="executive")
-    assert "Website Security Snapshot" in html
+    assert "Executive summary" in html
     assert "Configuration score" in html
+
+
+def test_render_owner_combined_report():
+    html = render_html(_sample_run(), variant="owner")
+    assert "Security dashboard" in html
+    assert "Executive summary" in html
+    assert "Scan focus" in html
+    assert "Finding status" in html
+    assert "focus-pie-chart" in html
+    assert "Critical" in html
+    assert "discovery-row-pair" in html
+    assert "Priority timeline" in html
+    assert "Security digest" not in html
+    assert "Score rings" not in html
+    assert "Technical details" in html
+    assert 'id="page-overview"' in html
+    assert 'id="page-technical"' in html
+    assert "sidebar-resizer" in html
+    assert 'class="alert-link"' in html

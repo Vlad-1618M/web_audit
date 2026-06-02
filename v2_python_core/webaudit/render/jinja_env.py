@@ -11,7 +11,7 @@ from pathlib import Path
 
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, select_autoescape
 
-_SUPPORTED_VARIANTS = frozenset({"technical", "executive", "minimal", "dashboard", "digest"})
+_SUPPORTED_VARIANTS = frozenset({"owner", "technical", "executive", "minimal", "dashboard", "digest"})
 
 
 def templates_root() -> Path:
@@ -21,7 +21,7 @@ def templates_root() -> Path:
 def resolve_variant(variant: str) -> str:
     if variant in _SUPPORTED_VARIANTS:
         return variant
-    return "technical"
+    return "owner"
 
 
 def get_jinja_env(variant: str) -> Environment:

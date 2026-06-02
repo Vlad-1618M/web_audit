@@ -1,0 +1,43 @@
+framework: wordpress
+fingerprint_unit: plugin
+min_detection_confidence: 0.65
+
+probe:
+  mode: observed_only
+  readme_fetch: observed_only
+  sources:
+    - html_assets
+    - readme_txt
+
+compare:
+  wporg_api: true
+
+scoring:
+  hygiene_cap: 30
+
+watchlist:
+  - slug: elementor
+    tier: critical
+    premium: false
+  - slug: woocommerce
+    tier: high
+    premium: false
+  - slug: wordfence
+    tier: high
+    premium: false
+  - slug: contact-form-7
+    tier: medium
+    premium: false
+  - slug: wordpress-seo
+    tier: medium
+    premium: false
+  - slug: yoast-seo
+    tier: medium
+    premium: false
+  - slug: wp-rocket
+    tier: high
+    premium: true
+    compare_latest: false
+
+aliases:
+  wordpress-seo: yoast-seo

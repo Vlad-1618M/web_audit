@@ -1,0 +1,34 @@
+framework: django
+fingerprint_unit: package
+min_detection_confidence: 0.65
+
+probe:
+  mode: observed_only
+  sources:
+    - debug_leak
+    - admin_static
+    - headers
+
+compare:
+  pypi_api: true
+
+scoring:
+  hygiene_cap: 15
+
+watchlist:
+  - package: django
+    tier: critical
+  - package: django-allauth
+    tier: high
+  - package: wagtail
+    tier: medium
+  - package: djangorestframework
+    tier: medium
+  - package: celery
+    tier: medium
+
+signals:
+  debug_page: CRITICAL
+  allowed_hosts_leak: HIGH
+  admin_static: INFO
+  exposed_requirements_txt: MEDIUM

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit — {{ host_label }} (Owner report)</title>
+  {% include "head_print_dark.html" %}
+  <link rel="stylesheet" href="report.css">
+</head>
+<body>
+  <div class="owner-shell">
+    <header class="owner-top no-print">
+      <div class="toolbar">
+        <button type="button" class="btn-edge-cyan" onclick="window.print()">Print / Save as PDF</button>
+        <span class="hint">Print → Save as PDF. Turn on <strong>Background graphics</strong> to keep the dark theme.</span>
+      </div>
+
+      <nav class="owner-tabs" role="tablist" aria-label="Report sections">
+        <button type="button" class="owner-tab active" role="tab" data-owner-tab="overview" aria-selected="true">
+          Executive summary
+        </button>
+        <button type="button" class="owner-tab" role="tab" data-owner-tab="technical" aria-selected="false">
+          Technical details
+        </button>
+      </nav>
+    </header>
+
+    <div id="page-overview" class="owner-page">
+      <div class="owner-overview-wrap">
+        {% include "dashboard_body.html" %}
+
+        <div class="owner-section-divider" aria-hidden="true"></div>
+
+        {% include "executive_summary_body.html" %}
+
+        <footer class="owner-overview-footer">
+          Web Audit v{{ webaudit_version }} · Owner report · Framework {{ framework }}
+        </footer>
+      </div>
+    </div>
+
+    <div id="page-technical" class="owner-page" hidden>
+      <div class="layout" id="report-layout">
+        {% set show_sidebar_back = true %}
+        {% include "report_sidebar.html" %}
+
+        <main class="main">
+          <div class="toolbar no-print technical-toolbar">
+            <span class="meta-inline">Framework: {{ framework }} ({{ framework_confidence }}) · {{ scanned_at }}</span>
+          </div>
+          {% include "technical_main.html" %}
+        </main>
+      </div>
+    </div>
+  </div>
+
+  {% include "owner_tabs_script.html" %}
+  {% include "sidebar_resize_script.html" %}
+</body>
+</html>

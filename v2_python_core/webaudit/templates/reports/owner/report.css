@@ -2238,6 +2238,10 @@ section.block h2 {
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+.focus-swatch-hygiene { background: #ffc14d; }
+.focus-swatch-exposure { background: #39ff8c; }
+.focus-swatch-seo { background: #a855f7; }
+
 .focus-legend-text {
   display: flex;
   flex-direction: column;

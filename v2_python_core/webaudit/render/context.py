@@ -22,7 +22,11 @@ from webaudit.render.discoverability_display import build_discoverability_sectio
 from webaudit.render.dns_display import build_dns_cards, build_whois_card, format_net_tools
 from webaudit.render.finding_display import enrich_findings_table, tls_result_tone
 from webaudit.render.extension_display import build_extension_section
-from webaudit.render.focus_pie import build_focus_pie_slices, focus_pie_conic_gradient
+from webaudit.render.focus_pie import (
+    build_focus_pie_slices,
+    focus_pie_chart_html,
+    focus_pie_conic_gradient,
+)
 from webaudit.render.probe_status import build_probe_status_row
 from webaudit.render.report_metrics import build_metric_chips
 from webaudit.render.robots_display import build_robots_section
@@ -636,6 +640,7 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
     robots_section = build_robots_section(artifacts)
     attribution = _attribution_display(artifacts)
     focus_pie_slices = build_focus_pie_slices(run.scores, run.findings)
+    focus_pie_gradient = focus_pie_conic_gradient(focus_pie_slices)
     seo_findings = [f for f in run.findings if f.category == "SEO_SURFACE"]
     discoverability_section = build_discoverability_section(seo_findings)
 
@@ -675,7 +680,11 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
         "policy": artifacts.get("policy") or {},
         "category_health": _category_health(run.findings),
         "focus_pie_slices": focus_pie_slices,
-        "focus_pie_gradient": focus_pie_conic_gradient(focus_pie_slices),
+        "focus_pie_chart_html": focus_pie_chart_html(
+            gradient=focus_pie_gradient,
+            hygiene=run.scores.hygiene,
+            exposure=run.scores.exposure,
+        ),
         "alert_strip": _alert_strip(run.findings),
         "alert_strip_items": _alert_strip_items(run.findings),
         "ok_highlights": _ok_highlights(run, artifacts),

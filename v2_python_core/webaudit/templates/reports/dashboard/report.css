@@ -532,6 +532,9 @@ section.block h2 { font-size: 1.35rem; color: var(--cyan); margin-bottom: 0.5rem
 .focus-pie-legend { list-style: none; margin: 0; padding: 0; flex: 1; min-width: 220px; }
 .focus-pie-legend li { display: flex; gap: 0.65rem; margin-bottom: 0.65rem; font-size: 0.88rem; line-height: 1.35; align-items: flex-start; }
 .focus-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; margin-top: 0.15rem; }
+.focus-swatch-hygiene { background: #ffc14d; }
+.focus-swatch-exposure { background: #39ff8c; }
+.focus-swatch-seo { background: #a855f7; }
 .focus-legend-text { display: flex; flex-direction: column; gap: 0.08rem; min-width: 0; }
 .focus-headline { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.35rem; }
 .focus-sep { color: var(--muted); font-weight: 400; }

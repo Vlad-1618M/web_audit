@@ -12,17 +12,21 @@ Stage 1   Core skeleton + config + CLI     ✓
 Stage 2   Tier 1 collectors + v1 parity    ✓
 Stage 3   Scoring + analyzers + audit_run  ✓ (parity polish ongoing)
 Stage 4   Report templates + PDF           ✓
-Stage 5   Tier 2 + Tier 2b modules         ✓ beta (2.1.0b1)
+Stage 5   Tier 2 + Tier 2b modules         ✓ beta (2.1.0b1+ polish)
           · extensions (WP/Django/Laravel/Rails) — full homepage HTML via scan_html ✓
           · DNS enrichment (A/MX/NS/ASN/WHOIS)
           · owner combined report (default HTML)
           · report polish (guide, footer, leak-protection labels, discovery grid,
             extensions table, plugin chip fix, attribution hardening) ✓
+          · finding/TLS color alignment, bot-protection detection, dynamic focus pie,
+            timeline status colors, discovery scroll + metric chip fixes ✓
           · baseline diff ✓
 Stage 6   Tier 3 modules + packaging
 ```
 
 **Tier 1 (2.0.0b1):** Feature-complete for v2.0 foundation. CDN-aware HSTS downgrade aligned with v1 in **2.1.0b1**.
+
+**Stage 5 remainder (deferred → Tier 2/3):** Playwright `--js`, GraphQL/OpenAPI discovery, broken internal links (`analyzers.links`), plugin CVE cache — see [CHANGELOG.md](../CHANGELOG.md) `[Unreleased]` · [implementation_tracker.md](implementation_tracker.md).
 
 Stages are **sequential**. Tiers are **feature bundles** that land across stages but are owned as logical groups.
 
@@ -101,7 +105,7 @@ webaudit[pdf]      → weasyprint
 - [x] DOM-based HTML inventory (BeautifulSoup)
 - [x] Five HTML templates wired
 - [x] PDF — browser print (default); optional WeasyPrint headless
-- [x] pytest on scoring, config, collectors, analyzers, render (~145 unit tests)
+- [x] pytest on scoring, config, collectors, analyzers, render (~169 unit tests)
 
 ---
 

@@ -8,6 +8,26 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ## [Unreleased]
 
+### Added
+
+- **Finding table colors** — Verify/Expected/Action status tones; TLS certificate/hostname row colors; dashboard alert strip by severity (`render/finding_display.py`)
+- **Bot protection detection** — SiteGround/captcha interstitials (HTTP 202, `sgcaptcha`); HTML VERIFY when homepage blocked; WordPress hint from `robots.txt` when framework fingerprint fails (`collectors/bot_challenge.py`)
+- **Dynamic focus pie** — dashboard Scan focus chart slice sizes from live hygiene, exposure, and SEO finding weights (not fixed 70/25/5)
+- **Priority timeline colors** — category stays violet; severity/status label matches timeline bullet tone
+
+### Fixed
+
+- **Site discovery enrich** — HTTP client created when only homepage needs fetch (fixes crash on no-sitemap sites)
+- **Site discovery scroll** — paired probe/site URL fold panels restore max-height scroll (was expanding to full list height)
+- **Metric chip labels** — long labels (e.g. Sensitive leaks) wrap inside chip instead of overflowing
+- **Watchlist tier badge** — `critical` watchlist tier uses light blue (not error red) when plugin status is CURRENT
+- **Focus pie template** — pre-render chart markup in Python; legend swatches use CSS classes (IDE/linter clean)
+- **Extensions step gate** — plugins step runs when framework inferred from `robots.txt` after WAF block
+
+### Changed
+
+- **Verbose scan (`-v`)** — lists every probed path in progress output
+
 ### Deferred (Stage 5 remainder)
 
 - Playwright `--js` collector
@@ -23,7 +43,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ### Added (Stage 5 — Tier 2b / 2c / baseline diff + report polish)
 
-- **Owner combined report** — default `owner` variant: framed **Security dashboard** + unified **Executive summary** (digest timeline merged in); **focus pie chart** (Hygiene/Exposure/SEO) replaces score rings; Technical tab with draggable sidebar
+- **Owner combined report** — default `owner` variant: framed **Security dashboard** + unified **Executive summary** (digest timeline merged in); **Scan focus pie** (hygiene/exposure/SEO); Technical tab with draggable sidebar
 - **Fold panels** — probe URLs, site URLs, images, and path probes **unfolded by default**; clearer chevron toggle bars (“Click to fold or unfold”)
 - **Shared report partials** — `digest_body`, `executive_body`, `technical_main` reused by standalone variants
 - **DNS enrichment** — A, MX, NS records via dnspython; **ASN** via Team Cymru DNS (`collectors/asn.py`); optional host **`whois`** when binary present (`collectors/net_tools.py`); host tool detection stored in artifact + report footer note
@@ -98,8 +118,8 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ### Known parity deltas (documented)
 
-- HSTS at CDN edge: v2 still ACTION if missing (v1 downgrades to VERIFY when CDN detected)
-- Plugin/CVE probes: deferred to Tier 2b (framework profiles)
+- HSTS at CDN edge: fixed in 2.1.0b1 — VERIFY when CDN detected (was ACTION in early 2.0.0b1)
+- Plugin/CVE probes: deferred to Tier 2b (framework profiles) — compare live; CVE cache deferred
 
 ### Next
 

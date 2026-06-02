@@ -10,7 +10,7 @@ Update this file **whenever** a module lands or a contract changes. Cross-check 
 
 | Tag | Date | Notes |
 |-----|------|-------|
-| **2.1.0b1** | 2026-06 | **Stage 5 beta** — Tier 2b/2c, owner report, CDN HSTS parity, Discoverability block |
+| **2.1.0b1** | 2026-06 | **Stage 5 beta** — Tier 2b/2c, owner report, CDN HSTS parity, Discoverability block; beta polish in `[Unreleased]` |
 | **2.1.0a1** | 2026-05 | **Stage 5 alpha** — Tier 2b extensions, DNS enrichment, report polish, baseline diff |
 | **2.0.0b1** | 2026-06 | **Tier 1 complete** — all v1-equivalent modules, reports, CLI polish |
 | **2.0.0a1** | 2026-05 | Stage 1 alpha — CLI, config, headers + DNS, scoring, `audit_run.json` |
@@ -37,7 +37,8 @@ See [CHANGELOG.md](../CHANGELOG.md) for release notes.
 | **attribution** (designer credit) | `collectors/attribution.py` ✓ (footer/context rules) | report card via `render/context.py` ✓ | wired ✓ | ✓ | **5** ✓ |
 | **scoring** | n/a | n/a | `scoring/engine.py` ✓ | ✓ | 1 (partial 3) |
 | **render** | n/a | `render/html.py`, `render/txt.py`, `render/pdf.py`, `render/reports.py` ✓ | wired ✓ | ✓ | **4** ✓ |
-| **render helpers** | n/a | `dns_display`, `probe_status`, `extension_display`, `discoverability_display`, `robots_display`, `report_metrics`, `focus_pie`, `system_info` ✓ | wired ✓ | ✓ | **4 / 5** ✓ |
+| **render helpers** | n/a | `dns_display`, `probe_status`, `extension_display`, `discoverability_display`, `robots_display`, `report_metrics`, `focus_pie`, `finding_display`, `system_info` ✓ | wired ✓ | ✓ | **4 / 5** ✓ |
+| **bot_challenge** | `collectors/bot_challenge.py` ✓ | used by framework/html/site_discovery ✓ | wired ✓ | ✓ | **5** ✓ |
 | **profiles** (WP/Django/Laravel/Rails YAML) | `profiles/loader.py` ✓ | — | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **extensions** (multi-framework) | `collectors/extensions/` ✓ | `analyzers/extensions.py` ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **wp_plugins** (WP HTML/readme) | via `collectors/extensions/wordpress.py` ✓ | via unified analyzer ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
@@ -180,6 +181,8 @@ Document intentional deltas in this file under **Parity deltas** when behavior d
 | Plugins/extensions | unified `extensions` pipeline + profiles; HTML from `scan_html` | readme.txt blind probes | Tier 2b ✓ (CVE cache deferred) |
 | Plugin count in report | artifact row count + honest empty state | v1 N/A | v2 UX only |
 | Attribution | footer/context linked credits only | grep-style HTML scan | hardened 2.1.0a1 |
+| WAF / bot protection | VERIFY when captcha interstitial; framework hint from robots.txt | n/a | SiteGround HTTP 202 |
+| Dashboard focus pie | slice size ∝ hygiene + exposure + SEO findings | n/a | docs pie 70/25/5 = scoring focus model, not chart |
 | Site config | YAML | INI `site.conf` | Tier 3 migrator |
 
 Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
@@ -207,4 +210,4 @@ Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
 
 ---
 
-*Last updated: Stage 5 beta 2.1.0b1 — CDN HSTS parity, Discoverability block (2026-06).*
+*Last updated: Stage 5 beta polish — bot protection, finding colors, dynamic focus pie, report UX fixes (2026-06).*

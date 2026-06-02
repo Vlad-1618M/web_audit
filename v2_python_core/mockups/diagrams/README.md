@@ -12,7 +12,7 @@ Requires network on first load (Mermaid 11 from jsDelivr CDN).
 
 ## Contents
 
-1. **Product focus** — pie: Hygiene 70% · Exposure 25% · SEO 5%
+1. **Product focus** — conceptual pie: Hygiene 70% · Exposure 25% · SEO 5% (live dashboard pie is **dynamic** per scan — see `focus_pie.py`)
 2. **Scoring vs informational** — Verdict driven by Hygiene + Exposure only
 3. **Tier stack** — Tier 1 → 2 → 2b → 2c → 3
 4. **Scan pipeline** — config, framework profile, core, output

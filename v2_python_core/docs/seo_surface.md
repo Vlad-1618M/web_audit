@@ -134,6 +134,8 @@ and public exposure of sensitive files.
 
 ## Visual overview
 
+**Note:** Diagrams below show the **product/scoring focus model** (why Hygiene dominates scored checks). The **live dashboard pie** in owner reports uses **dynamic slice sizes** from each scan’s hygiene score, leak protection score, and SEO finding count — see `webaudit/render/focus_pie.py`.
+
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {'darkMode': true, 'background': '#030306', 'pie1': '#ffc14d', 'pie2': '#39ff8c', 'pie3': '#a855f7', 'pieStrokeColor': '#030306', 'pieLegendTextColor': '#eef2ff', 'titleColor': '#00f0ff'}}}%%
 pie title Pro v2 focus — SEO does not get a score

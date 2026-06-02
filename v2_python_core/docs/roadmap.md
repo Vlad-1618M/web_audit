@@ -123,7 +123,7 @@ I have used **httpx** and **dnspython** before; they are proven choices for me, 
 
 **UX & audience**
 
-- **Owner** report variant (default) — Security dashboard + Executive summary + Technical tab; owner guide; honest plugin/extension counts
+- **Owner** report variant (default) — Security dashboard + Executive summary + Technical tab; owner guide; honest plugin/extension counts; **dynamic Scan focus pie** (live score weights)
 - **Executive** report variant — plain language, traffic-light summary
 - **Technical** report variant — findings tables, remediation, evidence
 - **Minimal** report variant — one-page printable handoff for dev shops
@@ -150,7 +150,7 @@ I have used **httpx** and **dnspython** before; they are proven choices for me, 
 | **M2 — Tier 1 parity+** | v1-equivalent checks in Python + DNS + TLS depth |
 | **M3 — Reports** | Three template variants + PDF |
 | **M4 — Tier 2** | JS pass, API probes, baselines |
-| **M4b — Tier 2b** | Framework profiles, multi-framework extension/version module | ← **2.1.0a1 (alpha)** |
+| **M4b — Tier 2b** | Framework profiles, multi-framework extension/version module | ← **2.1.0b1 (beta)** |
 | **M4c — Tier 2c** | SEO surface checks (INFO/VERIFY only) |
 | **M5 — Tier 3** | CT subdomains, vuln snapshot, SARIF export |
 | **M6 — Install** | pipx, Homebrew formula, docs for non-terminal users |

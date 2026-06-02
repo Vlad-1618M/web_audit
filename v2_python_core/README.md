@@ -1,6 +1,6 @@
 # Web Audit v2 — Python Core
 
-**Status:** **2.1.0b1 (Stage 5 beta)** — Tier 1 complete; Tier 2b extensions, DNS enrichment, SEO surface, owner report, baseline diff.
+**Status:** **2.1.0b1 (Stage 5 beta)** — Tier 1 complete; Tier 2b extensions, DNS enrichment, SEO surface, owner report, baseline diff. **In progress:** see [CHANGELOG.md](CHANGELOG.md) `[Unreleased]` for beta polish (finding colors, bot protection, dynamic focus pie, report UX).
 
 This directory is the blueprint for **Web Audit v2**. It lives beside the public **v1 bash** tool (`web_audit.sh` at the repo root). I am **not replacing v1** — people use it today, and it stays frozen as the zero-install shell edition.
 

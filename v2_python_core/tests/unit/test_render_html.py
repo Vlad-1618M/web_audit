@@ -140,6 +140,7 @@ def test_render_executive_html():
     assert "Executive summary" in html
     assert "Configuration score" in html
     assert "What this report is (and is not)" in html
+    assert "Discoverability" in html
     assert "OWASP ZAP" in html
     assert "report-footer-brand" in html
     assert 'href="https://muzar.io/"' in html
@@ -156,6 +157,7 @@ def test_render_owner_combined_report():
     assert "Critical" in html
     assert "discovery-row-pair" in html
     assert "Priority timeline" in html
+    assert "Discoverability" in html
     assert "Security digest" not in html
     assert "Score rings" not in html
     assert "Technical details" in html

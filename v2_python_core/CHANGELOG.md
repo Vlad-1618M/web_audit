@@ -8,6 +8,19 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ## [Unreleased]
 
+### Deferred (Stage 5 remainder)
+
+- Playwright `--js` collector
+- GraphQL/OpenAPI discovery
+- Broken internal links (`analyzers.links`)
+- Plugin CVE cache / WPScan (`analyzers.plugin_vuln`)
+
+---
+
+## [2.1.0b1] — 2026-06-03
+
+**Stage 5 beta** — Tier 2b extensions, DNS enrichment, SEO surface, owner report, baseline diff, and v1 parity polish.
+
 ### Added (Stage 5 — Tier 2b / 2c / baseline diff + report polish)
 
 - **Owner combined report** — default `owner` variant: framed **Security dashboard** + unified **Executive summary** (digest timeline merged in); **focus pie chart** (Hygiene/Exposure/SEO) replaces score rings; Technical tab with draggable sidebar
@@ -17,6 +30,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - **DNS report cards** — plain-English summaries for SPF/DMARC/CAA/A/AAAA/MX/NS/ASN/DNSSEC + optional WHOIS registration card (`render/dns_display.py`)
 - **Site discovery** — full homepage fetch, sitemap index expansion, multi-page link sampling (`collectors/sitemap.py`, `site_discovery.py`); favicon/og/twitter/lazy-load image collection
 - **Report UX** — HTTP status convention colors vs semantic outcome (`render/probe_status.py`); metric chips row; parsed robots.txt section; extensions section with registry links (all frameworks); designer attribution card; muzar.io footer; clickable target URLs; path probes legend/collapse fixes
+- **Executive Discoverability block** — owner/executive summary shows `SEO_SURFACE` findings (INFO/VERIFY) in plain language; does not affect scores
 - **Framework profiles** — `webaudit/profiles/{wordpress,django,laravel,rails,generic}/extensions.yaml` + `profiles/loader.py`
 - **Unified extensions pipeline** — `collectors/extensions/` dispatches by framework:
   - **WordPress** — HTML asset slugs + readme.txt + wp.org compare (plugins)
@@ -38,6 +52,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - **Plugin chip count** — dashboard “Plugins” chip uses detected extension rows from artifacts; `PLUGIN_INFO / NONE_OBSERVED` no longer shows as “1 plugin” on decoupled frontends (e.g. Next.js)
 - **readme.txt soft-404** — HTML error pages rejected when fetching plugin readme for version hints
 - **Attribution false positives** — ignore nav `title="powered by …"` credits; require footer/context for linked designer lines; treat AI “Powered by” as tooling, not site designer
+- **CDN HSTS parity (v1)** — missing `Strict-Transport-Security` at Cloudflare (and other detected CDNs) → **VERIFY** / unscored, not ACTION HIGH
 
 ### Changed (report UX polish — owner default)
 
@@ -52,13 +67,6 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - **Category health** — bottom alert strip for failing categories; scrollable when many items
 - **Executive summary** — tighter verdict banner spacing; removed redundant verdict pill (banner + score strip remain)
 - **Readability** — brighter prose colors (`--text-soft`) in owner guide section
-
-### Deferred (Stage 5 remainder)
-
-- Playwright `--js` collector
-- GraphQL/OpenAPI discovery
-- Broken internal links (`analyzers.links`)
-- Plugin CVE cache / WPScan (`analyzers.plugin_vuln`)
 
 ---
 
@@ -116,5 +124,6 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - pytest suite (14 tests): config, headers, DNS, scoring, completion CLI
 - Docs: `getting_started_plain.md`, synced stages/architecture/scoring
 
+[2.1.0b1]: https://github.com/Vlad-1618M/web_audit/compare/2.0.0b1...2.1.0b1
 [2.0.0b1]: https://github.com/Vlad-1618M/web_audit/compare/2.0.0a1...2.0.0b1
 [2.0.0a1]: https://github.com/Vlad-1618M/web_audit/releases/tag/2.0.0a1

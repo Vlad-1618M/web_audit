@@ -9,8 +9,17 @@ from __future__ import annotations
 
 import re
 
+from webaudit.collectors.framework import _detect_cdn
 from webaudit.collectors.headers import HeaderProbeResult
 from webaudit.models.finding import Finding, FindingClass, Severity
+
+
+def _cdn_edge_detected(headers: dict[str, str]) -> str | None:
+    """Return CDN label when response headers indicate an edge proxy (v1 parity)."""
+    cdn = _detect_cdn(headers)
+    if cdn in ("none", "unknown", ""):
+        return None
+    return cdn
 
 _HEADER_CHECKS: tuple[tuple[str, Severity, str, bool, bool], ...] = (
     (
@@ -103,13 +112,25 @@ def analyze_headers(probe: HeaderProbeResult) -> list[Finding]:
 
         class_ = FindingClass.ACTION if action_on_missing else FindingClass.INFO
         scored = scored_on_missing and action_on_missing
+        detail = description
+        if key == "strict-transport-security":
+            cdn = _cdn_edge_detected(headers)
+            if cdn:
+                class_ = FindingClass.VERIFY
+                scored = False
+                severity = Severity.MEDIUM
+                detail = (
+                    f"{description} — not visible externally; may be configured at "
+                    f"{cdn} edge or blocked by proxy SSL detection"
+                )
+
         findings.append(
             Finding.from_check(
                 category="HEADERS",
                 item=display,
                 status="MISSING",
                 severity=severity,
-                detail=description,
+                detail=detail,
                 class_=class_,
                 scored=scored,
             )

@@ -1,6 +1,6 @@
 # Web Audit v2 — Python Core
 
-**Status:** **2.1.0a1 (Stage 5 alpha)** — Tier 1 complete; Tier 2b extensions (full-HTML plugin fingerprint), DNS enrichment, SEO surface, baseline diff, and owner-report polish landing in Pro.
+**Status:** **2.1.0b1 (Stage 5 beta)** — Tier 1 complete; Tier 2b extensions, DNS enrichment, SEO surface, owner report, baseline diff.
 
 This directory is the blueprint for **Web Audit v2**. It lives beside the public **v1 bash** tool (`web_audit.sh` at the repo root). I am **not replacing v1** — people use it today, and it stays frozen as the zero-install shell edition.
 
@@ -37,7 +37,7 @@ That is v2.
 
 | | v1 (bash) | v2 (Python) |
 |---|-----------|-------------|
-| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (2.1.0a1) |
+| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (2.1.0b1) |
 | **Audience** | Devs, CI, SSH boxes | Devs **and** non-technical site owners |
 | **Install** | curl + openssl + zsh/bash | `pipx install webaudit` (or similar) |
 | **Architecture** | Monolith script | Modular collectors, analyzers, scorers, renderers |
@@ -127,7 +127,7 @@ Full friendly guide: **[docs/getting_started_plain.md](docs/getting_started_plai
 v2_python_core/
 ├── dev-venv.sh
 ├── pyproject.toml
-├── webaudit/                   ← Python package (2.1.0a1)
+├── webaudit/                   ← Python package (2.1.0b1)
 │   ├── cli/                    # scan, report, diff, completion
 │   ├── config/                 # settings.py + defaults.yaml
 │   ├── collectors/             # headers, dns, paths, tls, extensions/, …

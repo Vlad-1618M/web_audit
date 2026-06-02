@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "webaudit"
-version = "2.1.0a1"
+version = "2.1.0b1"
 description = "Web Audit v2 — external security hygiene for public websites"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -59,6 +59,7 @@ packages = ["webaudit"]
 "webaudit/templates/reports/digest/report.css" = "webaudit/templates/reports/digest/report.css"
 "webaudit/templates/reports/_shared/head_print_dark.html" = "webaudit/templates/reports/_shared/head_print_dark.html"
 "webaudit/templates/reports/_shared/discovery_section.html" = "webaudit/templates/reports/_shared/discovery_section.html"
+"webaudit/templates/reports/_shared/discoverability_section.html" = "webaudit/templates/reports/_shared/discoverability_section.html"
 "webaudit/templates/reports/_shared/cert_summary_section.html" = "webaudit/templates/reports/_shared/cert_summary_section.html"
 
 [tool.pytest.ini_options]

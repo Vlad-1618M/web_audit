@@ -88,10 +88,22 @@ def _finding_note(findings: list[Finding]) -> str:
     return f"{len(findings)} findings"
 
 
+def _format_path_probe_verbose_line(probe: dict[str, Any]) -> str:
+    """One verbose detail line — path in orange, note/status dimmed."""
+    path = str(probe.get("path") or "?")
+    note = str(probe.get("note") or "?")
+    final_status = probe.get("final_status")
+    if final_status is not None:
+        note = f"{note} · HTTP {final_status}"
+    return f"[dark_orange]{path}[/dark_orange] [dim]{note}[/dim]"
+
+
 def summarize_step(
     step_name: str,
     findings: list[Finding],
     artifact_parts: dict[str, dict[str, Any]],
+    *,
+    verbose: bool = False,
 ) -> tuple[str, list[str]]:
     """Return one-line summary and optional verbose detail lines."""
     note = _finding_note(findings)
@@ -137,16 +149,20 @@ def summarize_step(
     elif step_name == "_step_paths":
         art = artifact_parts.get("inventory", {}).get("paths", {})
         count = art.get("probe_count", 0)
+        probes = [p for p in (art.get("paths") or []) if isinstance(p, dict)]
         open_paths = [
             p.get("path")
-            for p in (art.get("paths") or [])
-            if isinstance(p, dict) and p.get("note") in {"OPEN", "LEAKING"}
+            for p in probes
+            if p.get("note") in {"OPEN", "LEAKING"}
         ]
         summary = f"{count} probes · {note.replace('[yellow]', '').replace('[/yellow]', '')}"
         if open_paths:
             details.append(f"exposed: {', '.join(open_paths[:5])}")
         elif count:
             details.append("no sensitive paths openly readable")
+        if verbose:
+            for probe in probes:
+                details.append(_format_path_probe_verbose_line(probe))
 
     elif step_name == "_step_tls":
         art = artifact_parts.get("tls", {})
@@ -287,7 +303,12 @@ class ScanProgress:
     ) -> None:
         if self.verbosity == Verbosity.QUIET:
             return
-        summary, details = summarize_step(step_name, findings, artifact_parts)
+        summary, details = summarize_step(
+            step_name,
+            findings,
+            artifact_parts,
+            verbose=self.verbosity == Verbosity.VERBOSE,
+        )
         self.console.print(f"  [green]✔[/green] [bold]{label:<12}[/bold] {summary}")
         if self.verbosity == Verbosity.VERBOSE:
             for line in details:

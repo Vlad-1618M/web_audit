@@ -32,7 +32,7 @@ Reference: repo root `web_audit.sh` (read-only). v2 code lives in `v2_python_cor
 
 | Area | v1 | v2 (2.1.0a1) | Follow-up |
 |------|-----|--------------|-----------|
-| HSTS missing at CDN edge | VERIFY when CDN detected | ACTION (CDN not used for HSTS downgrade yet) | Tier 1 polish |
+| HSTS missing at CDN edge | VERIFY when CDN detected (unscored) | VERIFY when CDN detected | ✓ parity (2.1.0b1) |
 | PDF export | Browser `window.print()` only | Browser print (default) + optional WeasyPrint | By design |
 | Plugin/CVE probes | Hardcoded readme.txt list for high-risk slugs | Observed-only + framework profiles; no blind readme GET | Tier 2b ✓; CVE cache deferred |
 | Plugin compare scope | WordPress readme + WPScan hints | WP + Django/Laravel/Rails registry compare | v2-only extension |

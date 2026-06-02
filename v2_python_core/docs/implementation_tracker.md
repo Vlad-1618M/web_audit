@@ -10,7 +10,8 @@ Update this file **whenever** a module lands or a contract changes. Cross-check 
 
 | Tag | Date | Notes |
 |-----|------|-------|
-| **2.1.0a1** | 2026-05 | **Stage 5 alpha** — Tier 2b extensions (multi-framework), DNS enrichment (A/MX/NS/ASN/WHOIS), report polish, baseline diff |
+| **2.1.0b1** | 2026-06 | **Stage 5 beta** — Tier 2b/2c, owner report, CDN HSTS parity, Discoverability block |
+| **2.1.0a1** | 2026-05 | **Stage 5 alpha** — Tier 2b extensions, DNS enrichment, report polish, baseline diff |
 | **2.0.0b1** | 2026-06 | **Tier 1 complete** — all v1-equivalent modules, reports, CLI polish |
 | **2.0.0a1** | 2026-05 | Stage 1 alpha — CLI, config, headers + DNS, scoring, `audit_run.json` |
 
@@ -36,7 +37,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for release notes.
 | **attribution** (designer credit) | `collectors/attribution.py` ✓ (footer/context rules) | report card via `render/context.py` ✓ | wired ✓ | ✓ | **5** ✓ |
 | **scoring** | n/a | n/a | `scoring/engine.py` ✓ | ✓ | 1 (partial 3) |
 | **render** | n/a | `render/html.py`, `render/txt.py`, `render/pdf.py`, `render/reports.py` ✓ | wired ✓ | ✓ | **4** ✓ |
-| **render helpers** | n/a | `dns_display`, `probe_status`, `extension_display`, `robots_display`, `report_metrics`, `focus_pie`, `system_info` ✓ | wired ✓ | ✓ | **4 / 5** ✓ |
+| **render helpers** | n/a | `dns_display`, `probe_status`, `extension_display`, `discoverability_display`, `robots_display`, `report_metrics`, `focus_pie`, `system_info` ✓ | wired ✓ | ✓ | **4 / 5** ✓ |
 | **profiles** (WP/Django/Laravel/Rails YAML) | `profiles/loader.py` ✓ | — | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **extensions** (multi-framework) | `collectors/extensions/` ✓ | `analyzers/extensions.py` ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **wp_plugins** (WP HTML/readme) | via `collectors/extensions/wordpress.py` ✓ | via unified analyzer ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
@@ -172,7 +173,7 @@ Document intentional deltas in this file under **Parity deltas** when behavior d
 
 | Area | v2 today | v1 | Notes |
 |------|----------|-----|-------|
-| HSTS at CDN edge | ACTION if missing | VERIFY if CDN detected | Open — Tier 1 polish backlog |
+| HSTS at CDN edge | VERIFY if missing (CDN detected from headers) | VERIFY if CDN detected | ✓ parity (2.1.0b1) |
 | Permissions-Policy missing | INFO, unscored | same | ✓ |
 | DNS | scored SPF/DMARC + report cards (A/MX/NS/ASN) | n/a | new signal |
 | PDF | browser print default | browser print | optional WeasyPrint |
@@ -206,4 +207,4 @@ Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
 
 ---
 
-*Last updated: Stage 5 alpha 2.1.0a1 — plugin scan_html fix, attribution hardening, owner report polish (2026-06).*
+*Last updated: Stage 5 beta 2.1.0b1 — CDN HSTS parity, Discoverability block (2026-06).*

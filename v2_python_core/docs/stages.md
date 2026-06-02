@@ -12,7 +12,7 @@ Stage 1   Core skeleton + config + CLI     ✓
 Stage 2   Tier 1 collectors + v1 parity    ✓
 Stage 3   Scoring + analyzers + audit_run  ✓ (parity polish ongoing)
 Stage 4   Report templates + PDF           ✓
-Stage 5   Tier 2 + Tier 2b modules         ← in progress (2.1.0a1)
+Stage 5   Tier 2 + Tier 2b modules         ✓ beta (2.1.0b1)
           · extensions (WP/Django/Laravel/Rails) — full homepage HTML via scan_html ✓
           · DNS enrichment (A/MX/NS/ASN/WHOIS)
           · owner combined report (default HTML)
@@ -22,7 +22,7 @@ Stage 5   Tier 2 + Tier 2b modules         ← in progress (2.1.0a1)
 Stage 6   Tier 3 modules + packaging
 ```
 
-**Tier 1 (2.0.0b1):** Feature-complete for v2.0 foundation. Remaining Tier 1 item: optional CDN-aware HSTS downgrade (parity delta).
+**Tier 1 (2.0.0b1):** Feature-complete for v2.0 foundation. CDN-aware HSTS downgrade aligned with v1 in **2.1.0b1**.
 
 Stages are **sequential**. Tiers are **feature bundles** that land across stages but are owned as logical groups.
 
@@ -157,7 +157,7 @@ packaging>=24.0
 
 - [x] All `SEO_SURFACE` findings default to INFO or VERIFY — never ACTION
 - [x] `scoring.seo_surface_affects_scores: false` enforced in tests
-- [ ] Executive report shows one informational “Discoverability” block
+- [x] Executive report shows one informational “Discoverability” block
 - [x] No “SEO success %” or ranking language anywhere in UI
 - [x] pytest: `noindex` homepage → VERIFY; missing meta description → INFO
 

@@ -1,0 +1,2433 @@
+{
+  "schema_version": "2.0",
+  "meta": {
+    "target_url": "https://sdlanddevelopment.com",
+    "started_at": "2026-06-02T20:46:19+00:00",
+    "finished_at": "2026-06-02T20:46:54+00:00",
+    "webaudit_version": "2.1.0b1",
+    "framework": "wordpress"
+  },
+  "config_snapshot": {
+    "runtime": {
+      "timeout_seconds": 15,
+      "max_concurrency": 8,
+      "probe_delay_ms": 0,
+      "user_agent": "WebAudit/2.0 (+https://github.com/Vlad-1618M/web_audit)"
+    },
+    "paths": {
+      "enabled": true,
+      "sensitive_builtin": true,
+      "max_probe_urls": 250,
+      "extra_paths": [],
+      "expected_open": []
+    },
+    "policy": {
+      "enabled": true,
+      "hsts_min_max_age_seconds": 15552000,
+      "csp_detail_max_length": 500
+    },
+    "collectors": {
+      "dns": {
+        "enabled": true,
+        "check_spf": true,
+        "check_dmarc": true,
+        "check_dkim": false,
+        "check_caa": true,
+        "check_dnssec": true,
+        "check_aaaa": true,
+        "check_a": true,
+        "check_mx": true,
+        "check_ns": true,
+        "check_asn": true,
+        "use_host_tools": true
+      },
+      "tls": {
+        "enabled": true,
+        "check_deprecated_versions": true,
+        "check_chain": true,
+        "check_ciphers": false,
+        "check_ocsp": false,
+        "expiry_warn_days": 30
+      },
+      "cookies": {
+        "enabled": true
+      },
+      "artifacts": {
+        "enabled": true,
+        "check_robots": true,
+        "check_security_txt": true,
+        "check_sitemap": true,
+        "max_robots_bytes": 12000,
+        "max_security_txt_bytes": 8000,
+        "max_sitemap_bytes": 16000,
+        "max_sitemap_urls": 150
+      },
+      "rate_limit": {
+        "enabled": true,
+        "get_burst_count": 6,
+        "post_burst_count": 15
+      },
+      "cors": {
+        "enabled": true,
+        "probe_origin": "https://evil.example.com",
+        "api_paths": [
+          "/api/",
+          "/api/v1/"
+        ]
+      },
+      "framework": {
+        "enabled": true,
+        "probe_admin": true,
+        "max_body_bytes": 8000
+      },
+      "html": {
+        "enabled": true,
+        "check_mixed_content": true,
+        "check_forms": true,
+        "prefer_full_homepage_fetch": true,
+        "max_body_bytes": 65536,
+        "max_internal_links_sample": 50,
+        "max_site_links": 1000,
+        "max_images": 500,
+        "max_sample_pages": 8,
+        "max_sitemap_urls": 500,
+        "fetch_if_missing": true
+      },
+      "extensions": {
+        "enabled": true
+      },
+      "wp_plugins": {
+        "enabled": true
+      },
+      "seo_surface": {
+        "enabled": true,
+        "check_meta_robots": true,
+        "check_canonical": true,
+        "check_meta_description": true,
+        "check_open_graph": false,
+        "check_robots_blocks": true,
+        "check_sitemap": true,
+        "sitemap_empty_threshold": 1
+      }
+    },
+    "scoring": {
+      "hygiene_weights": {
+        "CRITICAL": 25,
+        "HIGH": 10,
+        "MEDIUM": 4,
+        "LOW": 1
+      },
+      "hygiene_caps": {
+        "PLUGIN": 30,
+        "PLUGIN_CVE": 30,
+        "PACKAGE": 15,
+        "PACKAGE_CVE": 15,
+        "GEM": 15,
+        "GEM_CVE": 15
+      },
+      "plugin_worst_wins": true,
+      "seo_surface_affects_scores": false
+    },
+    "report": {
+      "variant": "owner",
+      "theme": "dark"
+    },
+    "output": {
+      "directory": "pen",
+      "formats": [
+        "json",
+        "html"
+      ]
+    }
+  },
+  "scores": {
+    "hygiene": 81,
+    "exposure": 100,
+    "verdict": "NEEDS_ATTENTION"
+  },
+  "findings": [
+    {
+      "category": "HEADERS",
+      "item": "Strict-Transport-Security",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "max-age=31536000; includeSubDomains",
+      "evidence": {
+        "value": "max-age=31536000; includeSubDomains"
+      }
+    },
+    {
+      "category": "HEADERS",
+      "item": "Content-Security-Policy",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; base-uri 's",
+      "evidence": {
+        "value": "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests"
+      }
+    },
+    {
+      "category": "HEADERS",
+      "item": "X-Frame-Options",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "SAMEORIGIN",
+      "evidence": {
+        "value": "SAMEORIGIN"
+      }
+    },
+    {
+      "category": "HEADERS",
+      "item": "X-Content-Type-Options",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "nosniff",
+      "evidence": {
+        "value": "nosniff"
+      }
+    },
+    {
+      "category": "HEADERS",
+      "item": "Referrer-Policy",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "strict-origin-when-cross-origin",
+      "evidence": {
+        "value": "strict-origin-when-cross-origin"
+      }
+    },
+    {
+      "category": "HEADERS",
+      "item": "Permissions-Policy",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "camera=(), microphone=(), geolocation=()",
+      "evidence": {
+        "value": "camera=(), microphone=(), geolocation=()"
+      }
+    },
+    {
+      "category": "FRAMEWORK",
+      "item": "Platform detection",
+      "status": "DETECTED",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "wordpress (medium confidence) — signals: wp-content wordpress-body; language: PHP; CDN: Cloudflare",
+      "evidence": {
+        "detected": "wordpress",
+        "effective_framework": "wordpress",
+        "confidence": "medium",
+        "signals": "wp-content wordpress-body",
+        "language": "PHP",
+        "cdn": "Cloudflare"
+      }
+    },
+    {
+      "category": "FRAMEWORK",
+      "item": "Server header",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "cloudflare",
+      "evidence": {}
+    },
+    {
+      "category": "DNS",
+      "item": "SPF",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "v=spf1 include:spf.privateemail.com include:_spf.google.com ~all",
+      "evidence": {
+        "record": "v=spf1 include:spf.privateemail.com include:_spf.google.com ~all"
+      }
+    },
+    {
+      "category": "DNS",
+      "item": "DMARC",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com",
+      "evidence": {
+        "record": "v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com"
+      }
+    },
+    {
+      "category": "DNS",
+      "item": "DNSSEC",
+      "status": "UNSIGNED",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "No DNSKEY records detected (informational)",
+      "evidence": {}
+    },
+    {
+      "category": "DNS",
+      "item": "CAA",
+      "status": "MISSING",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "No CAA records (informational)",
+      "evidence": {}
+    },
+    {
+      "category": "DNS",
+      "item": "AAAA",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "2 AAAA record(s) for hostname",
+      "evidence": {
+        "records": [
+          "2606:4700:3034::ac43:8dc9",
+          "2606:4700:3030::6815:291b"
+        ]
+      }
+    },
+    {
+      "category": "PATHS",
+      "item": "robots.txt",
+      "status": "OPEN",
+      "severity": "INFO",
+      "class": "EXPECTED",
+      "scored": false,
+      "detail": "expected open — final 200",
+      "evidence": {
+        "path": "/robots.txt",
+        "raw_status": 200,
+        "final_status": 200,
+        "note": "OPEN"
+      }
+    },
+    {
+      "category": "PATHS",
+      "item": "sitemap.xml",
+      "status": "OPEN",
+      "severity": "INFO",
+      "class": "EXPECTED",
+      "scored": false,
+      "detail": "expected open — final 200",
+      "evidence": {
+        "path": "/sitemap.xml",
+        "raw_status": 301,
+        "final_status": 200,
+        "note": "OPEN"
+      }
+    },
+    {
+      "category": "PATHS",
+      "item": "wp-content/",
+      "status": "OPEN",
+      "severity": "MEDIUM",
+      "class": "VERIFY",
+      "scored": false,
+      "detail": "Unexpected open path — raw 200 → final 200; verify public access is intended",
+      "evidence": {
+        "path": "/wp-content/",
+        "raw_status": 200,
+        "final_status": 200,
+        "note": "OPEN"
+      }
+    },
+    {
+      "category": "PATHS",
+      "item": "wp-content/plugins/",
+      "status": "OPEN",
+      "severity": "MEDIUM",
+      "class": "VERIFY",
+      "scored": false,
+      "detail": "Unexpected open path — raw 200 → final 200; verify public access is intended",
+      "evidence": {
+        "path": "/wp-content/plugins/",
+        "raw_status": 200,
+        "final_status": 200,
+        "note": "OPEN"
+      }
+    },
+    {
+      "category": "PATHS",
+      "item": "wp-content/themes/",
+      "status": "OPEN",
+      "severity": "MEDIUM",
+      "class": "VERIFY",
+      "scored": false,
+      "detail": "Unexpected open path — raw 200 → final 200; verify public access is intended",
+      "evidence": {
+        "path": "/wp-content/themes/",
+        "raw_status": 200,
+        "final_status": 200,
+        "note": "OPEN"
+      }
+    },
+    {
+      "category": "PATHS",
+      "item": "wp-cron.php",
+      "status": "OPEN",
+      "severity": "MEDIUM",
+      "class": "VERIFY",
+      "scored": false,
+      "detail": "Unexpected open path — raw 200 → final 200; verify public access is intended",
+      "evidence": {
+        "path": "/wp-cron.php",
+        "raw_status": 200,
+        "final_status": 200,
+        "note": "OPEN"
+      }
+    },
+    {
+      "category": "PATHS",
+      "item": "wp-json/",
+      "status": "OPEN",
+      "severity": "MEDIUM",
+      "class": "VERIFY",
+      "scored": false,
+      "detail": "Unexpected open path — raw 200 → final 200; verify public access is intended",
+      "evidence": {
+        "path": "/wp-json/",
+        "raw_status": 200,
+        "final_status": 200,
+        "note": "OPEN"
+      }
+    },
+    {
+      "category": "PATHS",
+      "item": "feed/",
+      "status": "OPEN",
+      "severity": "INFO",
+      "class": "EXPECTED",
+      "scored": false,
+      "detail": "expected open — final 200",
+      "evidence": {
+        "path": "/feed/",
+        "raw_status": 200,
+        "final_status": 200,
+        "note": "OPEN"
+      }
+    },
+    {
+      "category": "PATHS",
+      "item": "readme.html",
+      "status": "OPEN",
+      "severity": "MEDIUM",
+      "class": "VERIFY",
+      "scored": false,
+      "detail": "Unexpected open path — raw 200 → final 200; verify public access is intended",
+      "evidence": {
+        "path": "/readme.html",
+        "raw_status": 200,
+        "final_status": 200,
+        "note": "OPEN"
+      }
+    },
+    {
+      "category": "PATHS",
+      "item": "license.txt",
+      "status": "OPEN",
+      "severity": "MEDIUM",
+      "class": "VERIFY",
+      "scored": false,
+      "detail": "Unexpected open path — raw 200 → final 200; verify public access is intended",
+      "evidence": {
+        "path": "/license.txt",
+        "raw_status": 200,
+        "final_status": 200,
+        "note": "OPEN"
+      }
+    },
+    {
+      "category": "TLS",
+      "item": "TLS 1.0",
+      "status": "REJECTED",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "Deprecated TLS 1.0 correctly rejected",
+      "evidence": {
+        "error": "[SSL: NO_CIPHERS_AVAILABLE] no ciphers available (_ssl.c:1018)"
+      }
+    },
+    {
+      "category": "TLS",
+      "item": "TLS 1.1",
+      "status": "REJECTED",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "Deprecated TLS 1.1 correctly rejected",
+      "evidence": {
+        "error": "[SSL: NO_CIPHERS_AVAILABLE] no ciphers available (_ssl.c:1018)"
+      }
+    },
+    {
+      "category": "TLS",
+      "item": "TLS 1.2",
+      "status": "SUPPORTED",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "TLS 1.2 handshake succeeded",
+      "evidence": {
+        "negotiated": "TLSv1.2"
+      }
+    },
+    {
+      "category": "TLS",
+      "item": "TLS 1.3",
+      "status": "SUPPORTED",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "TLS 1.3 handshake succeeded",
+      "evidence": {
+        "negotiated": "TLSv1.3"
+      }
+    },
+    {
+      "category": "TLS",
+      "item": "Certificate subject",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "CN=sdlanddevelopment.com",
+      "evidence": {
+        "subject": "CN=sdlanddevelopment.com"
+      }
+    },
+    {
+      "category": "TLS",
+      "item": "Certificate issuer",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "Google Trust Services (WE1)",
+      "evidence": {
+        "issuer": "CN=WE1,O=Google Trust Services,C=US",
+        "issuer_display": "Google Trust Services (WE1)",
+        "issuer_org": "Google Trust Services"
+      }
+    },
+    {
+      "category": "TLS",
+      "item": "Certificate hostname",
+      "status": "MATCH",
+      "severity": "OK",
+      "class": "ACTION",
+      "scored": true,
+      "detail": "Covers sdlanddevelopment.com",
+      "evidence": {
+        "san": [
+          "sdlanddevelopment.com",
+          "*.sdlanddevelopment.com"
+        ]
+      }
+    },
+    {
+      "category": "TLS",
+      "item": "Certificate expiry",
+      "status": "OK",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "Valid ~31d — expires 2026-07-03T23:02:46+00:00",
+      "evidence": {
+        "not_after": "2026-07-03T23:02:46+00:00",
+        "days_left": 31
+      }
+    },
+    {
+      "category": "TLS",
+      "item": "Certificate chain",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "1 certificate(s) in peer chain",
+      "evidence": {
+        "chain_length": 1,
+        "san": [
+          "sdlanddevelopment.com",
+          "*.sdlanddevelopment.com"
+        ]
+      }
+    },
+    {
+      "category": "POLICY",
+      "item": "HSTS max-age",
+      "status": "OK",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "HSTS max-age=31536000",
+      "evidence": {
+        "max_age": 31536000,
+        "raw": "max-age=31536000; includeSubDomains"
+      }
+    },
+    {
+      "category": "POLICY",
+      "item": "CSP unsafe-inline",
+      "status": "ALLOWED",
+      "severity": "MEDIUM",
+      "class": "ACTION",
+      "scored": true,
+      "detail": "CSP allows unsafe-inline — weakens XSS protection",
+      "evidence": {
+        "raw": "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests"
+      }
+    },
+    {
+      "category": "POLICY",
+      "item": "CSP unsafe-eval",
+      "status": "ALLOWED",
+      "severity": "MEDIUM",
+      "class": "ACTION",
+      "scored": true,
+      "detail": "CSP allows unsafe-eval",
+      "evidence": {
+        "raw": "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests"
+      }
+    },
+    {
+      "category": "COOKIES",
+      "item": "Detection",
+      "status": "NONE_FOUND",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "No Set-Cookie headers found on login page or homepage",
+      "evidence": {}
+    },
+    {
+      "category": "RATE_LIMIT",
+      "item": "/wp-login.php GET",
+      "status": "UNPROTECTED",
+      "severity": "LOW",
+      "class": "INFO",
+      "scored": false,
+      "detail": "No 429/503 after 6 rapid GET requests — see POST probe for login abuse signal",
+      "evidence": {
+        "attempts": 6,
+        "limited_at": null,
+        "limit_status": null
+      }
+    },
+    {
+      "category": "RATE_LIMIT",
+      "item": "/wp-login.php POST",
+      "status": "UNPROTECTED",
+      "severity": "HIGH",
+      "class": "ACTION",
+      "scored": true,
+      "detail": "No 429/503/lockout after 15 POST attempts with invalid credentials/data",
+      "evidence": {
+        "attempts": 15,
+        "limited_at": null,
+        "limit_status": null,
+        "body_signal": false
+      }
+    },
+    {
+      "category": "ARTIFACTS",
+      "item": "robots.txt",
+      "status": "PRESENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "Parsed 1 Disallow, 1 Allow, 1 Sitemap rule(s)",
+      "evidence": {
+        "disallow": [
+          "/nogooglebot/"
+        ],
+        "allow": [
+          "/"
+        ],
+        "sitemaps": [
+          "https://sdlanddevelopment.com/sitemap_index.xml"
+        ]
+      }
+    },
+    {
+      "category": "ARTIFACTS",
+      "item": "robots.txt cross-check",
+      "status": "OK",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "No probed OPEN paths conflict with Disallow rules",
+      "evidence": {}
+    },
+    {
+      "category": "ARTIFACTS",
+      "item": "sitemap.xml",
+      "status": "PARSED",
+      "severity": "OK",
+      "class": "ACTION",
+      "scored": true,
+      "detail": "Parsed 2 URL(s) from sitemap.xml",
+      "evidence": {
+        "locations": [
+          "https://sdlanddevelopment.com/post-sitemap.xml",
+          "https://sdlanddevelopment.com/page-sitemap.xml"
+        ]
+      }
+    },
+    {
+      "category": "CORS",
+      "item": "API paths",
+      "status": "NONE",
+      "severity": "OK",
+      "class": "ACTION",
+      "scored": true,
+      "detail": "No Access-Control-Allow-Origin on probed API paths",
+      "evidence": {}
+    },
+    {
+      "category": "MISC",
+      "item": "Internal link inventory",
+      "status": "CATALOGUED",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "41 site URL(s) catalogued from homepage, sitemap, and 8 sampled page(s) (60 internal · 2 external anchors seen)",
+      "evidence": {
+        "internal_links_sample": [
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "/contact-us/",
+          "/",
+          "/contact-us/",
+          "/about-us/",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "/contact-us/",
+          "/",
+          "https://sdlanddevelopment.com/2025/08/22/",
+          "https://sdlanddevelopment.com/%f0%9f%8f%a1-lets-talk-about-artificial-grass-today/#respond",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "/contact-us/",
+          "/",
+          "https://sdlanddevelopment.com/2025/03/14/",
+          "https://sdlanddevelopment.com/san-diego-landscaping-trends/#respond",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "/contact-us/",
+          "/",
+          "https://sdlanddevelopment.com/2025/03/14/",
+          "https://sdlanddevelopment.com/best-outdoor-upgrades-landscape-design/#respond",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "/contact-us/",
+          "/",
+          "https://sdlanddevelopment.com/2025/03/14/",
+          "https://sdlanddevelopment.com/professional-hardscaping-benefits/#respond",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "/contact-us/",
+          "/",
+          "https://sdlanddevelopment.com/2025/03/14/",
+          "https://sdlanddevelopment.com/landscaping-loans-home-improvement-loan/#respond",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "/contact-us/",
+          "/",
+          "https://sdlanddevelopment.com/2025/03/14/",
+          "https://sdlanddevelopment.com/landscaping-companies-that-offer-financing-near-me/#respond",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "https://sdlanddevelopment.com/about-us/",
+          "https://sdlanddevelopment.com/services/",
+          "https://sdlanddevelopment.com/services/custom-hardscape/",
+          "https://sdlanddevelopment.com/services/patios-arbors/",
+          "https://sdlanddevelopment.com/services/pool-decks/",
+          "https://sdlanddevelopment.com/services/retaining-walls/",
+          "https://sdlanddevelopment.com/services/driveways/",
+          "https://sdlanddevelopment.com/services/artificial-grass/",
+          "https://sdlanddevelopment.com/services/landscape-creation/",
+          "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+          "https://sdlanddevelopment.com/services/irrigation-systems/",
+          "https://sdlanddevelopment.com/services/putting-greens/",
+          "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+          "https://sdlanddevelopment.com/design-ideas/",
+          "https://sdlanddevelopment.com/blog/",
+          "https://sdlanddevelopment.com/financing/",
+          "https://sdlanddevelopment.com/faqs/",
+          "https://sdlanddevelopment.com/privacy-policy/",
+          "https://sdlanddevelopment.com/terms-conditions/",
+          "/contact-us/",
+          "/",
+          "https://sdlanddevelopment.com/2025/03/14/",
+          "https://sdlanddevelopment.com/affordable-front-yard-landscaping-ideas/#respond"
+        ]
+      }
+    },
+    {
+      "category": "MISC",
+      "item": "Image inventory",
+      "status": "COUNTED",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "17 unique asset(s) including favicons/OG (17 <img> tags on homepage)",
+      "evidence": {}
+    },
+    {
+      "category": "PLUGIN",
+      "item": "breeze",
+      "status": "STALE",
+      "severity": "LOW",
+      "class": "ACTION",
+      "scored": true,
+      "detail": "breeze 2.5.3 is behind latest 2.5.4",
+      "evidence": {
+        "name": "breeze",
+        "version": "2.5.3",
+        "latest": "2.5.4",
+        "registry": "wporg",
+        "tier": "observed"
+      }
+    },
+    {
+      "category": "PLUGIN_INFO",
+      "item": "elementor",
+      "status": "CURRENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "elementor 8.4.5 matches or exceeds latest (4.1.1)",
+      "evidence": {
+        "name": "elementor",
+        "version": "8.4.5",
+        "latest": "4.1.1"
+      }
+    },
+    {
+      "category": "PLUGIN_VERIFY",
+      "item": "elementor-pro",
+      "status": "UNKNOWN",
+      "severity": "INFO",
+      "class": "VERIFY",
+      "scored": false,
+      "detail": "Detected elementor-pro v4.1.0 — not found in public registry; verify maintenance manually",
+      "evidence": {
+        "name": "elementor-pro",
+        "version": "4.1.0",
+        "registry": "wporg"
+      }
+    },
+    {
+      "category": "PLUGIN_INFO",
+      "item": "image-prioritizer",
+      "status": "CURRENT",
+      "severity": "INFO",
+      "class": "INFO",
+      "scored": false,
+      "detail": "image-prioritizer 1.0.0 matches or exceeds latest (1.0.0-beta3)",
+      "evidence": {
+        "name": "image-prioritizer",
+        "version": "1.0.0",
+        "latest": "1.0.0-beta3"
+      }
+    },
+    {
+      "category": "PLUGIN",
+      "item": "portfolio-elementor",
+      "status": "STALE",
+      "severity": "LOW",
+      "class": "ACTION",
+      "scored": true,
+      "detail": "portfolio-elementor 3.2.2 is behind latest 3.2.7",
+      "evidence": {
+        "name": "portfolio-elementor",
+        "version": "3.2.2",
+        "latest": "3.2.7",
+        "registry": "wporg",
+        "tier": "observed"
+      }
+    },
+    {
+      "category": "PLUGIN_VERIFY",
+      "item": "ultimate-elementor",
+      "status": "UNKNOWN",
+      "severity": "INFO",
+      "class": "VERIFY",
+      "scored": false,
+      "detail": "Detected ultimate-elementor v1.44.3 — not found in public registry; verify maintenance manually",
+      "evidence": {
+        "name": "ultimate-elementor",
+        "version": "1.44.3",
+        "registry": "wporg"
+      }
+    }
+  ],
+  "artifacts": {
+    "headers": {
+      "target_url": "https://sdlanddevelopment.com",
+      "final_url": "https://sdlanddevelopment.com",
+      "status_code": 200,
+      "headers": {
+        "date": "Tue, 02 Jun 2026 20:46:19 GMT",
+        "content-type": "text/html; charset=UTF-8",
+        "connection": "keep-alive",
+        "server": "cloudflare",
+        "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=K2nwPJ6feJ8akFBYj%2BZMShdens%2F7E5inC9pcZHg99JYlndMVOtOWaKPOrVgQ96zzFYetxlwW4vpmYm0LtQFoQy6fpvxU1JRlvr5vQ5vz9Q2FQP7s2gZowzA8MG5Q0BSpnof2PKWMNKq%2FljJJWKAG0tj04cw%3D\"}]}",
+        "x-frame-options": "SAMEORIGIN",
+        "x-content-type-options": "nosniff",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "content-security-policy": "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests",
+        "link": "<https://sdlanddevelopment.com/wp-json/>; rel=\"https://api.w.org/\", <https://sdlanddevelopment.com/wp-json/wp/v2/pages/20>; rel=\"alternate\"; title=\"JSON\"; type=\"application/json\"",
+        "server-timing": "wp-before-template;dur=747.31",
+        "x-breeze-cache-write": "SUCCESS",
+        "cache-provider": "CLOUDWAYS-CACHE-DC",
+        "last-modified": "Tue, 02 Jun 2026 05:33:38 GMT",
+        "cache-control": "max-age=0, s-maxage=2592000",
+        "expires": "Tue, 02 Jun 2026 05:33:37 GMT",
+        "vary": "Accept-Encoding",
+        "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+        "age": "54760",
+        "x-cache": "HIT",
+        "access-control-allow-origin": "*",
+        "cf-cache-status": "DYNAMIC",
+        "content-encoding": "gzip",
+        "cf-ray": "a0594e8ac940f501-ORD",
+        "alt-svc": "h3=\":443\"; ma=86400"
+      },
+      "error": null
+    },
+    "dns": {
+      "domain": "sdlanddevelopment.com",
+      "records": {
+        "spf": "v=spf1 include:spf.privateemail.com include:_spf.google.com ~all",
+        "dmarc": "v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com",
+        "caa": [],
+        "a": [
+          "172.67.141.201",
+          "104.21.41.27"
+        ],
+        "aaaa": [
+          "2606:4700:3034::ac43:8dc9",
+          "2606:4700:3030::6815:291b"
+        ],
+        "mx": [
+          "5 alt1.aspmx.l.google.com.",
+          "5 alt2.aspmx.l.google.com.",
+          "1 aspmx.l.google.com.",
+          "10 alt3.aspmx.l.google.com.",
+          "10 alt4.aspmx.l.google.com."
+        ],
+        "ns": [
+          "maya.ns.cloudflare.com.",
+          "logan.ns.cloudflare.com."
+        ],
+        "dnssec": "UNSIGNED",
+        "asn": []
+      },
+      "errors": {},
+      "net_tools": {
+        "dig": true,
+        "whois": true,
+        "host": true,
+        "mtr": true,
+        "traceroute": true
+      },
+      "whois": {
+        "raw_excerpt": "% IANA WHOIS server\n% for more information on IANA, visit http://www.iana.org\n% This query returned 1 object\n\nrefer:        whois.verisign-grs.com\n\ndomain:       COM\n\norganisation: VeriSign Global Registry Services\naddress:      12061 Bluemont Way\naddress:      Reston VA 20190\naddress:      United States of America (the)",
+        "registrar": "NameCheap, Inc.",
+        "registrant_org": "Privacy service provided by Withheld for Privacy ehf",
+        "creation_date": "2025-03-31T01:21:39Z",
+        "registry_expiry": "2027-03-31T01:21:39Z",
+        "name_servers": "LOGAN.NS.CLOUDFLARE.COM"
+      }
+    },
+    "tls": {
+      "target_url": "https://sdlanddevelopment.com",
+      "host": "sdlanddevelopment.com",
+      "port": 443,
+      "skipped": false,
+      "skip_reason": null,
+      "versions": [
+        {
+          "version": "1.0",
+          "supported": false,
+          "negotiated": null,
+          "error": "[SSL: NO_CIPHERS_AVAILABLE] no ciphers available (_ssl.c:1018)"
+        },
+        {
+          "version": "1.1",
+          "supported": false,
+          "negotiated": null,
+          "error": "[SSL: NO_CIPHERS_AVAILABLE] no ciphers available (_ssl.c:1018)"
+        },
+        {
+          "version": "1.2",
+          "supported": true,
+          "negotiated": "TLSv1.2",
+          "error": null
+        },
+        {
+          "version": "1.3",
+          "supported": true,
+          "negotiated": "TLSv1.3",
+          "error": null
+        }
+      ],
+      "certificate": {
+        "subject": "CN=sdlanddevelopment.com",
+        "subject_cn": "sdlanddevelopment.com",
+        "issuer": "CN=WE1,O=Google Trust Services,C=US",
+        "issuer_cn": "WE1",
+        "issuer_org": "Google Trust Services",
+        "issuer_display": "Google Trust Services (WE1)",
+        "not_before": "2026-04-04T22:06:37+00:00",
+        "not_after": "2026-07-03T23:02:46+00:00",
+        "days_left": 31,
+        "status": "VALID",
+        "san": [
+          "sdlanddevelopment.com",
+          "*.sdlanddevelopment.com"
+        ],
+        "chain_length": 1,
+        "hostname_match": true,
+        "hostname_note": "Covers sdlanddevelopment.com",
+        "error": null
+      },
+      "errors": []
+    },
+    "policy": {
+      "hsts_detail": "max-age=31536000, includeSubDomains (raw: max-age=31536000; includeSubDomains)",
+      "csp_detail": "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests"
+    },
+    "inventory": {
+      "framework": {
+        "target_url": "https://sdlanddevelopment.com",
+        "detected": "wordpress",
+        "effective_framework": "wordpress",
+        "confidence": "medium",
+        "signals": "wp-content wordpress-body",
+        "language": "PHP",
+        "cdn": "Cloudflare",
+        "server_header": "cloudflare",
+        "powered_by": "",
+        "blocked": false,
+        "forced": false,
+        "body_length": 8000,
+        "body": "<!doctype html>\n<html lang=\"en-US\" prefix=\"og: https://ogp.me/ns#\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\t<link rel=\"profile\" href=\"https://gmpg.org/xfn/11\">\n\t\n<!-- Search Engine Optimization by Rank Math - https://rankmath.com/ -->\n<title>Land Development Construction San Diego</title>\n<meta name=\"description\" content=\"Expert land development construction providing professional landscaping &amp; hardscape services: synthetic turf, pavers, decks, patios, retaining walls &amp; driveways for residential &amp; commercial clients.\"/>\n<meta name=\"robots\" content=\"follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large\"/>\n<link rel=\"canonical\" href=\"https://sdlanddevelopment.com/\" />\n<meta property=\"og:locale\" content=\"en_US\" />\n<meta property=\"og:type\" content=\"website\" />\n<meta property=\"og:title\" content=\"Land Development Construction San Diego\" />\n<meta property=\"og:description\" content=\"Expert land development construction providing professional landscaping &amp; hardscape services: synthetic turf, pavers, decks, patios, retaining walls &amp; driveways for residential &amp; commercial clients.\" />\n<meta property=\"og:url\" content=\"https://sdlanddevelopment.com/\" />\n<meta property=\"og:site_name\" content=\"Land Development Construction\" />\n<meta property=\"og:updated_time\" content=\"2026-03-24T14:35:17+00:00\" />\n<meta property=\"og:image\" content=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-1024x508.png\" />\n<meta property=\"og:image:secure_url\" content=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-1024x508.png\" />\n<meta property=\"og:image:width\" content=\"800\" />\n<meta property=\"og:image:height\" content=\"397\" />\n<meta property=\"og:image:alt\" content=\"SD Land Development – Excavation, Grading &amp; Land Development Services in San Diego\" />\n<meta property=\"og:image:type\" content=\"image/png\" />\n<meta property=\"article:published_time\" content=\"2025-02-19T16:24:36+00:00\" />\n<meta property=\"article:modified_time\" content=\"2026-03-24T14:35:17+00:00\" />\n<meta name=\"twitter:card\" content=\"summary_large_image\" />\n<meta name=\"twitter:title\" content=\"Land Development Construction San Diego\" />\n<meta name=\"twitter:description\" content=\"Expert land development construction providing professional landscaping &amp; hardscape services: synthetic turf, pavers, decks, patios, retaining walls &amp; driveways for residential &amp; commercial clients.\" />\n<meta name=\"twitter:image\" content=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-1024x508.png\" />\n<meta name=\"twitter:label1\" content=\"Written by\" />\n<meta name=\"twitter:data1\" content=\"Viacheslav Panchuk\" />\n<meta name=\"twitter:label2\" content=\"Time to read\" />\n<meta name=\"twitter:data2\" content=\"3 minutes\" />\n<script type=\"application/ld+json\" class=\"rank-math-schema\">{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":[\"Person\",\"Organization\"],\"@id\":\"https://sdlanddevelopment.com/#person\",\"name\":\"Land Development Construction\",\"sameAs\":[\"https://www.facebook.com/p/Land-Development-Construction-61558399825240/\"],\"logo\":{\"@type\":\"ImageObject\",\"@id\":\"https://sdlanddevelopment.com/#logo\",\"url\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo.png\",\"contentUrl\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo.png\",\"caption\":\"Land Development Construction\",\"inLanguage\":\"en-US\",\"width\":\"7688\",\"height\":\"3812\"},\"image\":{\"@type\":\"ImageObject\",\"@id\":\"https://sdlanddevelopment.com/#logo\",\"url\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo.png\",\"contentUrl\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo.png\",\"caption\":\"Land Development Construction\",\"inLanguage\":\"en-US\",\"width\":\"7688\",\"height\":\"3812\"}},{\"@type\":\"WebSite\",\"@id\":\"https://sdlanddevelopment.com/#website\",\"url\":\"https://sdlanddevelopment.com\",\"name\":\"Land Development Construction\",\"publisher\":{\"@id\":\"https://sdlanddevelopment.com/#person\"},\"inLanguage\":\"en-US\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://sdlanddevelopment.com/?s={search_term_string}\",\"query-input\":\"required name=search_term_string\"}},{\"@type\":\"ImageObject\",\"@id\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space.webp\",\"url\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space.webp\",\"width\":\"200\",\"height\":\"200\",\"inLanguage\":\"en-US\"},{\"@type\":\"WebPage\",\"@id\":\"https://sdlanddevelopment.com/#webpage\",\"url\":\"https://sdlanddevelopment.com/\",\"name\":\"Land Development Construction San Diego\",\"datePublished\":\"2025-02-19T16:24:36+00:00\",\"dateModified\":\"2026-03-24T14:35:17+00:00\",\"about\":{\"@id\":\"https://sdlanddevelopment.com/#person\"},\"isPartOf\":{\"@id\":\"https://sdlanddevelopment.com/#website\"},\"primaryImageOfPage\":{\"@id\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space.webp\"},\"inLanguage\":\"en-US\"},{\"@type\":\"Person\",\"@id\":\"https://sdlanddevelopment.com/#author\",\"name\":\"Viacheslav Panchuk\",\"image\":{\"@type\":\"ImageObject\",\"@id\":\"https://secure.gravatar.com/avatar/2c511fb7a1295b3c17268156cc673649d1fb7b84e2cd1705cc8f5a3a4795a71e?s=96&amp;d=robohash&amp;r=g\",\"url\":\"https://secure.gravatar.com/avatar/2c511fb7a1295b3c17268156cc673649d1fb7b84e2cd1705cc8f5a3a4795a71e?s=96&amp;d=robohash&amp;r=g\",\"caption\":\"Viacheslav Panchuk\",\"inLanguage\":\"en-US\"}},{\"@type\":\"Article\",\"headline\":\"Land Development Construction San Diego\",\"keywords\":\"land development,excavation services,site preparation\",\"datePublished\":\"2025-02-19T16:24:36+00:00\",\"dateModified\":\"2026-03-24T14:35:17+00:00\",\"author\":{\"@id\":\"https://sdlanddevelopment.com/#author\",\"name\":\"Viacheslav Panchuk\"},\"publisher\":{\"@id\":\"https://sdlanddevelopment.com/#person\"},\"description\":\"Expert land development construction providing professional landscaping &amp; hardscape services: synthetic turf, pavers, decks, patios, retaining walls &amp; driveways for residential &amp; commercial clients.\",\"name\":\"Land Development Construction San Diego\",\"@id\":\"https://sdlanddevelopment.com/#richSnippet\",\"isPartOf\":{\"@id\":\"https://sdlanddevelopment.com/#webpage\"},\"image\":{\"@id\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space.webp\"},\"inLanguage\":\"en-US\",\"mainEntityOfPage\":{\"@id\":\"https://sdlanddevelopment.com/#webpage\"}}]}</script>\n<!-- /Rank Math WordPress SEO plugin -->\n\n<link rel='dns-prefetch' href='//www.googletagmanager.com' />\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"Land Development Construction San Diego &raquo; Feed\" href=\"https://sdlanddevelopment.com/feed/\" />\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"Land Development Construction San Diego &raquo; Comments Feed\" href=\"https://sdlanddevelopment.com/comments/feed/\" />\n<link rel=\"alternate\" title=\"oEmbed (JSON)\" type=\"application/json+oembed\" href=\"https://sdlanddevelopment.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fsdlanddevelopment.com%2F\" />\n<link rel=\"alternate\" title=\"oEmbed (XML)\" type=\"text/xml+oembed\" href=\"https://sdlanddevelopment.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fsdlanddevelopment.com%2F&#038;format=xml\" />\n<style id=\"wp-img-auto-sizes-contain-inline-css\">\nimg:is([sizes=auto i],[sizes^=\"auto,\" i]){contain-intrinsic-size:3000px 1500px}\n/*# sourceURL=wp-img-auto-sizes-contain-inline-css */\n</style>\n<link rel='stylesheet' id='simple-lightbox-css-css' href='https://sdlanddevelopment.com/wp-content/plugins/portfolio-elementor/elementor/../vendor/simplelightbox/dist/simplelightbox.min.css?ver=2.14.2' media='all' />\n<link rel='stylesheet' id='elpt-portfolio-css-css' href='https://sdlanddevelopment.com/wp-content/plugins/portfolio-elementor/elementor/../assets/css/powerfolio_css.css?ver=3.2.2' media='all' />\n<link rel='stylesheet' id='owl-carousel-css-css' href='https://sdlanddevelopment.com/wp-content/plugins/portfolio-elementor/elementor/../vendor/owl.caro"
+      },
+      "paths": {
+        "target_url": "https://sdlanddevelopment.com",
+        "probe_count": 47,
+        "paths": [
+          {
+            "path": "/.env",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/.env.local",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/.env.production",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/.env.backup",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/.git/HEAD",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/.git/config",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/backup.zip",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/backup.tar.gz",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/dump.sql",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/db.sql",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/robots.txt",
+            "raw_status": 200,
+            "final_status": 200,
+            "note": "OPEN"
+          },
+          {
+            "path": "/sitemap.xml",
+            "raw_status": 301,
+            "final_status": 200,
+            "note": "OPEN"
+          },
+          {
+            "path": "/.htaccess",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/phpinfo.php",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/info.php",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/test.php",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/crossdomain.xml",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/config.py",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/config.php",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/configuration.php",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/.well-known/security.txt",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/.dockerenv",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/package.json",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/composer.json",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/Gemfile",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/web.config",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/wp-admin",
+            "raw_status": 301,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/wp-admin/",
+            "raw_status": 302,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/wp-admin/install.php",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/wp-admin/install.php?step=1",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/wp-login.php",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/wp-config.php",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/wp-config.php.bak",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/wp-content/",
+            "raw_status": 200,
+            "final_status": 200,
+            "note": "OPEN"
+          },
+          {
+            "path": "/wp-content/plugins/",
+            "raw_status": 200,
+            "final_status": 200,
+            "note": "OPEN"
+          },
+          {
+            "path": "/wp-content/themes/",
+            "raw_status": 200,
+            "final_status": 200,
+            "note": "OPEN"
+          },
+          {
+            "path": "/wp-content/uploads/",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/wp-includes/",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          },
+          {
+            "path": "/xmlrpc.php",
+            "raw_status": 520,
+            "final_status": 520,
+            "note": "CF_BLOCKED"
+          },
+          {
+            "path": "/wp-cron.php",
+            "raw_status": 200,
+            "final_status": 200,
+            "note": "OPEN"
+          },
+          {
+            "path": "/wp-json/",
+            "raw_status": 200,
+            "final_status": 200,
+            "note": "OPEN"
+          },
+          {
+            "path": "/wp-json/wp/v2/users",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/?author=1",
+            "raw_status": 404,
+            "final_status": 404,
+            "note": "NOT_FOUND"
+          },
+          {
+            "path": "/feed/",
+            "raw_status": 200,
+            "final_status": 200,
+            "note": "OPEN"
+          },
+          {
+            "path": "/readme.html",
+            "raw_status": 200,
+            "final_status": 200,
+            "note": "OPEN"
+          },
+          {
+            "path": "/license.txt",
+            "raw_status": 200,
+            "final_status": 200,
+            "note": "OPEN"
+          },
+          {
+            "path": "/wp-links-opml.php",
+            "raw_status": 403,
+            "final_status": 403,
+            "note": "PROTECTED_403"
+          }
+        ],
+        "errors": []
+      },
+      "cookies": {
+        "target_url": "https://sdlanddevelopment.com",
+        "source_url": null,
+        "cookies": [],
+        "error": null
+      },
+      "rate_limit": {
+        "target_url": "https://sdlanddevelopment.com",
+        "login_path": "/wp-login.php",
+        "post_kind": "wordpress",
+        "get": {
+          "attempts": 6,
+          "limited_at": null,
+          "limit_status": null
+        },
+        "post": {
+          "attempts": 15,
+          "limited_at": null,
+          "limit_status": null,
+          "body_signal": false
+        }
+      },
+      "artifacts": {
+        "target_url": "https://sdlanddevelopment.com",
+        "robots": {
+          "status_code": 200,
+          "raw": "User-agent: Googlebot\nDisallow: /nogooglebot/\n\nUser-agent: *\nAllow: /\n\nSitemap: https://sdlanddevelopment.com/sitemap_index.xml",
+          "error": null
+        },
+        "security_txt": {
+          "body": "",
+          "present": false,
+          "error": null
+        },
+        "sitemap": {
+          "status_code": 200,
+          "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><?xml-stylesheet type=\"text/xsl\" href=\"//sdlanddevelopment.com/main-sitemap.xsl\"?>\n<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n\t<sitemap>\n\t\t<loc>https://sdlanddevelopment.com/post-sitemap.xml</loc>\n\t\t<lastmod>2025-08-22T16:20:16+00:00</lastmod>\n\t</sitemap>\n\t<sitemap>\n\t\t<loc>https://sdlanddevelopment.com/page-sitemap.xml</loc>\n\t\t<lastmod>2026-04-02T07:30:13+00:00</lastmod>\n\t</sitemap>\n</sitemapindex>\n<!-- XML Sitemap generated by Rank Math SEO Plugin (c) Rank Math - rankmath.com -->",
+          "error": null
+        }
+      },
+      "cors": {
+        "target_url": "https://sdlanddevelopment.com",
+        "origin_sent": "https://evil.example.com",
+        "probes": [
+          {
+            "path": "/api/",
+            "status_code": 404,
+            "acao": null,
+            "acac": null,
+            "error": null
+          },
+          {
+            "path": "/api/v1/",
+            "status_code": 404,
+            "acao": null,
+            "acac": null,
+            "error": null
+          }
+        ],
+        "notes": []
+      },
+      "html": {
+        "target_url": "https://sdlanddevelopment.com",
+        "pages_scanned": 8,
+        "body_length": 65536,
+        "inventory": {
+          "link_count": 401,
+          "image_count": 17,
+          "form_count": 0,
+          "mixed_content_count": 0,
+          "internal_link_count": 60,
+          "external_link_count": 2,
+          "insecure_form_actions": [],
+          "mixed_content_samples": [],
+          "internal_links_sample": [
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "/contact-us/",
+            "/",
+            "/contact-us/",
+            "/about-us/",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "/contact-us/",
+            "/",
+            "https://sdlanddevelopment.com/2025/08/22/",
+            "https://sdlanddevelopment.com/%f0%9f%8f%a1-lets-talk-about-artificial-grass-today/#respond",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "/contact-us/",
+            "/",
+            "https://sdlanddevelopment.com/2025/03/14/",
+            "https://sdlanddevelopment.com/san-diego-landscaping-trends/#respond",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "/contact-us/",
+            "/",
+            "https://sdlanddevelopment.com/2025/03/14/",
+            "https://sdlanddevelopment.com/best-outdoor-upgrades-landscape-design/#respond",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "/contact-us/",
+            "/",
+            "https://sdlanddevelopment.com/2025/03/14/",
+            "https://sdlanddevelopment.com/professional-hardscaping-benefits/#respond",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "/contact-us/",
+            "/",
+            "https://sdlanddevelopment.com/2025/03/14/",
+            "https://sdlanddevelopment.com/landscaping-loans-home-improvement-loan/#respond",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "/contact-us/",
+            "/",
+            "https://sdlanddevelopment.com/2025/03/14/",
+            "https://sdlanddevelopment.com/landscaping-companies-that-offer-financing-near-me/#respond",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "https://sdlanddevelopment.com/about-us/",
+            "https://sdlanddevelopment.com/services/",
+            "https://sdlanddevelopment.com/services/custom-hardscape/",
+            "https://sdlanddevelopment.com/services/patios-arbors/",
+            "https://sdlanddevelopment.com/services/pool-decks/",
+            "https://sdlanddevelopment.com/services/retaining-walls/",
+            "https://sdlanddevelopment.com/services/driveways/",
+            "https://sdlanddevelopment.com/services/artificial-grass/",
+            "https://sdlanddevelopment.com/services/landscape-creation/",
+            "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+            "https://sdlanddevelopment.com/services/irrigation-systems/",
+            "https://sdlanddevelopment.com/services/putting-greens/",
+            "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+            "https://sdlanddevelopment.com/design-ideas/",
+            "https://sdlanddevelopment.com/blog/",
+            "https://sdlanddevelopment.com/financing/",
+            "https://sdlanddevelopment.com/faqs/",
+            "https://sdlanddevelopment.com/privacy-policy/",
+            "https://sdlanddevelopment.com/terms-conditions/",
+            "/contact-us/",
+            "/",
+            "https://sdlanddevelopment.com/2025/03/14/",
+            "https://sdlanddevelopment.com/affordable-front-yard-landscaping-ideas/#respond"
+          ],
+          "site_links": [
+            {
+              "url": "https://www.facebook.com/people/Land-Development-Construction/61558399825240/",
+              "kind": "external",
+              "source": "homepage"
+            },
+            {
+              "url": "https://www.instagram.com/land_development_construction/",
+              "kind": "external",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/about-us/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/services/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/services/custom-hardscape/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/services/patios-arbors/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/services/pool-decks/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/services/retaining-walls/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/services/driveways/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/services/artificial-grass/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/services/landscape-creation/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/services/outdoor-kitchen/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/services/irrigation-systems/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/services/putting-greens/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/design-ideas/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/blog/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/financing/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/faqs/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/privacy-policy/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/terms-conditions/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/contact-us/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/",
+              "kind": "internal",
+              "source": "homepage"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/%f0%9f%8f%a1-lets-talk-about-artificial-grass-today/",
+              "kind": "internal",
+              "source": "sitemap"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/san-diego-landscaping-trends/",
+              "kind": "internal",
+              "source": "sitemap"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/best-outdoor-upgrades-landscape-design/",
+              "kind": "internal",
+              "source": "sitemap"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/professional-hardscaping-benefits/",
+              "kind": "internal",
+              "source": "sitemap"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/landscaping-loans-home-improvement-loan/",
+              "kind": "internal",
+              "source": "sitemap"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/landscaping-companies-that-offer-financing-near-me/",
+              "kind": "internal",
+              "source": "sitemap"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/affordable-front-yard-landscaping-ideas/",
+              "kind": "internal",
+              "source": "sitemap"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/year-round-landscaping-tips-beautiful-yard/",
+              "kind": "internal",
+              "source": "sitemap"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/thank-you/",
+              "kind": "internal",
+              "source": "sitemap"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/2025/08/22/",
+              "kind": "internal",
+              "source": "page:/%f0%9f%8f%a1-lets-talk-about-artificial-grass-today/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/%f0%9f%8f%a1-lets-talk-about-artificial-grass-today/#respond",
+              "kind": "internal",
+              "source": "page:/%f0%9f%8f%a1-lets-talk-about-artificial-grass-today/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/2025/03/14/",
+              "kind": "internal",
+              "source": "page:/san-diego-landscaping-trends/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/san-diego-landscaping-trends/#respond",
+              "kind": "internal",
+              "source": "page:/san-diego-landscaping-trends/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/best-outdoor-upgrades-landscape-design/#respond",
+              "kind": "internal",
+              "source": "page:/best-outdoor-upgrades-landscape-design/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/professional-hardscaping-benefits/#respond",
+              "kind": "internal",
+              "source": "page:/professional-hardscaping-benefits/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/landscaping-loans-home-improvement-loan/#respond",
+              "kind": "internal",
+              "source": "page:/landscaping-loans-home-improvement-loan/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/landscaping-companies-that-offer-financing-near-me/#respond",
+              "kind": "internal",
+              "source": "page:/landscaping-companies-that-offer-financing-near-me/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/affordable-front-yard-landscaping-ideas/#respond",
+              "kind": "internal",
+              "source": "page:/affordable-front-yard-landscaping-ideas/"
+            }
+          ],
+          "images": [
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/02/Hamburger-Menu.png",
+              "kind": "img",
+              "source": "/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo.png",
+              "kind": "img",
+              "source": "/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-300x149.png",
+              "kind": "img-srcset",
+              "source": "/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-1024x508.png",
+              "kind": "img-srcset",
+              "source": "/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-768x381.png",
+              "kind": "img-srcset",
+              "source": "/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-1536x762.png",
+              "kind": "img-srcset",
+              "source": "/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-2048x1015.png",
+              "kind": "img-srcset",
+              "source": "/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space.webp",
+              "kind": "img",
+              "source": "/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space-300x169.webp",
+              "kind": "img-srcset",
+              "source": "/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space-1024x576.webp",
+              "kind": "img-srcset",
+              "source": "/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space-768x432.webp",
+              "kind": "img-srcset",
+              "source": "/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/02/favicon-32x32-2.png",
+              "kind": "favicon",
+              "source": "/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/03/Backyard-Putting-Green.webp",
+              "kind": "og-image",
+              "source": "/%f0%9f%8f%a1-lets-talk-about-artificial-grass-today/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/03/sophisticated-patio.webp",
+              "kind": "og-image",
+              "source": "/san-diego-landscaping-trends/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/05/Background-Hardscape-Patio-AdobeStock_1206063345-1024x585.jpeg",
+              "kind": "og-image",
+              "source": "/professional-hardscaping-benefits/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/03/Luxurious-Outdoor-Living-Space.webp",
+              "kind": "og-image",
+              "source": "/landscaping-loans-home-improvement-loan/"
+            },
+            {
+              "url": "https://sdlanddevelopment.com/wp-content/uploads/2025/02/AdobeStock_806667227-1024x681.jpeg",
+              "kind": "og-image",
+              "source": "/affordable-front-yard-landscaping-ideas/"
+            }
+          ],
+          "pages_sampled": 8,
+          "sitemap_urls_parsed": 30,
+          "site_links_catalogued": 41,
+          "images_catalogued": 17
+        },
+        "error": null,
+        "scan_html": "<!doctype html>\n<html lang=\"en-US\" prefix=\"og: https://ogp.me/ns#\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\t<link rel=\"profile\" href=\"https://gmpg.org/xfn/11\">\n\t\n<!-- Search Engine Optimization by Rank Math - https://rankmath.com/ -->\n<title>Land Development Construction San Diego</title>\n<meta name=\"description\" content=\"Expert land development construction providing professional landscaping &amp; hardscape services: synthetic turf, pavers, decks, patios, retaining walls &amp; driveways for residential &amp; commercial clients.\"/>\n<meta name=\"robots\" content=\"follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large\"/>\n<link rel=\"canonical\" href=\"https://sdlanddevelopment.com/\" />\n<meta property=\"og:locale\" content=\"en_US\" />\n<meta property=\"og:type\" content=\"website\" />\n<meta property=\"og:title\" content=\"Land Development Construction San Diego\" />\n<meta property=\"og:description\" content=\"Expert land development construction providing professional landscaping &amp; hardscape services: synthetic turf, pavers, decks, patios, retaining walls &amp; driveways for residential &amp; commercial clients.\" />\n<meta property=\"og:url\" content=\"https://sdlanddevelopment.com/\" />\n<meta property=\"og:site_name\" content=\"Land Development Construction\" />\n<meta property=\"og:updated_time\" content=\"2026-03-24T14:35:17+00:00\" />\n<meta property=\"og:image\" content=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-1024x508.png\" />\n<meta property=\"og:image:secure_url\" content=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-1024x508.png\" />\n<meta property=\"og:image:width\" content=\"800\" />\n<meta property=\"og:image:height\" content=\"397\" />\n<meta property=\"og:image:alt\" content=\"SD Land Development – Excavation, Grading &amp; Land Development Services in San Diego\" />\n<meta property=\"og:image:type\" content=\"image/png\" />\n<meta property=\"article:published_time\" content=\"2025-02-19T16:24:36+00:00\" />\n<meta property=\"article:modified_time\" content=\"2026-03-24T14:35:17+00:00\" />\n<meta name=\"twitter:card\" content=\"summary_large_image\" />\n<meta name=\"twitter:title\" content=\"Land Development Construction San Diego\" />\n<meta name=\"twitter:description\" content=\"Expert land development construction providing professional landscaping &amp; hardscape services: synthetic turf, pavers, decks, patios, retaining walls &amp; driveways for residential &amp; commercial clients.\" />\n<meta name=\"twitter:image\" content=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-1024x508.png\" />\n<meta name=\"twitter:label1\" content=\"Written by\" />\n<meta name=\"twitter:data1\" content=\"Viacheslav Panchuk\" />\n<meta name=\"twitter:label2\" content=\"Time to read\" />\n<meta name=\"twitter:data2\" content=\"3 minutes\" />\n<script type=\"application/ld+json\" class=\"rank-math-schema\">{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":[\"Person\",\"Organization\"],\"@id\":\"https://sdlanddevelopment.com/#person\",\"name\":\"Land Development Construction\",\"sameAs\":[\"https://www.facebook.com/p/Land-Development-Construction-61558399825240/\"],\"logo\":{\"@type\":\"ImageObject\",\"@id\":\"https://sdlanddevelopment.com/#logo\",\"url\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo.png\",\"contentUrl\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo.png\",\"caption\":\"Land Development Construction\",\"inLanguage\":\"en-US\",\"width\":\"7688\",\"height\":\"3812\"},\"image\":{\"@type\":\"ImageObject\",\"@id\":\"https://sdlanddevelopment.com/#logo\",\"url\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo.png\",\"contentUrl\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo.png\",\"caption\":\"Land Development Construction\",\"inLanguage\":\"en-US\",\"width\":\"7688\",\"height\":\"3812\"}},{\"@type\":\"WebSite\",\"@id\":\"https://sdlanddevelopment.com/#website\",\"url\":\"https://sdlanddevelopment.com\",\"name\":\"Land Development Construction\",\"publisher\":{\"@id\":\"https://sdlanddevelopment.com/#person\"},\"inLanguage\":\"en-US\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://sdlanddevelopment.com/?s={search_term_string}\",\"query-input\":\"required name=search_term_string\"}},{\"@type\":\"ImageObject\",\"@id\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space.webp\",\"url\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space.webp\",\"width\":\"200\",\"height\":\"200\",\"inLanguage\":\"en-US\"},{\"@type\":\"WebPage\",\"@id\":\"https://sdlanddevelopment.com/#webpage\",\"url\":\"https://sdlanddevelopment.com/\",\"name\":\"Land Development Construction San Diego\",\"datePublished\":\"2025-02-19T16:24:36+00:00\",\"dateModified\":\"2026-03-24T14:35:17+00:00\",\"about\":{\"@id\":\"https://sdlanddevelopment.com/#person\"},\"isPartOf\":{\"@id\":\"https://sdlanddevelopment.com/#website\"},\"primaryImageOfPage\":{\"@id\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space.webp\"},\"inLanguage\":\"en-US\"},{\"@type\":\"Person\",\"@id\":\"https://sdlanddevelopment.com/#author\",\"name\":\"Viacheslav Panchuk\",\"image\":{\"@type\":\"ImageObject\",\"@id\":\"https://secure.gravatar.com/avatar/2c511fb7a1295b3c17268156cc673649d1fb7b84e2cd1705cc8f5a3a4795a71e?s=96&amp;d=robohash&amp;r=g\",\"url\":\"https://secure.gravatar.com/avatar/2c511fb7a1295b3c17268156cc673649d1fb7b84e2cd1705cc8f5a3a4795a71e?s=96&amp;d=robohash&amp;r=g\",\"caption\":\"Viacheslav Panchuk\",\"inLanguage\":\"en-US\"}},{\"@type\":\"Article\",\"headline\":\"Land Development Construction San Diego\",\"keywords\":\"land development,excavation services,site preparation\",\"datePublished\":\"2025-02-19T16:24:36+00:00\",\"dateModified\":\"2026-03-24T14:35:17+00:00\",\"author\":{\"@id\":\"https://sdlanddevelopment.com/#author\",\"name\":\"Viacheslav Panchuk\"},\"publisher\":{\"@id\":\"https://sdlanddevelopment.com/#person\"},\"description\":\"Expert land development construction providing professional landscaping &amp; hardscape services: synthetic turf, pavers, decks, patios, retaining walls &amp; driveways for residential &amp; commercial clients.\",\"name\":\"Land Development Construction San Diego\",\"@id\":\"https://sdlanddevelopment.com/#richSnippet\",\"isPartOf\":{\"@id\":\"https://sdlanddevelopment.com/#webpage\"},\"image\":{\"@id\":\"https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space.webp\"},\"inLanguage\":\"en-US\",\"mainEntityOfPage\":{\"@id\":\"https://sdlanddevelopment.com/#webpage\"}}]}</script>\n<!-- /Rank Math WordPress SEO plugin -->\n\n<link rel='dns-prefetch' href='//www.googletagmanager.com' />\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"Land Development Construction San Diego &raquo; Feed\" href=\"https://sdlanddevelopment.com/feed/\" />\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"Land Development Construction San Diego &raquo; Comments Feed\" href=\"https://sdlanddevelopment.com/comments/feed/\" />\n<link rel=\"alternate\" title=\"oEmbed (JSON)\" type=\"application/json+oembed\" href=\"https://sdlanddevelopment.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fsdlanddevelopment.com%2F\" />\n<link rel=\"alternate\" title=\"oEmbed (XML)\" type=\"text/xml+oembed\" href=\"https://sdlanddevelopment.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fsdlanddevelopment.com%2F&#038;format=xml\" />\n<style id=\"wp-img-auto-sizes-contain-inline-css\">\nimg:is([sizes=auto i],[sizes^=\"auto,\" i]){contain-intrinsic-size:3000px 1500px}\n/*# sourceURL=wp-img-auto-sizes-contain-inline-css */\n</style>\n<link rel='stylesheet' id='simple-lightbox-css-css' href='https://sdlanddevelopment.com/wp-content/plugins/portfolio-elementor/elementor/../vendor/simplelightbox/dist/simplelightbox.min.css?ver=2.14.2' media='all' />\n<link rel='stylesheet' id='elpt-portfolio-css-css' href='https://sdlanddevelopment.com/wp-content/plugins/portfolio-elementor/elementor/../assets/css/powerfolio_css.css?ver=3.2.2' media='all' />\n<link rel='stylesheet' id='owl-carousel-css-css' href='https://sdlanddevelopment.com/wp-content/plugins/portfolio-elementor/elementor/../vendor/owl.carousel/assets/owl.carousel.css?ver=2.3.4' media='all' />\n<link rel='stylesheet' id='owl-carousel-theme-css-css' href='https://sdlanddevelopment.com/wp-content/plugins/portfolio-elementor/elementor/../vendor/owl.carousel/assets/owl.theme.default.min.css?ver=2.3.4' media='all' />\n<link rel='stylesheet' id='pwrgrids-css-css' href='https://sdlanddevelopment.com/wp-content/plugins/portfolio-elementor/elementor/../assets/css/pwrgrids_css.css?ver=3.2.2' media='all' />\n<style id=\"wp-emoji-styles-inline-css\">\n\n\timg.wp-smiley, img.emoji {\n\t\tdisplay: inline !important;\n\t\tborder: none !important;\n\t\tbox-shadow: none !important;\n\t\theight: 1em !important;\n\t\twidth: 1em !important;\n\t\tmargin: 0 0.07em !important;\n\t\tvertical-align: -0.1em !important;\n\t\tbackground: none !important;\n\t\tpadding: 0 !important;\n\t}\n/*# sourceURL=wp-emoji-styles-inline-css */\n</style>\n<style id=\"powerfolio-portfolio-block-style-inline-css\">\n.wp-block-create-block-my-first-block{background-color:#21759b;color:#fff;padding:2px}\n\n/*# sourceURL=https://sdlanddevelopment.com/wp-content/plugins/portfolio-elementor/build/portfolio-block/style-index.css */\n</style>\n<style id=\"powerfolio-image-gallery-block-style-inline-css\">\n.wp-block-create-block-my-first-block{background-color:#21759b;color:#fff;padding:2px}\n\n/*# sourceURL=https://sdlanddevelopment.com/wp-content/plugins/portfolio-elementor/build/image-gallery-block/style-index.css */\n</style>\n<style id=\"global-styles-inline-css\">\n:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:root { --wp--style--global--content-size: 800px;--wp--style--global--wide-size: 1200px; }:where(body) { margin: 0; }.wp-site-blocks > .alignleft { float: left; margin-right: 2em; }.wp-site-blocks > .alignright { float: right; margin-left: 2em; }.wp-site-blocks > .aligncenter { justify-content: center; margin-left: auto; margin-right: auto; }:where(.wp-site-blocks) > * { margin-block-start: 24px; margin-block-end: 0; }:where(.wp-site-blocks) > :first-child { margin-block-start: 0; }:where(.wp-site-blocks) > :last-child { margin-block-end: 0; }:root { --wp--style--block-gap: 24px; }:root :where(.is-layout-flow) > :first-child{margin-block-start: 0;}:root :where(.is-layout-flow) > :last-child{margin-block-end: 0;}:root :where(.is-layout-flow) > *{margin-block-start: 24px;margin-block-end: 0;}:root :where(.is-layout-constrained) > :first-child{margin-block-start: 0;}:root :where(.is-layout-constrained) > :last-child{margin-block-end: 0;}:root :where(.is-layout-constrained) > *{margin-block-start: 24px;margin-block-end: 0;}:root :where(.is-layout-flex){gap: 24px;}:root :where(.is-layout-grid){gap: 24px;}.is-layout-flow > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}.is-layout-flow > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}.is-layout-flow > .aligncenter{margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}.is-layout-constrained > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}.is-layout-constrained > .aligncenter{margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)){max-width: var(--wp--style--global--content-size);margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > .alignwide{max-width: var(--wp--style--global--wide-size);}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}\n:root :where(.wp-block-icon svg){width: 24px;}\n:root :where(.wp-block-pullquote){font-size: 1.5em;line-height: 1.6;}\n/*# sourceURL=global-styles-inline-css */\n</style>\n<link rel='stylesheet' id='hello-elementor-css' href='https://sdlanddevelopment.com/wp-content/themes/hello-elementor/assets/css/reset.css?ver=3.4.9' media='all' />\n<link rel='stylesheet' id='hello-elementor-theme-style-css' href='https://sdlanddevelopment.com/wp-content/themes/hello-elementor/assets/css/theme.css?ver=3.4.9' media='all' />\n<link rel='stylesheet' id='hello-elementor-header-footer-css' href='https://sdlanddevelopment.com/wp-content/themes/hello-elementor/assets/css/header-footer.css?ver=3.4.9' media='all' />\n<link rel='stylesheet' id='elementor-frontend-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/frontend.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='elementor-post-6-css' href='https://sdlanddevelopment.com/wp-content/uploads/elementor/css/post-6.css?ver=1780299118' media='all' />\n<link rel='stylesheet' id='widget-social-icons-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/widget-social-icons.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='e-apple-webkit-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/conditionals/apple-webkit.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='widget-nav-menu-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor-pro/assets/css/widget-nav-menu.min.css?ver=4.1.0' media='all' />\n<link rel='stylesheet' id='widget-image-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/widget-image.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='widget-icon-list-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/widget-icon-list.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='e-sticky-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor-pro/assets/css/modules/sticky.min.css?ver=4.1.0' media='all' />\n<link rel='stylesheet' id='e-motion-fx-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor-pro/assets/css/modules/motion-fx.min.css?ver=4.1.0' media='all' />\n<link rel='stylesheet' id='widget-heading-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/widget-heading.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='widget-image-box-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/widget-image-box.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='uael-frontend-css' href='https://sdlanddevelopment.com/wp-content/plugins/ultimate-elementor/assets/min-css/uael-frontend.min.css?ver=1.44.3' media='all' />\n<link rel='stylesheet' id='uael-teammember-social-icons-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/widget-social-icons.min.css?ver=3.24.0' media='all' />\n<link rel='stylesheet' id='uael-social-share-icons-brands-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/lib/font-awesome/css/brands.css?ver=5.15.3' media='all' />\n<link rel='stylesheet' id='uael-social-share-icons-fontawesome-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/lib/font-awesome/css/fontawesome.css?ver=5.15.3' media='all' />\n<link rel='stylesheet' id='uael-nav-menu-icons-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/lib/font-awesome/css/solid.css?ver=5.15.3' media='all' />\n<link rel='stylesheet' id='font-awesome-5-all-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/lib/font-awesome/css/all.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='font-awesome-4-shim-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/lib/font-awesome/css/v4-shims.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='swiper-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/lib/swiper/v8/css/swiper.min.css?ver=8.4.5' media='all' />\n<link rel='stylesheet' id='e-swiper-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/conditionals/e-swiper.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='widget-divider-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/widget-divider.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='widget-text-editor-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/widget-text-editor.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='widget-call-to-action-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor-pro/assets/css/widget-call-to-action.min.css?ver=4.1.0' media='all' />\n<link rel='stylesheet' id='e-transitions-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor-pro/assets/css/conditionals/transitions.min.css?ver=4.1.0' media='all' />\n<link rel='stylesheet' id='widget-counter-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/widget-counter.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='widget-google_maps-css' href='https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/css/widget-google_maps.min.css?ver=4.1.1' media='all' />\n<link rel='stylesheet' id='elementor-post-20-css' href='https://sdlanddevelopment.com/wp-content/uploads/elementor/css/post-20.css?ver=1780299118' media='all' />\n<link rel='stylesheet' id='elementor-post-23-css' href='https://sdlanddevelopment.com/wp-content/uploads/elementor/css/post-23.css?ver=1780299118' media='all' />\n<link rel='stylesheet' id='elementor-post-129-css' href='https://sdlanddevelopment.com/wp-content/uploads/elementor/css/post-129.css?ver=1780299119' media='all' />\n<link rel='stylesheet' id='elementor-gf-local-barlow-css' href='https://sdlanddevelopment.com/wp-content/uploads/elementor/google-fonts/css/barlow.css?ver=1744738006' media='all' />\n<link rel='stylesheet' id='elementor-gf-local-oswald-css' href='https://sdlanddevelopment.com/wp-content/uploads/elementor/google-fonts/css/oswald.css?ver=1744738006' media='all' />\n<script id=\"jquery-core-js\" src=\"https://sdlanddevelopment.com/wp-includes/js/jquery/jquery.min.js?ver=3.7.1\"></script>\n<script id=\"jquery-migrate-js\" src=\"https://sdlanddevelopment.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1\"></script>\n<script id=\"breeze-prefetch-js-extra\">\nvar breeze_prefetch = {\"local_url\":\"https://sdlanddevelopment.com\",\"ignore_remote_prefetch\":\"1\",\"ignore_list\":[\"wp-admin\",\"wp-login.php\"]};\n//# sourceURL=breeze-prefetch-js-extra\n</script>\n<script id=\"breeze-prefetch-js\" src=\"https://sdlanddevelopment.com/wp-content/plugins/breeze/assets/js/js-front-end/breeze-prefetch-links.min.js?ver=2.5.3\"></script>\n<script id=\"font-awesome-4-shim-js\" src=\"https://sdlanddevelopment.com/wp-content/plugins/elementor/assets/lib/font-awesome/js/v4-shims.min.js?ver=4.1.1\"></script>\n\n<!-- Google tag (gtag.js) snippet added by Site Kit -->\n<!-- Google Analytics snippet added by Site Kit -->\n<!-- Google Ads snippet added by Site Kit -->\n<script id=\"google_gtagjs-js\" src=\"https://www.googletagmanager.com/gtag/js?id=GT-NS4XF689\" async></script>\n<script id=\"google_gtagjs-js-after\">\nwindow.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}\ngtag(\"set\",\"linker\",{\"domains\":[\"sdlanddevelopment.com\"]});\ngtag(\"js\", new Date());\ngtag(\"set\", \"developer_id.dZTNiMT\", true);\ngtag(\"config\", \"GT-NS4XF689\", {\"googlesitekit_post_type\":\"page\"});\ngtag(\"config\", \"AW-16716191862\");\n window._googlesitekit = window._googlesitekit || {}; window._googlesitekit.throttledEvents = []; window._googlesitekit.gtagEvent = (name, data) => { var key = JSON.stringify( { name, data } ); if ( !! window._googlesitekit.throttledEvents[ key ] ) { return; } window._googlesitekit.throttledEvents[ key ] = true; setTimeout( () => { delete window._googlesitekit.throttledEvents[ key ]; }, 5 ); gtag( \"event\", name, { ...data, event_source: \"site-kit\" } ); }; \n//# sourceURL=google_gtagjs-js-after\n</script>\n<link rel=\"https://api.w.org/\" href=\"https://sdlanddevelopment.com/wp-json/\" /><link rel=\"alternate\" title=\"JSON\" type=\"application/json\" href=\"https://sdlanddevelopment.com/wp-json/wp/v2/pages/20\" /><meta name=\"generator\" content=\"Site Kit by Google 1.179.0\" /><meta name=\"generator\" content=\"performance-lab 4.1.0; plugins: embed-optimizer, image-prioritizer, webp-uploads\">\n<meta name=\"generator\" content=\"webp-uploads 2.6.1\">\n<meta name=\"ti-site-data\" content=\"eyJyIjoiMTowITc6MSEzMDoxIiwibyI6Imh0dHBzOlwvXC9zZGxhbmRkZXZlbG9wbWVudC5jb20/dGktb25saW5lLXVzZXJzLWdvb2dsZT0xJmFtcDtwPSUyRiZhbXA7X3dwbm9uY2U9MWE4ZDg0YzhkNSJ9\" />\n<!-- Google AdSense meta tags added by Site Kit -->\n<meta name=\"google-adsense-platform-account\" content=\"ca-host-pub-2644536267352236\">\n<meta name=\"google-adsense-platform-domain\" content=\"sitekit.withgoogle.com\">\n<!-- End Google AdSense meta tags added by Site Kit -->\n<meta name=\"generator\" content=\"Elementor 4.1.1; features: e_font_icon_svg, additional_custom_breakpoints; settings: css_print_method-external, google_font-enabled, font_display-swap\">\n<meta data-od-replaced-content=\"optimization-detective 1.0.0-beta5\" name=\"generator\" content=\"optimization-detective 1.0.0-beta5; url_metric_groups={0:populated, 480:populated, 600:populated, 782:complete}\">\n\t\t\t<style>\n\t\t\t\t.e-con.e-parent:nth-of-type(n+4):not(.e-lazyloaded):not(.e-no-lazyload),\n\t\t\t\t.e-con.e-parent:nth-of-type(n+4):not(.e-lazyloaded):not(.e-no-lazyload) * {\n\t\t\t\t\tbackground-image: none !important;\n\t\t\t\t}\n\t\t\t\t@media screen and (max-height: 1024px) {\n\t\t\t\t\t.e-con.e-parent:nth-of-type(n+3):not(.e-lazyloaded):not(.e-no-lazyload),\n\t\t\t\t\t.e-con.e-parent:nth-of-type(n+3):not(.e-lazyloaded):not(.e-no-lazyload) * {\n\t\t\t\t\t\tbackground-image: none !important;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\t@media screen and (max-height: 640px) {\n\t\t\t\t\t.e-con.e-parent:nth-of-type(n+2):not(.e-lazyloaded):not(.e-no-lazyload),\n\t\t\t\t\t.e-con.e-parent:nth-of-type(n+2):not(.e-lazyloaded):not(.e-no-lazyload) * {\n\t\t\t\t\t\tbackground-image: none !important;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t</style>\n\t\t\t<meta name=\"generator\" content=\"embed-optimizer 1.0.0-beta5\">\n<meta name=\"generator\" content=\"image-prioritizer 1.0.0-beta3\">\n\n<!-- Google Tag Manager snippet added by Site Kit -->\n<script>\n\t\t\t( function( w, d, s, l, i ) {\n\t\t\t\tw[l] = w[l] || [];\n\t\t\t\tw[l].push( {'gtm.start': new Date().getTime(), event: 'gtm.js'} );\n\t\t\t\tvar f = d.getElementsByTagName( s )[0],\n\t\t\t\t\tj = d.createElement( s ), dl = l != 'dataLayer' ? '&l=' + l : '';\n\t\t\t\tj.async = true;\n\t\t\t\tj.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;\n\t\t\t\tf.parentNode.insertBefore( j, f );\n\t\t\t} )( window, document, 'script', 'dataLayer', 'GTM-NVJ89PXX' );\n\t\t\t\n</script>\n\n<!-- End Google Tag Manager snippet added by Site Kit -->\n<link rel=\"icon\" href=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/favicon-32x32-2.png\" sizes=\"32x32\" />\n<link rel=\"icon\" href=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/favicon-32x32-2.png\" sizes=\"192x192\" />\n<link rel=\"apple-touch-icon\" href=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/favicon-32x32-2.png\" />\n<meta name=\"msapplication-TileImage\" content=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/favicon-32x32-2.png\" />\n<style>\n@media (scripting:enabled){.od-lazy-bg-image{background-image:none!important}}\n/*# sourceURL=https://sdlanddevelopment.com/wp-content/plugins/image-prioritizer/lazy-load-bg-image.min.css?ver=1.0.0-beta3 */\n</style>\n</head>\n<body class=\"home wp-singular page-template-default page page-id-20 wp-custom-logo wp-embed-responsive wp-theme-hello-elementor hello-elementor-default elementor-default elementor-template-full-width elementor-kit-6 elementor-page elementor-page-20\">\n\n\t\t<!-- Google Tag Manager (noscript) snippet added by Site Kit -->\n\t\t<noscript>\n\t\t\t<iframe src=\"https://www.googletagmanager.com/ns.html?id=GTM-NVJ89PXX\" height=\"0\" width=\"0\" style=\"display:none;visibility:hidden\"></iframe>\n\t\t</noscript>\n\t\t<!-- End Google Tag Manager (noscript) snippet added by Site Kit -->\n\t\t\n<a class=\"skip-link screen-reader-text\" href=\"#content\">Skip to content</a>\n\n\t\t<header data-elementor-type=\"header\" data-elementor-id=\"23\" class=\"elementor elementor-23 elementor-location-header\" data-elementor-post-type=\"elementor_library\">\n\t\t\t<div class=\"elementor-element elementor-element-4cf73e5 e-flex e-con-boxed e-con e-parent\" data-id=\"4cf73e5\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t\t<div class=\"e-con-inner\">\n\t\t\t\t<div class=\"elementor-element elementor-element-00b711f elementor-widget__width-initial elementor-hidden-mobile elementor-widget elementor-widget-text-editor\" data-id=\"00b711f\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"text-editor.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t\t<p>Experience Land Development Construction’s finest work—stunning outdoor spaces built with precision, creativity, and quality materials.</p>\t\t\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-045bdba elementor-widget__width-initial elementor-hidden-desktop elementor-hidden-tablet elementor-widget elementor-widget-text-editor\" data-id=\"045bdba\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"text-editor.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t\t<p>LD Construction — Your Outdoor Dream, Built</p>\t\t\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-ee74761 e-grid-align-right elementor-widget-tablet__width-initial elementor-hidden-tablet elementor-hidden-mobile elementor-widget__width-inherit elementor-shape-rounded elementor-grid-0 elementor-widget elementor-widget-social-icons\" data-id=\"ee74761\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"social-icons.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t<div class=\"elementor-social-icons-wrapper elementor-grid\" role=\"list\">\n\t\t\t\t\t\t\t<span class=\"elementor-grid-item\" role=\"listitem\">\n\t\t\t\t\t<a class=\"elementor-icon elementor-social-icon elementor-social-icon-facebook elementor-repeater-item-8b7951f\" href=\"https://www.facebook.com/people/Land-Development-Construction/61558399825240/\" target=\"_blank\">\n\t\t\t\t\t\t<span class=\"elementor-screen-only\">Facebook</span>\n\t\t\t\t\t\t<svg aria-hidden=\"true\" class=\"e-font-icon-svg e-fab-facebook\" viewBox=\"0 0 512 512\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z\"></path></svg>\t\t\t\t\t</a>\n\t\t\t\t</span>\n\t\t\t\t\t\t\t<span class=\"elementor-grid-item\" role=\"listitem\">\n\t\t\t\t\t<a class=\"elementor-icon elementor-social-icon elementor-social-icon-instagram elementor-repeater-item-52d68e7\" href=\"https://www.instagram.com/land_development_construction/\" target=\"_blank\">\n\t\t\t\t\t\t<span class=\"elementor-screen-only\">Instagram</span>\n\t\t\t\t\t\t<svg aria-hidden=\"true\" class=\"e-font-icon-svg e-fab-instagram\" viewBox=\"0 0 448 512\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z\"></path></svg>\t\t\t\t\t</a>\n\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t<div class=\"elementor-element elementor-element-f80eedf e-flex e-con-boxed e-con e-parent\" data-id=\"f80eedf\" data-element_type=\"container\" data-e-type=\"container\" data-settings=\"{&quot;background_background&quot;:&quot;classic&quot;,&quot;background_motion_fx_motion_fx_scrolling&quot;:&quot;yes&quot;,&quot;background_motion_fx_opacity_effect&quot;:&quot;yes&quot;,&quot;background_motion_fx_opacity_range&quot;:{&quot;unit&quot;:&quot;%&quot;,&quot;size&quot;:&quot;&quot;,&quot;sizes&quot;:{&quot;start&quot;:49,&quot;end&quot;:66}},&quot;sticky&quot;:&quot;top&quot;,&quot;background_motion_fx_opacity_direction&quot;:&quot;out-in&quot;,&quot;background_motion_fx_opacity_level&quot;:{&quot;unit&quot;:&quot;px&quot;,&quot;size&quot;:10,&quot;sizes&quot;:[]},&quot;background_motion_fx_devices&quot;:[&quot;desktop&quot;,&quot;tablet&quot;,&quot;mobile&quot;],&quot;sticky_on&quot;:[&quot;desktop&quot;,&quot;tablet&quot;,&quot;mobile&quot;],&quot;sticky_offset&quot;:0,&quot;sticky_effects_offset&quot;:0,&quot;sticky_anchor_link_offset&quot;:0}\">\n\t\t\t\t\t<div class=\"e-con-inner\">\n\t\t\t\t<div class=\"elementor-element elementor-element-14fa689 elementor-nav-menu__align-center elementor-nav-menu--dropdown-none elementor-hidden-tablet elementor-hidden-mobile elementor-widget__width-initial elementor-widget elementor-widget-nav-menu\" data-id=\"14fa689\" data-element_type=\"widget\" data-e-type=\"widget\" data-settings=\"{&quot;layout&quot;:&quot;horizontal&quot;,&quot;submenu_icon&quot;:{&quot;value&quot;:&quot;&lt;svg aria-hidden=\\&quot;true\\&quot; class=\\&quot;e-font-icon-svg e-fas-caret-down\\&quot; viewBox=\\&quot;0 0 320 512\\&quot; xmlns=\\&quot;http:\\/\\/www.w3.org\\/2000\\/svg\\&quot;&gt;&lt;path d=\\&quot;M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z\\&quot;&gt;&lt;\\/path&gt;&lt;\\/svg&gt;&quot;,&quot;library&quot;:&quot;fa-solid&quot;}}\" data-widget_type=\"nav-menu.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t<nav aria-label=\"Site Menu\" class=\"elementor-nav-menu--main elementor-nav-menu__container elementor-nav-menu--layout-horizontal e--pointer-underline e--animation-grow\">\n\t\t\t\t<ul id=\"menu-1-14fa689\" class=\"elementor-nav-menu\"><li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-114\"><a href=\"https://sdlanddevelopment.com/about-us/\" class=\"elementor-item\">About Us</a></li>\n<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-4998\"><a href=\"https://sdlanddevelopment.com/services/\" class=\"elementor-item\">Services</a>\n<ul class=\"sub-menu elementor-nav-menu--dropdown\">\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6405\"><a href=\"https://sdlanddevelopment.com/services/custom-hardscape/\" class=\"elementor-sub-item\">Custom Hardscape</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6399\"><a href=\"https://sdlanddevelopment.com/services/patios-arbors/\" class=\"elementor-sub-item\">Patios &amp; Arbors</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6398\"><a href=\"https://sdlanddevelopment.com/services/pool-decks/\" class=\"elementor-sub-item\">Pool &amp; Decks</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6396\"><a href=\"https://sdlanddevelopment.com/services/retaining-walls/\" class=\"elementor-sub-item\">Retaining Walls</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6403\"><a href=\"https://sdlanddevelopment.com/services/driveways/\" class=\"elementor-sub-item\">Driveways</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6404\"><a href=\"https://sdlanddevelopment.com/services/artificial-grass/\" class=\"elementor-sub-item\">Artificial Grass</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6401\"><a href=\"https://sdlanddevelopment.com/services/landscape-creation/\" class=\"elementor-sub-item\">Landscape Creation</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6400\"><a href=\"https://sdlanddevelopment.com/services/outdoor-kitchen/\" class=\"elementor-sub-item\">Outdoor Kitchen</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6402\"><a href=\"https://sdlanddevelopment.com/services/irrigation-systems/\" class=\"elementor-sub-item\">Irrigation Systems</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6397\"><a href=\"https://sdlanddevelopment.com/services/putting-greens/\" class=\"elementor-sub-item\">Putting Greens</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6395\"><a href=\"https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/\" class=\"elementor-sub-item\">Professional Yard Clean Up &#038; Maintenance</a></li>\n</ul>\n</li>\n<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-112\"><a href=\"https://sdlanddevelopment.com/design-ideas/\" class=\"elementor-item\">Design Ideas</a></li>\n<li class=\"menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-3706\"><a href=\"#\" class=\"elementor-item elementor-item-anchor\">Resources</a>\n<ul class=\"sub-menu elementor-nav-menu--dropdown\">\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6096\"><a href=\"https://sdlanddevelopment.com/blog/\" class=\"elementor-sub-item\">Our Blog</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-3710\"><a href=\"https://sdlanddevelopment.com/financing/\" class=\"elementor-sub-item\">Financing</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-3707\"><a href=\"https://sdlanddevelopment.com/faqs/\" class=\"elementor-sub-item\">FAQs</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-privacy-policy menu-item-3711\"><a rel=\"privacy-policy\" href=\"https://sdlanddevelopment.com/privacy-policy/\" class=\"elementor-sub-item\">Privacy Policy</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-3709\"><a href=\"https://sdlanddevelopment.com/terms-conditions/\" class=\"elementor-sub-item\">Terms &#038; Conditions</a></li>\n</ul>\n</li>\n</ul>\t\t\t</nav>\n\t\t\t\t\t\t<nav class=\"elementor-nav-menu--dropdown elementor-nav-menu__container\" aria-hidden=\"true\">\n\t\t\t\t<ul id=\"menu-2-14fa689\" class=\"elementor-nav-menu\"><li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-114\"><a href=\"https://sdlanddevelopment.com/about-us/\" class=\"elementor-item\" tabindex=\"-1\">About Us</a></li>\n<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-4998\"><a href=\"https://sdlanddevelopment.com/services/\" class=\"elementor-item\" tabindex=\"-1\">Services</a>\n<ul class=\"sub-menu elementor-nav-menu--dropdown\">\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6405\"><a href=\"https://sdlanddevelopment.com/services/custom-hardscape/\" class=\"elementor-sub-item\" tabindex=\"-1\">Custom Hardscape</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6399\"><a href=\"https://sdlanddevelopment.com/services/patios-arbors/\" class=\"elementor-sub-item\" tabindex=\"-1\">Patios &amp; Arbors</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6398\"><a href=\"https://sdlanddevelopment.com/services/pool-decks/\" class=\"elementor-sub-item\" tabindex=\"-1\">Pool &amp; Decks</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6396\"><a href=\"https://sdlanddevelopment.com/services/retaining-walls/\" class=\"elementor-sub-item\" tabindex=\"-1\">Retaining Walls</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6403\"><a href=\"https://sdlanddevelopment.com/services/driveways/\" class=\"elementor-sub-item\" tabindex=\"-1\">Driveways</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6404\"><a href=\"https://sdlanddevelopment.com/services/artificial-grass/\" class=\"elementor-sub-item\" tabindex=\"-1\">Artificial Grass</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6401\"><a href=\"https://sdlanddevelopment.com/services/landscape-creation/\" class=\"elementor-sub-item\" tabindex=\"-1\">Landscape Creation</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6400\"><a href=\"https://sdlanddevelopment.com/services/outdoor-kitchen/\" class=\"elementor-sub-item\" tabindex=\"-1\">Outdoor Kitchen</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6402\"><a href=\"https://sdlanddevelopment.com/services/irrigation-systems/\" class=\"elementor-sub-item\" tabindex=\"-1\">Irrigation Systems</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6397\"><a href=\"https://sdlanddevelopment.com/services/putting-greens/\" class=\"elementor-sub-item\" tabindex=\"-1\">Putting Greens</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6395\"><a href=\"https://sdlanddevelopment.com/services/professional-yard-clean-up-maintenance/\" class=\"elementor-sub-item\" tabindex=\"-1\">Professional Yard Clean Up &#038; Maintenance</a></li>\n</ul>\n</li>\n<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-112\"><a href=\"https://sdlanddevelopment.com/design-ideas/\" class=\"elementor-item\" tabindex=\"-1\">Design Ideas</a></li>\n<li class=\"menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-3706\"><a href=\"#\" class=\"elementor-item elementor-item-anchor\" tabindex=\"-1\">Resources</a>\n<ul class=\"sub-menu elementor-nav-menu--dropdown\">\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-6096\"><a href=\"https://sdlanddevelopment.com/blog/\" class=\"elementor-sub-item\" tabindex=\"-1\">Our Blog</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-3710\"><a href=\"https://sdlanddevelopment.com/financing/\" class=\"elementor-sub-item\" tabindex=\"-1\">Financing</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-3707\"><a href=\"https://sdlanddevelopment.com/faqs/\" class=\"elementor-sub-item\" tabindex=\"-1\">FAQs</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-privacy-policy menu-item-3711\"><a rel=\"privacy-policy\" href=\"https://sdlanddevelopment.com/privacy-policy/\" class=\"elementor-sub-item\" tabindex=\"-1\">Privacy Policy</a></li>\n\t<li class=\"menu-item menu-item-type-post_type menu-item-object-page menu-item-3709\"><a href=\"https://sdlanddevelopment.com/terms-conditions/\" class=\"elementor-sub-item\" tabindex=\"-1\">Terms &#038; Conditions</a></li>\n</ul>\n</li>\n</ul>\t\t\t</nav>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t<div class=\"elementor-element elementor-element-3faeefd e-con-full e-flex e-con e-child\" data-id=\"3faeefd\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t<div class=\"elementor-element elementor-element-89793de elementor-hidden-desktop elementor-widget elementor-widget-image\" data-id=\"89793de\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"image.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<a href=\"#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjI0NyIsInRvZ2dsZSI6ZmFsc2V9\">\n\t\t\t\t\t\t\t<img data-od-xpath=\"/HTML/BODY/HEADER[@class=&apos;elementor elementor-23 elementor-location-header&apos;]/*[2][self::DIV]/*[1][self::DIV]/*[2][self::DIV]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::A]/*[1][self::IMG]\" width=\"32\" height=\"32\" src=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/Hamburger-Menu.png\" class=\"attachment-full size-full wp-image-284\" alt=\"SD Land Development – Excavation, Grading &amp; Land Development Services in San Diego\" />\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-c1ff49f elementor-hidden-tablet elementor-hidden-mobile elementor-list-item-link-inline elementor-widget__width-inherit elementor-icon-list--layout-traditional elementor-widget elementor-widget-icon-list\" data-id=\"c1ff49f\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"icon-list.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t<ul class=\"elementor-icon-list-items\">\n\t\t\t\t\t\t\t<li class=\"elementor-icon-list-item\">\n\t\t\t\t\t\t\t\t\t\t\t<a href=\"tel:+16193015615\" target=\"_blank\">\n\n\t\t\t\t\t\t\t\t\t\t\t\t<span class=\"elementor-icon-list-icon\">\n\t\t\t\t\t\t\t<svg aria-hidden=\"true\" class=\"e-font-icon-svg e-fas-phone-alt\" viewBox=\"0 0 512 512\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M497.39 361.8l-112-48a24 24 0 0 0-28 6.9l-49.6 60.6A370.66 370.66 0 0 1 130.6 204.11l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112A24.16 24.16 0 0 0 122.6.61l-104 24A24 24 0 0 0 0 48c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0-14.01-27.6z\"></path></svg>\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t\t\t\t<span class=\"elementor-icon-list-text\"><a href=\"tel:+16193015615\">+1 (619) 301-5615</a></span>\n\t\t\t\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t</li>\n\t\t\t\t\t\t</ul>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-4a697f4 elementor-hidden-tablet elementor-hidden-mobile elementor-widget elementor-widget-button\" data-id=\"4a697f4\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"button.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t\t<div class=\"elementor-button-wrapper\">\n\t\t\t\t\t<a class=\"elementor-button elementor-button-link elementor-size-sm\" href=\"/contact-us/\">\n\t\t\t\t\t\t<span class=\"elementor-button-content-wrapper\">\n\t\t\t\t\t\t\t\t\t<span class=\"elementor-button-text\">Get A Quote</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t</a>\n\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t<div class=\"elementor-element elementor-element-516f85e e-con-full e-transform e-flex e-con e-child\" data-id=\"516f85e\" data-element_type=\"container\" data-e-type=\"container\" id=\"headers\" data-settings=\"{&quot;_transform_scale_effect&quot;:{&quot;unit&quot;:&quot;px&quot;,&quot;size&quot;:1.2,&quot;sizes&quot;:[]},&quot;background_background&quot;:&quot;classic&quot;,&quot;_transform_scale_effect_tablet&quot;:{&quot;unit&quot;:&quot;px&quot;,&quot;size&quot;:&quot;&quot;,&quot;sizes&quot;:[]},&quot;_transform_scale_effect_mobile&quot;:{&quot;unit&quot;:&quot;px&quot;,&quot;size&quot;:&quot;&quot;,&quot;sizes&quot;:[]}}\">\n\t\t\t\t<div class=\"elementor-element elementor-element-ef00bb0 elementor-widget__width-initial elementor-widget elementor-widget-theme-site-logo elementor-widget-image\" data-id=\"ef00bb0\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"theme-site-logo.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t\t\t\t<a href=\"/\">\n\t\t\t<img data-od-removed-fetchpriority=\"high\" data-od-xpath=\"/HTML/BODY/HEADER[@class=&apos;elementor elementor-23 elementor-location-header&apos;]/*[2][self::DIV]/*[1][self::DIV]/*[3][self::DIV]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::A]/*[1][self::IMG]\"  width=\"7688\" height=\"3812\" src=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo.png\" class=\"attachment-full size-full wp-image-1864\" alt=\"SD Land Development – Excavation, Grading &amp; Land Development Services in San Diego\" srcset=\"https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo.png 7688w, https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-300x149.png 300w, https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-1024x508.png 1024w, https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-768x381.png 768w, https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-1536x762.png 1536w, https://sdlanddevelopment.com/wp-content/uploads/2025/02/cropped-New-Logo-2048x1015.png 2048w\" sizes=\"(max-width: 7688px) 100vw, 7688px\" />\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</header>\n\t\t\t\t<div data-elementor-type=\"wp-page\" data-elementor-id=\"20\" class=\"elementor elementor-20\" data-elementor-post-type=\"page\">\n\t\t\t\t<div class=\"elementor-element elementor-element-6051b2f e-con-full e-flex e-con e-parent\" data-id=\"6051b2f\" data-element_type=\"container\" data-e-type=\"container\" data-settings=\"{&quot;background_background&quot;:&quot;slideshow&quot;,&quot;background_slideshow_gallery&quot;:[{&quot;id&quot;:1631,&quot;url&quot;:&quot;https:\\/\\/sdlanddevelopment.com\\/wp-content\\/uploads\\/2025\\/02\\/AdobeStock_810856045-scaled.jpeg&quot;},{&quot;id&quot;:1821,&quot;url&quot;:&quot;https:\\/\\/sdlanddevelopment.com\\/wp-content\\/uploads\\/2025\\/02\\/ANCHOR_N_BEL_RES_AUG2020_Anchor9D_LandingStep_TruScape_002_preview.webp&quot;},{&quot;id&quot;:5235,&quot;url&quot;:&quot;https:\\/\\/sdlanddevelopment.com\\/wp-content\\/uploads\\/2025\\/05\\/Custom-Hardscape-AdobeStock_1191731635-scaled.jpeg&quot;},{&quot;id&quot;:4458,&quot;url&quot;:&quot;https:\\/\\/sdlanddevelopment.com\\/wp-content\\/uploads\\/2025\\/03\\/Stone-Steps-Retaining-Walls.webp&quot;}],&quot;background_slideshow_slide_transition&quot;:&quot;slide_left&quot;,&quot;background_slideshow_loop&quot;:&quot;yes&quot;,&quot;background_slideshow_slide_duration&quot;:5000,&quot;background_slideshow_transition_duration&quot;:500}\">\n\t\t<div class=\"elementor-element elementor-element-e726339 e-con-full e-flex e-con e-child\" data-id=\"e726339\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t<div class=\"elementor-element elementor-element-a2ca159 elementor-widget elementor-widget-heading\" data-id=\"a2ca159\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"heading.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t<h1 class=\"elementor-heading-title elementor-size-default\">Welcome to Land Development Construction San Diego</h1>\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-880ded9 elementor-widget elementor-widget-text-editor\" data-id=\"880ded9\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"text-editor.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t\t<p>At Land Development Construction, we take pride in delivering tailored solutions that reflect each customer&#8217;s unique needs. Built on a foundation of trust, integrity, and quality, our approach is personal, professional, and results-driven. Whether your project is large or small, we&#8217;re committed to exceeding expectations and creating lasting value.</p>\t\t\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t<div class=\"elementor-element elementor-element-b9a7938 e-con-full e-flex e-con e-child\" data-id=\"b9a7938\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t<div class=\"elementor-element elementor-element-a4c941c elementor-widget elementor-widget-button\" data-id=\"a4c941c\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"button.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t\t<div class=\"elementor-button-wrapper\">\n\t\t\t\t\t<a class=\"elementor-button elementor-button-link elementor-size-sm\" href=\"#services\">\n\t\t\t\t\t\t<span class=\"elementor-button-content-wrapper\">\n\t\t\t\t\t\t\t\t\t<span class=\"elementor-button-text\">Explore Our Services</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t</a>\n\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-1033709 elementor-widget elementor-widget-button\" data-id=\"1033709\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"button.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t\t<div class=\"elementor-button-wrapper\">\n\t\t\t\t\t<a class=\"elementor-button elementor-button-link elementor-size-sm\" href=\"/contact-us/\">\n\t\t\t\t\t\t<span class=\"elementor-button-content-wrapper\">\n\t\t\t\t\t\t\t\t\t<span class=\"elementor-button-text\">Get In Touch</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t</a>\n\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t<div class=\"elementor-element elementor-element-c8d25b7 e-con-full elementor-hidden-mobile e-flex e-con e-child\" data-id=\"c8d25b7\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t<div class=\"elementor-element elementor-element-ecc08fc e-flex e-con-boxed e-con e-parent\" data-id=\"ecc08fc\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t\t<div class=\"e-con-inner\">\n\t\t<div class=\"elementor-element elementor-element-5d4e896 e-con-full e-flex e-con e-child\" data-id=\"5d4e896\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t<div class=\"elementor-element elementor-element-67da1a3 elementor-widget-divider--view-line_text elementor-widget-divider--element-align-left elementor-widget elementor-widget-divider\" data-id=\"67da1a3\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"divider.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t<div class=\"elementor-divider\">\n\t\t\t<span class=\"elementor-divider-separator\">\n\t\t\t\t\t\t\t<h2 class=\"elementor-divider__text elementor-divider__element\">\n\t\t\t\tAbout LD Construction\t\t\t\t</h2>\n\t\t\t\t\t\t</span>\n\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-9dd0424 elementor-widget elementor-widget-heading\" data-id=\"9dd0424\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"heading.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t<h2 class=\"elementor-heading-title elementor-size-default\">Building Exceptional Outdoor Spaces with Passion &amp; Precision</h2>\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-6e704db elementor-drop-cap-yes elementor-drop-cap-view-default elementor-widget elementor-widget-text-editor\" data-id=\"6e704db\" data-element_type=\"widget\" data-e-type=\"widget\" data-settings=\"{&quot;drop_cap&quot;:&quot;yes&quot;}\" data-widget_type=\"text-editor.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t\t<p data-start=\"148\" data-end=\"540\">At <strong>Land Development</strong><span style=\"color: #000000;\"><strong> Construction</strong></span>, we specialize in crafting stunning, functional outdoor spaces that enhance both residential and commercial properties. With expert craftsmanship and a commitment to excellence, we transform landscapes into breathtaking retreats. Whether it’s a custom backyard, a resort-style pool, or a large-scale commercial project, we bring your vision to life with precision and care.</p><p data-start=\"542\" data-end=\"780\">Our dedicated team works closely with you to ensure every detail reflects your style and needs. We use quality materials and sustainable methods to build outdoor spaces that last. Discover how we can turn your outdoor dreams into reality.</p>\t\t\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-69a605d elementor-widget elementor-widget-button\" data-id=\"69a605d\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"button.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t\t<div class=\"elementor-button-wrapper\">\n\t\t\t\t\t<a class=\"elementor-button elementor-button-link elementor-size-sm\" href=\"/about-us/\">\n\t\t\t\t\t\t<span class=\"elementor-button-content-wrapper\">\n\t\t\t\t\t\t\t\t\t<span class=\"elementor-button-text\">Learn More</span>\n\t\t\t\t\t</span>\n\t\t\t\t\t</a>\n\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t<div class=\"elementor-element elementor-element-8370646 e-con-full e-flex e-con e-child\" data-id=\"8370646\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t<div class=\"elementor-element elementor-element-cdc6d6a elementor-widget__width-initial elementor-widget elementor-widget-image\" data-id=\"cdc6d6a\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"image.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<img data-od-added-loading data-od-replaced-sizes=\"(max-width: 1462px) 100vw, 1462px\" data-od-xpath=\"/HTML/BODY/DIV[@class=&apos;elementor elementor-20&apos;]/*[2][self::DIV]/*[1][self::DIV]/*[2][self::DIV]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::IMG]\" loading=\"lazy\" decoding=\"async\" width=\"1462\" height=\"822\" src=\"https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space.webp\" class=\"attachment-full size-full wp-image-4450\" alt=\"SD Land Development – Excavation, Grading &amp; Land Development Services in San Diego\" srcset=\"https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space.webp 1462w, https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space-300x169.webp 300w, https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space-1024x576.webp 1024w, https://sdlanddevelopment.com/wp-content/uploads/2025/03/relaxing-outdoor-living-space-768x432.webp 768w\" sizes=\"auto, (max-width: 1462px) 100vw, 1462px\" />\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t<div class=\"elementor-element elementor-element-a6a0f36 e-flex e-con-boxed e-con e-parent\" data-id=\"a6a0f36\" data-element_type=\"container\" data-e-type=\"container\" id=\"services\" data-settings=\"{&quot;background_background&quot;:&quot;classic&quot;}\">\n\t\t\t\t\t<div class=\"e-con-inner\">\n\t\t<div class=\"elementor-element elementor-element-5724392 e-con-full e-flex e-con e-child\" data-id=\"5724392\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t<div class=\"elementor-element elementor-element-6cc1293 elementor-widget-divider--view-line_text elementor-widget-divider--element-align-center elementor-widget elementor-widget-divider\" data-id=\"6cc1293\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"divider.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t<div class=\"elementor-divider\">\n\t\t\t<span class=\"elementor-divider-separator\">\n\t\t\t\t\t\t\t<h6 class=\"elementor-divider__text elementor-divider__element\">\n\t\t\t\tOur Services\t\t\t\t</h6>\n\t\t\t\t\t\t</span>\n\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-b6e6111 elementor-widget elementor-widget-heading\" data-id=\"b6e6111\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"heading.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t<h2 class=\"elementor-heading-title elementor-size-default\">Expert Services for Every Outdoor Project</h2>\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-32b5d7d elementor-widget__width-initial elementor-widget elementor-widget-text-editor\" data-id=\"32b5d7d\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"text-editor.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t\t\t<p>We offer top-quality outdoor construction services for homes, hotels, golf courses, playgrounds, and commercial spaces—designed for lasting beauty, functionality, and durability.</p>\t\t\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t<div class=\"elementor-element elementor-element-96be4fb e-con-full e-flex e-con e-child\" data-id=\"96be4fb\" data-element_type=\"container\" data-e-type=\"container\">\n\t\t\t\t<div class=\"elementor-element elementor-element-2af7914 elementor-cta--valign-middle elementor-widget__width-initial elementor-cta--skin-classic elementor-animated-content elementor-bg-transform elementor-bg-transform-zoom-in elementor-widget elementor-widget-call-to-action\" data-id=\"2af7914\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"call-to-action.default\">\n\t\t\t\t<div class=\"elementor-widget-container\">\n\t\t\t\t\t\t\t<div class=\"elementor-cta\">\n\t\t\t\t\t<div class=\"elementor-cta__bg-wrapper\">\n\t\t\t\t<div data-od-replaced-class=\"elementor-cta__bg elementor-bg\" data-od-xpath=\"/HTML/BODY/DIV[@class=&apos;elementor elementor-20&apos;]/*[3][self::DIV]/*[1][self::DIV]/*[2][self::DIV]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::DIV]\" class=\"elementor-cta__bg elementor-bg od-lazy-bg-image\" style=\"background-image: url(https://sdlanddevelopment.com/wp-content/uploads/2025/03/Stone-Walkways.webp);\" role=\"img\" aria-label=\"SD Land Development – Excavation, Grading &amp; Land Development Services in San Diego\"></div>\n\t\t\t\t<div class=\"elementor-cta__bg-overlay\"></div>\n\t\t\t</div>\n\t\t\t\t\t\t\t<div class=\"elementor-cta__content\">\n\t\t\t\t\n\t\t\t\t\t\t\t\t\t<h3 class=\"elementor-cta__title elementor-cta__content-item elementor-content-item\">\n\t\t\t\t\t\tWalkways &amp; Rockscapes\t\t\t\t\t</h3>\n\t\t\t\t\n\t\t\t\t\t\t\t\t\t<div class=\"elementor-cta__description elementor-cta__content-item elementor-content-item\">\n\t\t\t\t\t\tEnhance your property with expertly crafted walkways and stunning rockscapes. We design and install natural, durable features that blend beauty with function.\t\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"elementor-element elementor-element-d7968eb elementor-cta--valign-middle elementor-widget__width-initial elementor-cta--skin-classic elementor-animated-content elementor-bg-transform elementor-bg-transform-zoom-in elementor-widget elementor-widget-call-to-action\" data-id=\"d7968eb\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"call-t"
+      },
+      "attribution": {
+        "name": null,
+        "source": null,
+        "link_url": null,
+        "placement": null,
+        "trace": [],
+        "found": false
+      }
+    },
+    "plugins": {
+      "target_url": "https://sdlanddevelopment.com",
+      "framework": "wordpress",
+      "unit": "plugin",
+      "mode": "observed_only",
+      "extension_count": 6,
+      "extensions": [
+        {
+          "name": "breeze",
+          "version": "2.5.3",
+          "source": "html",
+          "unit": "plugin"
+        },
+        {
+          "name": "elementor",
+          "version": "8.4.5",
+          "source": "html",
+          "unit": "plugin"
+        },
+        {
+          "name": "elementor-pro",
+          "version": "4.1.0",
+          "source": "html",
+          "unit": "plugin"
+        },
+        {
+          "name": "image-prioritizer",
+          "version": "1.0.0",
+          "source": "html",
+          "unit": "plugin"
+        },
+        {
+          "name": "portfolio-elementor",
+          "version": "3.2.2",
+          "source": "html",
+          "unit": "plugin"
+        },
+        {
+          "name": "ultimate-elementor",
+          "version": "1.44.3",
+          "source": "html",
+          "unit": "plugin"
+        }
+      ],
+      "signals": [],
+      "error": null,
+      "registry": "wporg",
+      "registry_label": "WordPress.org Plugin Directory",
+      "registry_home": "https://wordpress.org/plugins/",
+      "profile": "wordpress/extensions.yaml"
+    },
+    "extensions": {
+      "target_url": "https://sdlanddevelopment.com",
+      "framework": "wordpress",
+      "unit": "plugin",
+      "mode": "observed_only",
+      "extension_count": 6,
+      "extensions": [
+        {
+          "name": "breeze",
+          "version": "2.5.3",
+          "source": "html",
+          "unit": "plugin"
+        },
+        {
+          "name": "elementor",
+          "version": "8.4.5",
+          "source": "html",
+          "unit": "plugin"
+        },
+        {
+          "name": "elementor-pro",
+          "version": "4.1.0",
+          "source": "html",
+          "unit": "plugin"
+        },
+        {
+          "name": "image-prioritizer",
+          "version": "1.0.0",
+          "source": "html",
+          "unit": "plugin"
+        },
+        {
+          "name": "portfolio-elementor",
+          "version": "3.2.2",
+          "source": "html",
+          "unit": "plugin"
+        },
+        {
+          "name": "ultimate-elementor",
+          "version": "1.44.3",
+          "source": "html",
+          "unit": "plugin"
+        }
+      ],
+      "signals": [],
+      "error": null,
+      "registry": "wporg",
+      "registry_label": "WordPress.org Plugin Directory",
+      "registry_home": "https://wordpress.org/plugins/",
+      "profile": "wordpress/extensions.yaml"
+    },
+    "seo_surface": {
+      "checks_run": 5,
+      "canonical_count": 1,
+      "sitemap_url_count": 2
+    }
+  },
+  "reports": {
+    "html": "report.html",
+    "json": "audit_run.json"
+  }
+}

@@ -1,0 +1,28 @@
+{# Discoverability — SEO surface findings (INFO/VERIFY only, not scored) #}
+<section class="block inner-block discoverability-block" id="discoverability">
+  <h3 class="subsection-title">Discoverability</h3>
+  <p class="discovery-intro discoverability-intro">{{ discoverability_section.summary }}</p>
+
+  {% if discoverability_section.has_rows %}
+  <ul class="plain-list discoverability-list">
+    {% for row in discoverability_section.rows %}
+    <li class="discoverability-item discoverability-{{ row.tone }}">
+      <span class="badge discoverability-badge {{ row.tone }}">{{ row.class_label }}</span>
+      <span>
+        <strong>{{ row.item }}</strong>
+        {% if row.status %}<span class="discoverability-status">({{ row.status }})</span>{% endif %}
+        — {{ row.detail }}
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="meta-inline discoverability-ok">Homepage meta, canonical, and robots/sitemap checks look routine from this external scan.</p>
+  {% endif %}
+
+  {% if is_combined_report and discoverability_section.has_rows %}
+  <p class="meta-inline">
+    <button type="button" class="link-tab" data-owner-tab="technical">Full SEO surface table in technical details →</button>
+  </p>
+  {% endif %}
+</section>

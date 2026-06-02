@@ -18,6 +18,7 @@ from webaudit.collectors.tls_cert import (
     issuer_display_name,
     subject_common_name,
 )
+from webaudit.render.discoverability_display import build_discoverability_section
 from webaudit.render.dns_display import build_dns_cards, build_whois_card, format_net_tools
 from webaudit.render.extension_display import build_extension_section
 from webaudit.render.focus_pie import build_focus_pie_slices, focus_pie_conic_gradient
@@ -620,6 +621,8 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
     robots_section = build_robots_section(artifacts)
     attribution = _attribution_display(artifacts)
     focus_pie_slices = build_focus_pie_slices(run.scores, run.findings)
+    seo_findings = [f for f in run.findings if f.category == "SEO_SURFACE"]
+    discoverability_section = build_discoverability_section(seo_findings)
 
     return {
         "run": run,
@@ -642,7 +645,8 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
         "verify_findings": groups["verify"],
         "expected_findings": groups["expected"],
         "info_findings": groups["info"],
-        "seo_findings": [f for f in run.findings if f.category == "SEO_SURFACE"],
+        "seo_findings": seo_findings,
+        "discoverability_section": discoverability_section,
         "dns_cards": _dns_cards(artifacts),
         "dns_net_tools_note": _dns_net_tools_note(artifacts),
         "tls_rows": _tls_rows(artifacts),

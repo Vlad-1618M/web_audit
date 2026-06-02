@@ -8,10 +8,6 @@
   </div>
   <p class="meta">Framework: {{ framework }} ({{ framework_confidence }}) · Scanned {{ scanned_at }}</p>
 
-  <div class="verdict-pill">
-    {{ verdict_label }}{% if scores.exposure == 100 %} — no leaks detected{% endif %}
-  </div>
-
   <div class="verdict-banner {{ verdict_banner_class }}">
     <span class="verdict-icon" aria-hidden="true">{% if scores.verdict == 'PASS' %}✓{% elif scores.verdict == 'AT_RISK' %}✕{% else %}⚠{% endif %}</span>
     <div>
@@ -30,12 +26,12 @@
 
   <div class="score-strip compact-score-strip">
     <div class="score-cell h">
-      <div class="n">{{ scores.hygiene }}</div>
-      <div class="l">Hygiene</div>
+      <div class="n">{{ scores.hygiene }}<span class="score-scale">/100</span></div>
+      <div class="l">Hygiene score</div>
     </div>
     <div class="score-cell e">
-      <div class="n">{{ scores.exposure }}</div>
-      <div class="l">Exposure</div>
+      <div class="n">{{ scores.exposure }}<span class="score-scale">/100</span></div>
+      <div class="l">Leak protection{% if scores.exposure >= 100 %} · no leaks{% endif %}</div>
     </div>
     <div class="score-cell v">
       <div class="n">{{ scores.verdict.replace('_', ' ') }}</div>
@@ -99,9 +95,6 @@
 
   <section class="block inner-block muted-block">
     <h3 class="subsection-title">What this report is (and is not)</h3>
-    <p class="muted-text">
-      This is an external hygiene check — what anyone on the internet could see without logging in.
-      It is not a penetration test. Run it only on sites you own or have permission to test.
-    </p>
+    {% include "report_about_section.html" %}
   </section>
 </section>

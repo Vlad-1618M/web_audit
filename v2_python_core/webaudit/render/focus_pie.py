@@ -14,17 +14,23 @@ def build_focus_pie_slices(scores: Any, findings: list[Finding]) -> list[dict[st
         {
             "key": "hygiene",
             "label": "Hygiene",
-            "sublabel": "config & hardening",
+            "sublabel": "config & hardening · higher = better",
             "pct": 70,
             "display": str(scores.hygiene),
+            "display_suffix": "/100",
             "color": "#ffc14d",
         },
         {
             "key": "exposure",
-            "label": "Exposure",
-            "sublabel": "leaks & secrets",
+            "label": "Leak protection",
+            "sublabel": (
+                "no sensitive paths leaked · score /100"
+                if scores.exposure >= 100
+                else "leak protection · higher = safer"
+            ),
             "pct": 25,
             "display": str(scores.exposure),
+            "display_suffix": "/100",
             "color": "#39ff8c",
         },
         {

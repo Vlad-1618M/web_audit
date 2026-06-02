@@ -2,26 +2,30 @@
 {% from "site_link.html" import site_link %}
 
 <section class="block dashboard-block">
-  <div class="section-heading-row">
-    <h2>Security dashboard</h2>
-    <p class="url section-heading-url">{{ site_link(target_href, target_url) }}</p>
-  </div>
-  <div class="tag-row dashboard-tags">
-    <span class="tag c">{{ framework }}</span>
-    <span class="tag m">{{ scores.verdict.replace('_', ' ') }}</span>
-    {% if scores.exposure == 100 %}
-    <span class="tag g">No leaks</span>
-    {% endif %}
+  <div class="dashboard-header-row">
+    <div class="section-heading-row">
+      <h2>Security dashboard</h2>
+      <p class="url section-heading-url">{{ site_link(target_href, target_url) }}</p>
+    </div>
+    <div class="tag-row dashboard-tags">
+      <span class="tag c">{{ framework }}</span>
+      <span class="tag m">{{ scores.verdict.replace('_', ' ') }}</span>
+      {% if scores.exposure == 100 %}
+      <span class="tag g">No leaks</span>
+      {% endif %}
+    </div>
   </div>
 
   <div class="metrics-grid">
-    <div class="metric cyan">
-      <div class="val">{{ scores.hygiene }}</div>
-      <div class="lbl">Hygiene</div>
+    <div class="metric hygiene">
+      <div class="val">{{ scores.hygiene }}<span class="metric-scale">/100</span></div>
+      <div class="lbl">Hygiene score</div>
+      <div class="metric-hint">Higher = better hardened</div>
     </div>
-    <div class="metric lime">
-      <div class="val">{{ scores.exposure }}</div>
-      <div class="lbl">Exposure</div>
+    <div class="metric exposure">
+      <div class="val">{{ scores.exposure }}<span class="metric-scale">/100</span></div>
+      <div class="lbl">Leak protection</div>
+      <div class="metric-hint">{% if scores.exposure >= 100 %}No sensitive paths leaked{% else %}Higher = fewer public leaks{% endif %}</div>
     </div>
     <div class="metric gold">
       <div class="val">{{ probe_count }}</div>

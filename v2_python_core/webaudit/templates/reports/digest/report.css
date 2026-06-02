@@ -348,6 +348,7 @@ body > * { position: relative; z-index: 1; }
 .score-cell.h .n { color: var(--gold); text-shadow: 0 0 28px rgba(255, 193, 77, 0.45); }
 .score-cell.e .n { color: var(--lime); text-shadow: 0 0 28px rgba(57, 255, 140, 0.45); }
 .score-cell.v .n { font-size: 1rem; color: var(--magenta); padding-top: 0.75rem; }
+.score-scale { font-size: 1rem; font-weight: 600; color: var(--muted); margin-left: 0.1rem; }
 
 .score-cell .l {
   font-size: 0.7rem;

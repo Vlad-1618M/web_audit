@@ -5,7 +5,7 @@
       class="focus-pie-chart"
       style="background: {{ focus_pie_gradient }}"
       role="img"
-      aria-label="Scan focus: Hygiene {{ scores.hygiene }}, Exposure {{ scores.exposure }}, SEO surface informational"
+      aria-label="Scan focus: Hygiene {{ scores.hygiene }} of 100, Leak protection {{ scores.exposure }} of 100, SEO surface informational"
     ></div>
     <ul class="focus-pie-legend">
       {% for slice in focus_pie_slices %}
@@ -19,7 +19,7 @@
               {% if slice.key == 'seo' %}
               {{ slice.display }} {{ slice.display_suffix }}
               {% else %}
-              score {{ slice.display }}
+              score {{ slice.display }}{{ slice.display_suffix or '' }}
               {% endif %}
               <span class="focus-pct">({{ slice.pct }}%)</span>
             </span>
@@ -37,6 +37,6 @@
   </div>
 </div>
 <p class="meta-inline focus-pie-note">
-  Hygiene + Exposure drive the verdict. Chips mirror the technical report — open Technical details for evidence.
+  Hygiene + Leak protection scores are 0–100 (higher = safer). Chips mirror the technical report — open Technical details for evidence.
   · {{ pages_scanned }} page(s) scanned{% if cert_days is not none %} · {{ cert_days }}d cert{% endif %}
 </p>

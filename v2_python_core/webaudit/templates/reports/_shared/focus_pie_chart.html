@@ -33,7 +33,8 @@
 
   <div class="focus-status-block">
     <h4 class="focus-status-title">Finding status</h4>
-    {% include "metric_chips_row.html" with context %}
+    {% set metric_chips_link_mode = "tab" if is_combined_report else "anchor" %}
+    {% include "metric_chips_row.html" %}
   </div>
 </div>
 <p class="meta-inline focus-pie-note">

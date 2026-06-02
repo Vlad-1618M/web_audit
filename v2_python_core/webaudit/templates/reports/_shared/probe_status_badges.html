@@ -1,10 +1,18 @@
 {# HTTP code = standard colors; note + hint = security outcome #}
-{% macro probe_status_badges(row) %}
-<span class="probe-status-line">
+{% macro probe_status_inline(row) %}
+<span class="probe-status-line probe-status-inline">
   <span class="http-status {{ row.status_code_tone }}" title="HTTP status code (standard colors)">{{ row.status_code }}</span>
   <span class="probe-note {{ row.note_tone }}" title="{{ row.outcome_hint }}">{{ row.note_label }}</span>
 </span>
+{% endmacro %}
+
+{% macro probe_status_hint(row) %}
 <span class="probe-hint {{ row.outcome_tone }}">{{ row.outcome_hint }}</span>
+{% endmacro %}
+
+{% macro probe_status_badges(row) %}
+{{ probe_status_inline(row) }}
+{{ probe_status_hint(row) }}
 {% endmacro %}
 
 {% macro probe_status_legend() %}

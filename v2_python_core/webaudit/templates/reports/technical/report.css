@@ -323,23 +323,60 @@ body.sidebar-resizing {
 
 .chip .n { font-size: 1.75rem; font-weight: 700; }
 .chip .l { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
-.chip.hygiene .n { color: var(--gold); text-shadow: 0 0 20px rgba(255, 193, 77, 0.4); }
-.chip.exposure .n { color: var(--lime); text-shadow: 0 0 20px rgba(57, 255, 140, 0.4); }
+.chip.score-band.good .n { color: var(--lime); text-shadow: 0 0 20px rgba(57, 255, 140, 0.4); }
+.chip.score-band.fair .n { color: var(--gold); text-shadow: 0 0 20px rgba(255, 193, 77, 0.4); }
+.chip.score-band.poor .n { color: #ff9f6b; text-shadow: 0 0 20px rgba(255, 107, 53, 0.35); }
+.chip.score-band.critical .n { color: var(--coral); text-shadow: 0 0 20px rgba(255, 51, 85, 0.45); }
 .chip.verdict .n { font-size: 1rem; color: var(--magenta); }
 
 .metric-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(152px, 1fr));
   gap: 0.65rem;
   margin-top: 0.85rem;
+}
+
+#scores .metric-row {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 960px) {
+  #scores .metric-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .metric-chip {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 0.65rem 0.75rem;
+  padding: 0.65rem 0.85rem;
   text-align: center;
+  min-width: 0;
+}
+
+a.metric-chip-link,
+button.metric-chip-link {
+  display: block;
+  width: 100%;
+  font: inherit;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+a.metric-chip-link:hover,
+button.metric-chip-link:hover {
+  border-color: var(--border-bright);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+a.metric-chip-link:focus-visible,
+button.metric-chip-link:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
 }
 
 .metric-chip .metric-n {
@@ -352,8 +389,9 @@ body.sidebar-resizing {
   font-size: 0.68rem;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   margin-top: 0.2rem;
+  white-space: nowrap;
 }
 
 .metric-chip .metric-sub {
@@ -370,6 +408,21 @@ body.sidebar-resizing {
 .metric-chip.leak .metric-n { color: var(--coral); }
 .metric-chip.seo .metric-n { color: var(--cyan); }
 .metric-chip.plugins .metric-n { color: var(--magenta); }
+
+#findings-action,
+#findings-verify,
+#findings-expected,
+#findings-seo,
+#extensions {
+  scroll-margin-top: 1rem;
+}
+
+.extension-framework-heading {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin: -0.25rem 0 0.75rem;
+}
 
 .site-link, a.san-link {
   color: var(--cyan);
@@ -659,6 +712,34 @@ pre.evidence {
   padding: 1rem;
   min-width: 0;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.discovery-row-pair .discovery-panel .fold-panel {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.discovery-row-pair .fold-panel[open] .probe-legend,
+.discovery-row-pair .fold-panel[open] .meta-inline {
+  flex-shrink: 0;
+}
+
+.discovery-row-pair .fold-panel[open] .probe-link-list,
+.discovery-row-pair .fold-panel[open] .site-link-list {
+  flex: 1 1 auto;
+  min-height: 420px;
+  max-height: none;
+  overflow-y: auto;
+}
+
+.link-list.site-link-list,
+.link-list.probe-link-list {
+  max-height: 520px;
+  min-height: 420px;
 }
 
 .discovery-panel h3 {
@@ -764,6 +845,33 @@ section h3 .count {
   margin-top: 0.15rem;
 }
 
+.image-link-list li.image-link-item {
+  grid-template-rows: auto;
+  padding: 0.4rem 0;
+}
+
+.image-link-list .image-link-row {
+  grid-column: 2;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.image-link-list .image-link-row > a {
+  min-width: 0;
+}
+
+.image-link-list .image-page-meta {
+  justify-self: end;
+  text-align: right;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  margin-top: 0;
+}
+
 .status-badge {
   display: inline-block;
   font-size: 0.72rem;
@@ -866,8 +974,28 @@ details[open].fold-panel > summary .fold-chevron {
 
 details.fold-panel .link-list,
 details.fold-panel table,
-details.fold-panel .probe-legend {
+details.fold-panel .probe-legend,
+details.fold-panel .dns-summary,
+details.fold-panel .robots-parsed,
+details.fold-panel .robots-raw-panel {
   padding: 0 0.85rem 0.85rem;
+}
+
+details.fold-panel .dns-summary {
+  padding-bottom: 0.5rem;
+}
+
+details.fold-panel .robots-parsed {
+  margin-top: 0;
+}
+
+details.fold-panel .robots-raw-panel > summary {
+  padding: 0 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+details.fold-panel .robots-raw-panel .evidence {
+  margin: 0 0.85rem 0.85rem;
 }
 
 details summary {

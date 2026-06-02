@@ -1,25 +1,18 @@
 {# Full technical detail — findings, DNS, TLS, probes, extensions, inventory #}
 <section id="scores">
   <div class="score-row">
-    <div class="chip hygiene"><div class="l">Hygiene</div><div class="n">{{ scores.hygiene }}</div></div>
-    <div class="chip exposure"><div class="l">Exposure</div><div class="n">{{ scores.exposure }}</div></div>
+    <div class="chip score-band {{ hygiene_band }}"><div class="l">Hygiene</div><div class="n">{{ scores.hygiene }}</div></div>
+    <div class="chip score-band {{ exposure_band }}"><div class="l">Exposure</div><div class="n">{{ scores.exposure }}</div></div>
     <div class="chip verdict"><div class="l">Verdict</div><div class="n">{{ scores.verdict }}</div></div>
   </div>
-  <div class="metric-row">
-    {% for chip in metric_chips %}
-    <div class="metric-chip {{ chip.tone }}">
-      <div class="metric-n">{{ chip.count }}</div>
-      <div class="metric-l">{{ chip.label }}</div>
-      {% if chip.sub %}<div class="metric-sub">{{ chip.sub }}</div>{% endif %}
-    </div>
-    {% endfor %}
-  </div>
+  {% set metric_chips_link_mode = "anchor" %}
+  {% include "metric_chips_row.html" %}
 </section>
 
 {% include "cert_summary_section.html" %}
 
 <section id="findings">
-  <h2>Action findings ({{ action_findings|length }})</h2>
+  <h2 id="findings-action">Action findings ({{ action_findings|length }})</h2>
   {% if action_findings %}
   <table>
     <thead>
@@ -50,7 +43,7 @@
   {% endif %}
 
   {% if verify_findings %}
-  <h2 style="margin-top:1.5rem">Verify ({{ verify_findings|length }})</h2>
+  <h2 id="findings-verify" style="margin-top:1.5rem">Verify ({{ verify_findings|length }})</h2>
   <table>
     <thead>
       <tr><th>Category</th><th>Item</th><th>Status</th><th>Detail</th></tr>
@@ -61,6 +54,45 @@
         <td>{{ f.category }}</td>
         <td>{{ f.item }}</td>
         <td>{{ f.status }}</td>
+        <td>{{ f.detail }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if expected_findings %}
+  <h2 id="findings-expected" style="margin-top:1.5rem">Expected ({{ expected_findings|length }})</h2>
+  <table>
+    <thead>
+      <tr><th>Category</th><th>Item</th><th>Status</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      {% for f in expected_findings %}
+      <tr>
+        <td>{{ f.category }}</td>
+        <td>{{ f.item }}</td>
+        <td>{{ f.status }}</td>
+        <td>{{ f.detail }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if seo_findings %}
+  <h2 id="findings-seo" style="margin-top:1.5rem">SEO surface ({{ seo_findings|length }})</h2>
+  <table>
+    <thead>
+      <tr><th>Sev</th><th>Item</th><th>Status</th><th>Class</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      {% for f in seo_findings %}
+      <tr>
+        <td><span class="sev {{ f.severity.value }}">{{ f.severity.value }}</span></td>
+        <td>{{ f.item }}</td>
+        <td>{{ f.status }}</td>
+        <td><span class="class-tag">{{ f.class_.value }}</span></td>
         <td>{{ f.detail }}</td>
       </tr>
       {% endfor %}

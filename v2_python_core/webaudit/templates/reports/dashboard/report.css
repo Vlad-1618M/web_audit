@@ -388,15 +388,65 @@ body > * { position: relative; z-index: 1; }
 .ring .small { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; }
 
 .alert-strip {
-  margin-top: 1rem;
-  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin-top: auto;
+  padding: 0.55rem 0.75rem;
   border-radius: 8px;
-  border: 1px solid rgba(255, 51, 85, 0.4);
+  border: 1px solid rgba(255, 51, 85, 0.28);
   background: rgba(255, 51, 85, 0.08);
   color: #ffb3c0;
-  font-size: 0.88rem;
-  box-shadow: 0 0 20px rgba(255, 51, 85, 0.12);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  max-height: 9.5rem;
+  overflow-y: auto;
 }
+
+.category-health-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.category-health-bars {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.alert-strip-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-strip-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.alert-strip-links li {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.alert-strip-icon {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.alert-strip-hint {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.72rem;
+  color: rgba(255, 179, 192, 0.7);
+}
+
+.alert-sep { display: none; }
 
 .tag-row {
   display: flex;

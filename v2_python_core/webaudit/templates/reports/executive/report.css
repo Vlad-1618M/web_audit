@@ -350,6 +350,16 @@ header.hero {
   text-shadow: 0 0 24px rgba(57, 255, 140, 0.45);
 }
 
+.score-card.poor .value {
+  color: #ff9f6b;
+  text-shadow: 0 0 24px rgba(255, 107, 53, 0.35);
+}
+
+.score-card.critical .value {
+  color: var(--coral);
+  text-shadow: 0 0 24px rgba(255, 51, 85, 0.45);
+}
+
 section.block {
   background: var(--surface);
   border: 1px solid var(--border);

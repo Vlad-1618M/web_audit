@@ -1,5 +1,5 @@
 {# Site discovery — probes, site URLs, images #}
-{% from "probe_status_badges.html" import probe_status_badges, probe_status_legend %}
+{% from "probe_status_badges.html" import probe_status_legend, probe_status_inline, probe_status_hint %}
 
 <section id="discovery">
   <h2>Site discovery</h2>
@@ -21,12 +21,15 @@
             <span class="fold-hint">Click to fold or unfold</span>
           </summary>
           {{ probe_status_legend() }}
-          <ul class="link-list">
+          <ul class="link-list probe-link-list">
             {% for row in probe_urls[:250] %}
-            <li>
+            <li class="probe-link-item">
               <span class="pill probe">Probe</span>
-              <a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.url }}</a>
-              <span class="link-meta probe-meta">{{ probe_status_badges(row) }}</span>
+              <div class="probe-link-row">
+                <a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.url }}</a>
+                {{ probe_status_inline(row) }}
+              </div>
+              {{ probe_status_hint(row) }}
             </li>
             {% endfor %}
           </ul>
@@ -49,7 +52,7 @@
             <span class="fold-count">{{ site_url_count }}{% if site_url_catalogued > site_url_count %} / {{ site_url_catalogued }}{% endif %}</span>
             <span class="fold-hint">Click to fold or unfold</span>
           </summary>
-          <ul class="link-list">
+          <ul class="link-list site-link-list">
             {% for row in site_urls[:500] %}
             <li>
               <span class="pill site">Site</span>
@@ -81,12 +84,14 @@
             <span class="fold-count">{{ image_count }}{% if image_catalogued > image_count %} / {{ image_catalogued }}{% endif %}</span>
             <span class="fold-hint">Click to fold or unfold</span>
           </summary>
-          <ul class="link-list image-list">
+          <ul class="link-list image-link-list">
             {% for row in image_rows[:500] %}
-            <li>
+            <li class="image-link-item">
               <span class="pill kind">{{ row.kind }}</span>
-              <a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.url }}</a>
-              <span class="link-meta">page {{ row.source }}</span>
+              <div class="image-link-row">
+                <a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.url }}</a>
+                <span class="link-meta image-page-meta">page {{ row.source }}</span>
+              </div>
             </li>
             {% endfor %}
           </ul>

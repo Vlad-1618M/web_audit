@@ -1,7 +1,8 @@
 {# Framework extension / plugin version checks — all supported stacks #}
 {% if extension_section %}
 <section id="extensions">
-  <h2>{{ extension_section.framework_label }} {{ extension_section.unit_plural|title }} &amp; version check</h2>
+  <h2>Plugins / Extensions</h2>
+  <h3 class="extension-framework-heading">{{ extension_section.framework_label }} {{ extension_section.unit_plural|title }} &amp; version check</h3>
   <p class="discovery-intro">
     Profile <code>{{ extension_section.profile_name }}</code> —
     {% if extension_section.compare_enabled and extension_section.registry_label %}
@@ -59,7 +60,15 @@
     </table>
   </details>
   {% else %}
-  <p class="meta-inline">No {{ extension_section.unit_plural }} or version signals observed in public HTML/headers for this {{ extension_section.framework_label }} site.</p>
+  <div class="extension-empty-panel">
+    {% if extension_section.none_observed_detail %}
+    <p class="dns-summary neutral">{{ extension_section.none_observed_detail }}</p>
+    {% endif %}
+    {% if extension_section.frontend_note %}
+    <p class="meta-inline">{{ extension_section.frontend_note }}</p>
+    {% endif %}
+    <p class="meta-inline">No {{ extension_section.unit_plural }} or version signals observed in public HTML/headers for this {{ extension_section.framework_label }} site.</p>
+  </div>
   {% endif %}
 
   {% if extension_section.registry_home and extension_section.compare_enabled %}

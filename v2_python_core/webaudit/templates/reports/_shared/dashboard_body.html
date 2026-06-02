@@ -17,13 +17,13 @@
   </div>
 
   <div class="metrics-grid">
-    <div class="metric hygiene">
-      <div class="val">{{ scores.hygiene }}<span class="metric-scale">/100</span></div>
+    <div class="metric score-band {{ hygiene_band }}">
+      <div class="val">{{ scores.hygiene }}</div>
       <div class="lbl">Hygiene score</div>
       <div class="metric-hint">Higher = better hardened</div>
     </div>
-    <div class="metric exposure">
-      <div class="val">{{ scores.exposure }}<span class="metric-scale">/100</span></div>
+    <div class="metric score-band {{ exposure_band }}">
+      <div class="val">{{ scores.exposure }}</div>
       <div class="lbl">Leak protection</div>
       <div class="metric-hint">{% if scores.exposure >= 100 %}No sensitive paths leaked{% else %}Higher = fewer public leaks{% endif %}</div>
     </div>
@@ -38,34 +38,40 @@
   </div>
 
   <div class="panels dashboard-panels">
-    <div class="panel inner-panel">
+    <div class="panel inner-panel category-health-panel">
       <h3 class="subsection-title">Category health</h3>
-      {% for row in category_health %}
-      <div class="bar-row">
-        <span class="name">{{ row.name }}</span>
-        <div class="bar-track">
-          <div class="bar-fill {{ row.level }}" style="width: {{ row.width_pct }}%"></div>
+      <div class="category-health-bars">
+        {% for row in category_health %}
+        <div class="bar-row">
+          <span class="name">{{ row.name }}</span>
+          <div class="bar-track">
+            <div class="bar-fill {{ row.level }}" style="width: {{ row.width_pct }}%"></div>
+          </div>
         </div>
+        {% endfor %}
       </div>
-      {% endfor %}
       <div class="alert-strip{% if alert_strip_items and is_combined_report %} alert-strip-actionable{% endif %}">
         <span class="alert-strip-icon" aria-hidden="true">⚠</span>
-        <span class="alert-strip-body">
+        <div class="alert-strip-body">
           {% if alert_strip_items %}
+          <ul class="alert-strip-links">
             {% for item in alert_strip_items %}
+            <li>
               {% if is_combined_report %}
-              <button type="button" class="alert-link" data-owner-tab="technical" data-tech-anchor="{{ item.anchor }}" title="Open technical details">{{ item.label }}</button>{% if not loop.last %}<span class="alert-sep"> · </span>{% endif %}
+              <button type="button" class="alert-link" data-owner-tab="technical" data-tech-anchor="{{ item.anchor }}" title="Open technical details">{{ item.label }}</button>
               {% else %}
-              {{ item.label }}{% if not loop.last %} · {% endif %}
+              <span class="alert-link-text">{{ item.label }}</span>
               {% endif %}
+            </li>
             {% endfor %}
-            {% if is_combined_report %}
-            <span class="alert-strip-hint"> — click an item for technical details</span>
-            {% endif %}
-          {% else %}
-            No action items
+          </ul>
+          {% if is_combined_report %}
+          <span class="alert-strip-hint">Click any item for technical details</span>
           {% endif %}
-        </span>
+          {% else %}
+          <span class="alert-empty">No action items</span>
+          {% endif %}
+        </div>
       </div>
     </div>
 

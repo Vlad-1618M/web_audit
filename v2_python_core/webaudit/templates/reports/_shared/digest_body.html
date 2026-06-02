@@ -10,12 +10,12 @@
 </div>
 
 <div class="score-strip">
-  <div class="score-cell h">
-    <div class="n">{{ scores.hygiene }}<span class="score-scale">/100</span></div>
+  <div class="score-cell score-band {{ hygiene_band }}">
+    <div class="n">{{ scores.hygiene }}</div>
     <div class="l">Hygiene score</div>
   </div>
-  <div class="score-cell e">
-    <div class="n">{{ scores.exposure }}<span class="score-scale">/100</span></div>
+  <div class="score-cell score-band {{ exposure_band }}">
+    <div class="n">{{ scores.exposure }}</div>
     <div class="l">Leak protection{% if scores.exposure >= 100 %} · no leaks{% endif %}</div>
   </div>
   <div class="score-cell v">

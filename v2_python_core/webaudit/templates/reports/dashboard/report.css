@@ -264,12 +264,29 @@ body > * { position: relative; z-index: 1; }
 .metric.lime { --accent: var(--lime); }
 .metric.gold { --accent: var(--gold); }
 .metric.violet { --accent: var(--violet); }
+.metric.hygiene { --accent: var(--gold); }
+.metric.exposure { --accent: var(--lime); }
 
 .metric .val {
   font-size: 2rem;
   font-weight: 800;
   color: var(--accent);
   text-shadow: 0 0 24px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.metric-scale,
+.score-scale {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-left: 0.15rem;
+}
+
+.metric-hint {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+  line-height: 1.35;
 }
 
 .metric .lbl {
@@ -429,15 +446,36 @@ section.block h2 { font-size: 1.35rem; color: var(--cyan); margin-bottom: 0.5rem
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #b8beca;
+  color: #ffffff;
   margin: 0;
 }
 
 .section-heading-url { margin: 0; font-size: 0.9rem; line-height: 1.4; }
-.section-heading-url a { color: var(--cyan); word-break: break-all; }
+.section-heading-url a {
+  color: #6eb6ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+.section-heading-url a:hover { color: #9dccff; }
 .subsection-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cyan); margin: 0 0 0.75rem; }
 .inner-panel { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.15rem; }
-.dashboard-tags { margin: 0.35rem 0 1rem; }
+.dashboard-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.dashboard-header-row .section-heading-row { flex: 1 1 16rem; margin-bottom: 0; }
+.dashboard-tags { flex: 0 0 auto; margin: 0; justify-content: flex-end; }
+
+@media (max-width: 720px) {
+  .dashboard-header-row { align-items: flex-start; }
+  .dashboard-tags { width: 100%; justify-content: flex-start; }
+}
 
 .focus-pie-wrap { display: flex; flex-wrap: wrap; gap: 1.25rem; align-items: center; justify-content: center; }
 .focus-pie-chart { width: 180px; height: 180px; border-radius: 50%; border: 2px solid var(--border); }

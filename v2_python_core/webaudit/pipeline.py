@@ -26,7 +26,10 @@ from webaudit.analyzers.extensions import analyze_extensions
 from webaudit.analyzers.extension_compare import registry_for_framework, registry_meta
 from webaudit.analyzers.policy import analyze_policy
 from webaudit.analyzers.rate_limit import analyze_rate_limit
-from webaudit.analyzers.seo_surface import analyze_seo_surface
+from webaudit.analyzers.graphql import analyze_graphql
+from webaudit.analyzers.js import analyze_js_render
+from webaudit.analyzers.links import analyze_links
+from webaudit.analyzers.openapi import analyze_openapi
 from webaudit.analyzers.tls import analyze_tls
 from webaudit.collectors.extensions import collect_extensions
 from webaudit.collectors.artifacts import collect_artifacts
@@ -39,6 +42,10 @@ from webaudit.collectors.html import HtmlProbeResult, collect_html, parse_html_i
 from webaudit.collectors.paths import collect_paths
 from webaudit.collectors.rate_limit import collect_rate_limit
 from webaudit.collectors.tls import collect_tls
+from webaudit.analyzers.seo_surface import analyze_seo_surface
+from webaudit.collectors.api import collect_api_surface
+from webaudit.collectors.js import collect_js_render
+from webaudit.collectors.links import collect_link_probes
 from webaudit.config.settings import Settings
 from webaudit.models.finding import Finding
 from webaudit.cli.scan_progress import STEP_LABELS, step_enabled
@@ -444,12 +451,78 @@ def _step_seo_surface(
     return findings, {"seo_surface": summary}
 
 
+def _step_js(
+    settings: Settings,
+    result: PipelineResult,
+) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    js_settings = settings.collectors.js
+    if not js_settings.enabled:
+        return [], {}
+
+    html_artifact = result.artifacts.get("inventory", {}).get("html", {})
+    inv = html_artifact.get("inventory") or {}
+    static_links = int(inv.get("link_count") or 0)
+
+    probe = collect_js_render(
+        settings.target.url,
+        wait_seconds=js_settings.wait_seconds,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+        browser=js_settings.browser,
+    )
+    findings = analyze_js_render(probe, js_settings, static_link_count=static_links)
+    artifact = probe.to_artifact()
+    if probe.rendered_html:
+        artifact["rendered_html"] = probe.rendered_html[:50_000]
+    return findings, {"inventory": {"js": artifact}}
+
+
+def _step_api(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    api_settings = settings.collectors.api
+    if not api_settings.enabled:
+        return [], {}
+
+    probe = collect_api_surface(
+        settings.target.url,
+        settings=api_settings,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+    )
+    findings = analyze_graphql(probe, api_settings) + analyze_openapi(probe, api_settings)
+    return findings, {"inventory": {"api": probe.to_artifact()}}
+
+
+def _step_links(
+    settings: Settings,
+    result: PipelineResult,
+) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    seo_settings = settings.collectors.seo_surface
+    if not seo_settings.enabled or not seo_settings.check_broken_links:
+        return [], {}
+
+    html_artifact = result.artifacts.get("inventory", {}).get("html", {})
+    inv = html_artifact.get("inventory") or {}
+    site_links = inv.get("site_links") or []
+
+    probe = collect_link_probes(
+        settings.target.url,
+        site_links,
+        max_sample=seo_settings.broken_link_sample_max,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+    )
+    findings = analyze_links(probe, seo_settings)
+    return findings, {"inventory": {"links": probe.to_artifact()}}
+
+
 # Stage 2+: register new steps here in planned order (see docs/implementation_tracker.md)
 _CONTEXT_STEPS = frozenset({
     "_step_policy",
     "_step_artifacts",
     "_step_framework",
     "_step_html",
+    "_step_js",
+    "_step_links",
     "_step_extensions",
     "_step_seo_surface",
 })
@@ -465,6 +538,9 @@ _PIPELINE: tuple[Callable[..., tuple[list[Finding], dict[str, dict[str, Any]]]],
     _step_artifacts,
     _step_cors,
     _step_html,
+    _step_js,
+    _step_links,
+    _step_api,
     _step_extensions,
     _step_seo_surface,
 )

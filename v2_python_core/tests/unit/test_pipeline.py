@@ -18,6 +18,9 @@ def _disable_network_heavy_collectors(settings: Settings) -> None:
     settings.collectors.cors.enabled = False
     settings.collectors.framework.enabled = False
     settings.collectors.html.enabled = False
+    settings.collectors.js.enabled = False
+    settings.collectors.api.enabled = False
+    settings.collectors.seo_surface.check_broken_links = False
 
 
 def _txt_answer(*strings: str) -> MagicMock:

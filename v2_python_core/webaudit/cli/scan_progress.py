@@ -24,6 +24,9 @@ STEP_LABELS: dict[str, tuple[str, str]] = {
     "_step_artifacts": ("artifacts", "robots.txt, security.txt, sitemap"),
     "_step_cors": ("cors", "CORS reflection probes"),
     "_step_html": ("html", "DOM inventory and mixed content"),
+    "_step_js": ("js", "Playwright JS render pass"),
+    "_step_links": ("links", "Broken internal link sample"),
+    "_step_api": ("api", "GraphQL / OpenAPI discovery"),
     "_step_extensions": ("extensions", "Framework extensions / packages"),
     "_step_seo_surface": ("seo_surface", "Discoverability (INFO only)"),
 }
@@ -69,6 +72,15 @@ def step_enabled(step_name: str, settings: Settings) -> bool:
             return settings.collectors.cors.enabled
         case "_step_html":
             return settings.collectors.html.enabled
+        case "_step_js":
+            return settings.collectors.js.enabled
+        case "_step_links":
+            return (
+                settings.collectors.seo_surface.enabled
+                and settings.collectors.seo_surface.check_broken_links
+            )
+        case "_step_api":
+            return settings.collectors.api.enabled
         case "_step_extensions":
             return settings.collectors.extensions.enabled
         case "_step_seo_surface":
@@ -234,6 +246,36 @@ def summarize_step(
         summary = (
             f"{art.get('pages_scanned', 0)} page(s) · "
             f"{inv.get('link_count', 0)} links · {note.replace('[yellow]', '').replace('[/yellow]', '')}"
+        )
+
+    elif step_name == "_step_js":
+        art = artifact_parts.get("inventory", {}).get("js", {})
+        if art.get("skipped"):
+            summary = f"skipped · {note.replace('[yellow]', '').replace('[/yellow]', '')}"
+        elif art.get("error"):
+            summary = f"error · {note.replace('[yellow]', '').replace('[/yellow]', '')}"
+        else:
+            summary = (
+                f"{art.get('link_count', 0)} rendered link(s) · "
+                f"{note.replace('[yellow]', '').replace('[/yellow]', '')}"
+            )
+
+    elif step_name == "_step_links":
+        art = artifact_parts.get("inventory", {}).get("links", {})
+        broken = art.get("broken_count", 0)
+        sampled = art.get("sampled", 0)
+        summary = (
+            f"{sampled} sampled · {broken} broken · "
+            f"{note.replace('[yellow]', '').replace('[/yellow]', '')}"
+        )
+
+    elif step_name == "_step_api":
+        art = artifact_parts.get("inventory", {}).get("api", {})
+        gql = sum(1 for p in (art.get("graphql") or []) if p.get("introspection_enabled"))
+        oas = sum(1 for p in (art.get("openapi") or []) if p.get("openapi_detected"))
+        summary = (
+            f"GraphQL introspection {gql} · OpenAPI {oas} · "
+            f"{note.replace('[yellow]', '').replace('[/yellow]', '')}"
         )
 
     elif step_name == "_step_extensions":

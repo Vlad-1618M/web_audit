@@ -32,6 +32,12 @@ def test_step_enabled_paths():
     settings.paths.enabled = False
     assert step_enabled("_step_paths", settings) is False
     assert step_enabled("_step_headers", settings) is True
+    assert step_enabled("_step_js", settings) is False
+    settings.collectors.js.enabled = True
+    assert step_enabled("_step_js", settings) is True
+    assert step_enabled("_step_links", settings) is False
+    settings.collectors.seo_surface.check_broken_links = True
+    assert step_enabled("_step_links", settings) is True
 
 
 def test_summarize_headers_step():

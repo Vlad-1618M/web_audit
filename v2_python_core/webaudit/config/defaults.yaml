@@ -93,6 +93,26 @@ collectors:
     check_robots_blocks: true
     check_sitemap: true
     sitemap_empty_threshold: 1
+    check_broken_links: false
+    broken_link_sample_max: 20
+  js:
+    enabled: false
+    wait_seconds: 3
+    browser: chromium
+  api:
+    enabled: false
+    graphql_probe: true
+    graphql_paths:
+      - "/graphql"
+      - "/api/graphql"
+      - "/v1/graphql"
+    openapi_paths:
+      - "/openapi.json"
+      - "/swagger.json"
+      - "/api/docs"
+      - "/swagger"
+      - "/swagger-ui/"
+      - "/redoc/"
 
 scoring:
   hygiene_weights:

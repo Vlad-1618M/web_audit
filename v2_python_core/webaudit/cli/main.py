@@ -74,6 +74,20 @@ def scan(
         bool,
         typer.Option("-q", "--quiet", help="Minimal output (summary only)"),
     ] = False,
+    js_pass: Annotated[
+        bool,
+        typer.Option(
+            "--js",
+            help="Run Playwright JS render pass (requires pip install 'webaudit[js]')",
+        ),
+    ] = False,
+    api_probe: Annotated[
+        bool,
+        typer.Option(
+            "--api",
+            help="Probe GraphQL introspection and OpenAPI/Swagger paths",
+        ),
+    ] = False,
 ) -> None:
     """Run a hygiene scan against a public URL."""
     try:
@@ -84,6 +98,10 @@ def scan(
         )
         if output:
             settings.output.directory = str(output)
+        if js_pass:
+            settings.collectors.js.enabled = True
+        if api_probe:
+            settings.collectors.api.enabled = True
     except (ValueError, OSError) as exc:
         console.print(f"[red]Config error:[/red] {exc}")
         raise typer.Exit(code=2) from exc

@@ -43,13 +43,13 @@
   <div class="timeline">
     {% for item in digest_timeline %}
     <div class="t-item {{ item.tone }}">
-      <div class="cat">{{ item.category }}</div>
+      {% include "timeline_cat.html" %}
       <h4>{{ item.title }}</h4>
       <p>{{ item.detail }}</p>
     </div>
     {% else %}
     <div class="t-item ok">
-      <div class="cat">Summary</div>
+      <div class="cat"><span class="cat-name">Summary</span></div>
       <h4>No urgent issues</h4>
       <p>This external scan did not surface scored action items.</p>
     </div>
@@ -83,13 +83,15 @@
     <div class="callout">
       <strong>For your developer:</strong> Address the Fix items above.
       {% if is_combined_report %}
-      <button type="button" class="link-tab" data-owner-tab="technical">Open full technical details →</button>
+      <button type="button" class="btn-inline-nav" data-owner-tab="technical">Open full technical details</button>
       {% else %}
       Full technical detail is in the technical report variant or <code>audit_run.json</code> in the same folder.
       {% endif %}
     </div>
     {% endif %}
   </section>
+
+  {% include "discoverability_section.html" %}
 
   {% include "discovery_section.html" %}
 

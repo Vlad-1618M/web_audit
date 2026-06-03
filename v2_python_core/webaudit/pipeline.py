@@ -26,7 +26,10 @@ from webaudit.analyzers.extensions import analyze_extensions
 from webaudit.analyzers.extension_compare import registry_for_framework, registry_meta
 from webaudit.analyzers.policy import analyze_policy
 from webaudit.analyzers.rate_limit import analyze_rate_limit
-from webaudit.analyzers.seo_surface import analyze_seo_surface
+from webaudit.analyzers.graphql import analyze_graphql
+from webaudit.analyzers.js import analyze_js_render
+from webaudit.analyzers.links import analyze_links
+from webaudit.analyzers.openapi import analyze_openapi
 from webaudit.analyzers.tls import analyze_tls
 from webaudit.collectors.extensions import collect_extensions
 from webaudit.collectors.artifacts import collect_artifacts
@@ -39,6 +42,10 @@ from webaudit.collectors.html import HtmlProbeResult, collect_html, parse_html_i
 from webaudit.collectors.paths import collect_paths
 from webaudit.collectors.rate_limit import collect_rate_limit
 from webaudit.collectors.tls import collect_tls
+from webaudit.analyzers.seo_surface import analyze_seo_surface
+from webaudit.collectors.api import collect_api_surface
+from webaudit.collectors.js import collect_js_render
+from webaudit.collectors.links import collect_link_probes
 from webaudit.config.settings import Settings
 from webaudit.models.finding import Finding
 from webaudit.cli.scan_progress import STEP_LABELS, step_enabled
@@ -65,6 +72,27 @@ def _apply_detected_framework(settings: Settings, effective: str) -> None:
         return
     if effective in {"django", "wordpress", "laravel", "rails", "php"}:
         settings.target.framework = effective  # type: ignore[assignment]
+
+
+_EXTENSION_FRAMEWORKS = frozenset({"wordpress", "django", "laravel", "rails", "php"})
+
+
+def _framework_hint_from_robots_raw(robots_raw: str) -> str | None:
+    text = robots_raw.lower()
+    if any(token in text for token in ("wp-admin", "wp-content", "wp-includes")):
+        return "wordpress"
+    return None
+
+
+def _framework_hint_from_robots(result: PipelineResult) -> str | None:
+    robots_raw = (
+        result.artifacts.get("inventory", {})
+        .get("artifacts", {})
+        .get("robots", {})
+        .get("raw", "")
+        or ""
+    )
+    return _framework_hint_from_robots_raw(robots_raw)
 
 
 def _step_framework(
@@ -197,7 +225,22 @@ def _step_artifacts(
     paths_data = result.artifacts.get("inventory", {}).get("paths", {})
     open_paths = paths_data.get("paths", [])
     findings = analyze_artifacts(probe, settings.collectors.artifacts, open_paths=open_paths)
-    return findings, {"inventory": {"artifacts": probe.to_artifact()}}
+    artifact = probe.to_artifact()
+    inventory_update: dict[str, Any] = {"artifacts": artifact}
+    if settings.target.framework not in _EXTENSION_FRAMEWORKS:
+        hinted = _framework_hint_from_robots_raw((artifact.get("robots") or {}).get("raw") or "")
+        if hinted:
+            _apply_detected_framework(settings, hinted)
+            fw = result.artifacts.get("inventory", {}).get("framework", {})
+            if str(fw.get("effective_framework") or "unknown") in {"unknown", "auto", ""}:
+                inventory_update["framework"] = {
+                    **fw,
+                    "detected": hinted,
+                    "effective_framework": hinted,
+                    "confidence": "low",
+                    "signals": "robots.txt",
+                }
+    return findings, {"inventory": inventory_update}
 
 
 def _step_cors(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
@@ -223,6 +266,7 @@ def _step_html(
 
     from webaudit.collectors.site_discovery import enrich_site_inventory
     from webaudit.collectors.sitemap import collect_sitemap_urls
+    from webaudit.collectors.bot_challenge import is_bot_challenge
 
     html_settings = settings.collectors.html
     framework_artifact = result.artifacts.get("inventory", {}).get("framework", {})
@@ -240,15 +284,17 @@ def _step_html(
             body=framework_body,
             pages_scanned=1,
         )
-        probe.inventory = parse_html_inventory(
-            framework_body,
-            target_url=settings.target.url,
-            check_mixed_content=html_settings.check_mixed_content,
-            check_forms=html_settings.check_forms,
-            max_internal_links=html_settings.max_internal_links_sample,
-            max_site_links=html_settings.max_site_links,
-            max_images=html_settings.max_images,
-        )
+        probe.bot_challenge = is_bot_challenge(framework_body)
+        if not probe.bot_challenge:
+            probe.inventory = parse_html_inventory(
+                framework_body,
+                target_url=settings.target.url,
+                check_mixed_content=html_settings.check_mixed_content,
+                check_forms=html_settings.check_forms,
+                max_internal_links=html_settings.max_internal_links_sample,
+                max_site_links=html_settings.max_site_links,
+                max_images=html_settings.max_images,
+            )
     else:
         body = framework_body if framework_body and not html_settings.prefer_full_homepage_fetch else ""
         probe = collect_html(
@@ -285,7 +331,7 @@ def _step_html(
             max_sitemap_bytes=settings.collectors.artifacts.max_sitemap_bytes,
         )
 
-    pages_sampled, sitemap_count = enrich_site_inventory(
+    pages_sampled, sitemap_count, homepage_body = enrich_site_inventory(
         probe.inventory,
         target_url=settings.target.url,
         sitemap_urls=sitemap_urls,
@@ -298,6 +344,21 @@ def _step_html(
         check_mixed_content=html_settings.check_mixed_content,
         check_forms=html_settings.check_forms,
     )
+    if homepage_body and len(homepage_body) > len(probe.body or ""):
+        probe.body = homepage_body
+        probe.bot_challenge = False
+        if probe.inventory.link_count == 0:
+            probe.inventory = parse_html_inventory(
+                homepage_body,
+                target_url=settings.target.url,
+                check_mixed_content=html_settings.check_mixed_content,
+                check_forms=html_settings.check_forms,
+                max_internal_links=html_settings.max_internal_links_sample,
+                max_site_links=html_settings.max_site_links,
+                max_images=html_settings.max_images,
+            )
+    elif probe.body and is_bot_challenge(probe.body, status_code=probe.http_status):
+        probe.bot_challenge = not probe.inventory.site_links and probe.inventory.link_count == 0
     probe.inventory.pages_sampled = max(probe.pages_scanned, pages_sampled)
     probe.inventory.sitemap_urls_parsed = sitemap_count
     probe.pages_scanned = probe.inventory.pages_sampled
@@ -318,9 +379,6 @@ def _step_html(
     }
 
 
-_EXTENSION_FRAMEWORKS = frozenset({"wordpress", "django", "laravel", "rails", "php"})
-
-
 def _step_extensions(
     settings: Settings,
     result: PipelineResult,
@@ -330,7 +388,12 @@ def _step_extensions(
 
     framework = settings.target.framework
     if framework not in _EXTENSION_FRAMEWORKS:
-        return [], {}
+        hinted = _framework_hint_from_robots(result)
+        if hinted:
+            framework = hinted
+            _apply_detected_framework(settings, hinted)
+        else:
+            return [], {}
 
     profile = load_framework_profile(framework)
     if profile is None:
@@ -388,12 +451,78 @@ def _step_seo_surface(
     return findings, {"seo_surface": summary}
 
 
+def _step_js(
+    settings: Settings,
+    result: PipelineResult,
+) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    js_settings = settings.collectors.js
+    if not js_settings.enabled:
+        return [], {}
+
+    html_artifact = result.artifacts.get("inventory", {}).get("html", {})
+    inv = html_artifact.get("inventory") or {}
+    static_links = int(inv.get("link_count") or 0)
+
+    probe = collect_js_render(
+        settings.target.url,
+        wait_seconds=js_settings.wait_seconds,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+        browser=js_settings.browser,
+    )
+    findings = analyze_js_render(probe, js_settings, static_link_count=static_links)
+    artifact = probe.to_artifact()
+    if probe.rendered_html:
+        artifact["rendered_html"] = probe.rendered_html[:50_000]
+    return findings, {"inventory": {"js": artifact}}
+
+
+def _step_api(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    api_settings = settings.collectors.api
+    if not api_settings.enabled:
+        return [], {}
+
+    probe = collect_api_surface(
+        settings.target.url,
+        settings=api_settings,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+    )
+    findings = analyze_graphql(probe, api_settings) + analyze_openapi(probe, api_settings)
+    return findings, {"inventory": {"api": probe.to_artifact()}}
+
+
+def _step_links(
+    settings: Settings,
+    result: PipelineResult,
+) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    seo_settings = settings.collectors.seo_surface
+    if not seo_settings.enabled or not seo_settings.check_broken_links:
+        return [], {}
+
+    html_artifact = result.artifacts.get("inventory", {}).get("html", {})
+    inv = html_artifact.get("inventory") or {}
+    site_links = inv.get("site_links") or []
+
+    probe = collect_link_probes(
+        settings.target.url,
+        site_links,
+        max_sample=seo_settings.broken_link_sample_max,
+        user_agent=settings.runtime.user_agent,
+        timeout_seconds=settings.runtime.timeout_seconds,
+    )
+    findings = analyze_links(probe, seo_settings)
+    return findings, {"inventory": {"links": probe.to_artifact()}}
+
+
 # Stage 2+: register new steps here in planned order (see docs/implementation_tracker.md)
 _CONTEXT_STEPS = frozenset({
     "_step_policy",
     "_step_artifacts",
     "_step_framework",
     "_step_html",
+    "_step_js",
+    "_step_links",
     "_step_extensions",
     "_step_seo_surface",
 })
@@ -409,6 +538,9 @@ _PIPELINE: tuple[Callable[..., tuple[list[Finding], dict[str, dict[str, Any]]]],
     _step_artifacts,
     _step_cors,
     _step_html,
+    _step_js,
+    _step_links,
+    _step_api,
     _step_extensions,
     _step_seo_surface,
 )

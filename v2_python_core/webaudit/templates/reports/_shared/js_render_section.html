@@ -1,0 +1,52 @@
+{# JavaScript render — technical tab widget (friendly errors; raw detail in audit_run.json) #}
+{% if js_section %}
+<section id="js-render" class="js-render-section">
+  <h2>JavaScript render</h2>
+  <p class="discovery-intro">
+    Optional Playwright pass (<code>--js</code>) loads the homepage in a headless browser after JavaScript runs.
+    Use it when static HTML under-reports links on SPAs.
+  </p>
+
+  <div class="discovery-panel js-render-panel">
+    <div class="js-render-panel-head">
+      <h3 class="subsection-title">Playwright pass</h3>
+      {% if js_section.browser %}
+      <span class="js-render-badge">{{ js_section.browser }}</span>
+      {% endif %}
+      <span class="js-render-status-pill js-render-status-{{ js_section.status }}">{{ js_section.status_label }}</span>
+    </div>
+
+    <p class="dns-summary js-render-summary {{ js_section.tone }}">
+      <strong>{{ js_section.headline }}.</strong> {{ js_section.summary }}
+    </p>
+
+    {% if js_section.stats %}
+    <div class="js-render-stats" role="list">
+      {% for stat in js_section.stats %}
+      <div class="js-render-stat js-render-stat-{{ stat.tone | default('neutral') }}" role="listitem">
+        <div class="js-render-stat-val">{{ stat.value }}</div>
+        <div class="js-render-stat-lbl">{{ stat.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if js_section.fix_steps %}
+    <div class="js-render-fix">
+      <p class="meta-inline js-render-fix-title">
+        {% if js_section.status == 'not_used' %}To enable on this target:{% else %}Fix on the machine that ran the scan:{% endif %}
+      </p>
+      <ol class="js-fix-steps">
+        {% for step in js_section.fix_steps %}
+        <li><code>{{ step }}</code></li>
+        {% endfor %}
+      </ol>
+    </div>
+    {% endif %}
+
+    {% if js_section.spa_signal %}
+    <p class="meta-inline js-spa-hint">Client-rendered link signal recorded — see <a href="#findings-verify">Verify findings</a>.</p>
+    {% endif %}
+  </div>
+</section>
+{% endif %}

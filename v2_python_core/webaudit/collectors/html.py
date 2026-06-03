@@ -57,6 +57,8 @@ class HtmlProbeResult:
     pages_scanned: int = 0
     inventory: HtmlInventory = field(default_factory=HtmlInventory)
     error: str | None = None
+    bot_challenge: bool = False
+    http_status: int | None = None
 
     def to_artifact(self) -> dict[str, Any]:
         return {
@@ -65,6 +67,8 @@ class HtmlProbeResult:
             "body_length": len(self.body),
             "inventory": self.inventory.to_dict(),
             "error": self.error,
+            "bot_challenge": self.bot_challenge,
+            "http_status": self.http_status,
         }
 
 
@@ -291,15 +295,19 @@ def collect_html(
     """Fetch homepage HTML when framework collector did not already provide a body."""
     import httpx
 
+    from webaudit.collectors.bot_challenge import is_bot_challenge
+
     if body:
         result = HtmlProbeResult(target_url=target_url, body=body, pages_scanned=1)
-        result.inventory = parse_html_inventory(
-            body,
-            target_url=target_url,
-            max_internal_links=max_internal_links,
-            max_site_links=max_site_links,
-            max_images=max_images,
-        )
+        result.bot_challenge = is_bot_challenge(body)
+        if not result.bot_challenge:
+            result.inventory = parse_html_inventory(
+                body,
+                target_url=target_url,
+                max_internal_links=max_internal_links,
+                max_site_links=max_site_links,
+                max_images=max_images,
+            )
         return result
 
     own_client = client is None
@@ -309,8 +317,14 @@ def collect_html(
     try:
         response = client.get(target_url, headers={"User-Agent": user_agent})
         body = response.text[:max_body_bytes]
-        result = HtmlProbeResult(target_url=target_url, body=body, pages_scanned=1 if body else 0)
-        if body:
+        result = HtmlProbeResult(
+            target_url=target_url,
+            body=body,
+            pages_scanned=1 if body else 0,
+            http_status=response.status_code,
+        )
+        result.bot_challenge = is_bot_challenge(body, status_code=response.status_code)
+        if body and not result.bot_challenge:
             result.inventory = parse_html_inventory(
                 body,
                 target_url=target_url,

@@ -8,15 +8,58 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ## [Unreleased]
 
+### Deferred (Stage 6 / Tier 3)
+
+- Plugin CVE cache / WPScan (`analyzers.plugin_vuln`)
+- httpx cassette integration tests (pytest-httpx / vcrpy) for Tier 2 collectors
+
+---
+
+## [2.1.0b2] — 2026-06-03
+
+**Stage 5 beta complete** — Tier 2 depth (Playwright JS, API probes, broken links), report UX polish, bot protection.
+
+### Added
+
+- **Finding table colors** — Verify/Expected/Action status tones; TLS certificate/hostname row colors; dashboard alert strip by severity (`render/finding_display.py`)
+- **Bot protection detection** — SiteGround/captcha interstitials (HTTP 202, `sgcaptcha`); HTML VERIFY when homepage blocked; WordPress hint from `robots.txt` when framework fingerprint fails (`collectors/bot_challenge.py`)
+- **Dynamic focus pie** — dashboard Scan focus chart slice sizes from live hygiene, exposure, and SEO finding weights (not fixed 70/25/5)
+- **Priority timeline colors** — category stays violet; severity/status label matches timeline bullet tone
+- **Playwright JS pass** — `collectors/js.py` + `--js` CLI flag (optional `webaudit[js]` extra); technical report section + inventory rows; Playwright errors normalized (no raw paths in HTML — full detail in `audit_run.json`)
+- **JS discovery panel** — success stats grid in owner report when Playwright completes; friendly install hints (`error_code`, `fix_steps`) when browsers missing (`render/js_display.py`)
+- **GraphQL / OpenAPI probes** — `collectors/api.py` + analyzers; `--api` CLI flag; introspection and Swagger/OpenAPI exposure as VERIFY findings
+- **Broken link sampler** — `collectors/links.py` + `analyzers/links.py`; enable via `collectors.seo_surface.check_broken_links`
+- **Owner report navigation** — action bar (Print + Executive/Technical tabs); sidebar back button and scan-target label
+
+### Fixed
+
+- **Site discovery enrich** — HTTP client created when only homepage needs fetch (fixes crash on no-sitemap sites)
+- **Site discovery scroll** — paired probe/site URL fold panels restore max-height scroll (was expanding to full list height)
+- **Metric chip labels** — long labels (e.g. Sensitive leaks) wrap inside chip instead of overflowing
+- **Watchlist tier badge** — `critical` watchlist tier uses light blue (not error red) when plugin status is CURRENT
+- **Focus pie template** — pre-render chart markup in Python; legend swatches use CSS classes (IDE/linter clean)
+- **Extensions step gate** — plugins step runs when framework inferred from `robots.txt` after WAF block
+
+### Changed
+
+- **Verbose scan (`-v`)** — lists every probed path in progress output
+
+---
+
+## [2.1.0b1] — 2026-06-03
+
+**Stage 5 beta** — Tier 2b extensions, DNS enrichment, SEO surface, owner report, baseline diff, and v1 parity polish.
+
 ### Added (Stage 5 — Tier 2b / 2c / baseline diff + report polish)
 
-- **Owner combined report** — default `owner` variant: framed **Security dashboard** + unified **Executive summary** (digest timeline merged in); **focus pie chart** (Hygiene/Exposure/SEO) replaces score rings; Technical tab with draggable sidebar
+- **Owner combined report** — default `owner` variant: framed **Security dashboard** + unified **Executive summary** (digest timeline merged in); **Scan focus pie** (hygiene/exposure/SEO); Technical tab with draggable sidebar
 - **Fold panels** — probe URLs, site URLs, images, and path probes **unfolded by default**; clearer chevron toggle bars (“Click to fold or unfold”)
 - **Shared report partials** — `digest_body`, `executive_body`, `technical_main` reused by standalone variants
 - **DNS enrichment** — A, MX, NS records via dnspython; **ASN** via Team Cymru DNS (`collectors/asn.py`); optional host **`whois`** when binary present (`collectors/net_tools.py`); host tool detection stored in artifact + report footer note
 - **DNS report cards** — plain-English summaries for SPF/DMARC/CAA/A/AAAA/MX/NS/ASN/DNSSEC + optional WHOIS registration card (`render/dns_display.py`)
 - **Site discovery** — full homepage fetch, sitemap index expansion, multi-page link sampling (`collectors/sitemap.py`, `site_discovery.py`); favicon/og/twitter/lazy-load image collection
 - **Report UX** — HTTP status convention colors vs semantic outcome (`render/probe_status.py`); metric chips row; parsed robots.txt section; extensions section with registry links (all frameworks); designer attribution card; muzar.io footer; clickable target URLs; path probes legend/collapse fixes
+- **Executive Discoverability block** — owner/executive summary shows `SEO_SURFACE` findings (INFO/VERIFY) in plain language; does not affect scores
 - **Framework profiles** — `webaudit/profiles/{wordpress,django,laravel,rails,generic}/extensions.yaml` + `profiles/loader.py`
 - **Unified extensions pipeline** — `collectors/extensions/` dispatches by framework:
   - **WordPress** — HTML asset slugs + readme.txt + wp.org compare (plugins)
@@ -38,6 +81,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - **Plugin chip count** — dashboard “Plugins” chip uses detected extension rows from artifacts; `PLUGIN_INFO / NONE_OBSERVED` no longer shows as “1 plugin” on decoupled frontends (e.g. Next.js)
 - **readme.txt soft-404** — HTML error pages rejected when fetching plugin readme for version hints
 - **Attribution false positives** — ignore nav `title="powered by …"` credits; require footer/context for linked designer lines; treat AI “Powered by” as tooling, not site designer
+- **CDN HSTS parity (v1)** — missing `Strict-Transport-Security` at Cloudflare (and other detected CDNs) → **VERIFY** / unscored, not ACTION HIGH
 
 ### Changed (report UX polish — owner default)
 
@@ -52,13 +96,6 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - **Category health** — bottom alert strip for failing categories; scrollable when many items
 - **Executive summary** — tighter verdict banner spacing; removed redundant verdict pill (banner + score strip remain)
 - **Readability** — brighter prose colors (`--text-soft`) in owner guide section
-
-### Deferred (Stage 5 remainder)
-
-- Playwright `--js` collector
-- GraphQL/OpenAPI discovery
-- Broken internal links (`analyzers.links`)
-- Plugin CVE cache / WPScan (`analyzers.plugin_vuln`)
 
 ---
 
@@ -90,8 +127,8 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ### Known parity deltas (documented)
 
-- HSTS at CDN edge: v2 still ACTION if missing (v1 downgrades to VERIFY when CDN detected)
-- Plugin/CVE probes: deferred to Tier 2b (framework profiles)
+- HSTS at CDN edge: fixed in 2.1.0b1 — VERIFY when CDN detected (was ACTION in early 2.0.0b1)
+- Plugin/CVE probes: deferred to Tier 2b (framework profiles) — compare live; CVE cache deferred
 
 ### Next
 
@@ -116,5 +153,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - pytest suite (14 tests): config, headers, DNS, scoring, completion CLI
 - Docs: `getting_started_plain.md`, synced stages/architecture/scoring
 
+[2.1.0b2]: https://github.com/Vlad-1618M/web_audit/compare/2.1.0b1...2.1.0b2
+[2.1.0b1]: https://github.com/Vlad-1618M/web_audit/compare/2.0.0b1...2.1.0b1
 [2.0.0b1]: https://github.com/Vlad-1618M/web_audit/compare/2.0.0a1...2.0.0b1
 [2.0.0a1]: https://github.com/Vlad-1618M/web_audit/releases/tag/2.0.0a1

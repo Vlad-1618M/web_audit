@@ -1,6 +1,6 @@
 # Web Audit v2 — Python Core
 
-**Status:** **2.1.0a1 (Stage 5 alpha)** — Tier 1 complete; Tier 2b extensions (full-HTML plugin fingerprint), DNS enrichment, SEO surface, baseline diff, and owner-report polish landing in Pro.
+**Status:** **2.1.0b2 (Stage 5 beta complete)** — Tier 1 + Tier 2 depth (Playwright `--js`, GraphQL/OpenAPI `--api`, optional broken-link sampler), Tier 2b extensions, DNS enrichment, SEO surface, owner report, baseline diff. **Next:** Stage 6 (CVE cache, packaging) — see [CHANGELOG.md](CHANGELOG.md) `[Unreleased]`.
 
 This directory is the blueprint for **Web Audit v2**. It lives beside the public **v1 bash** tool (`web_audit.sh` at the repo root). I am **not replacing v1** — people use it today, and it stays frozen as the zero-install shell edition.
 
@@ -37,7 +37,7 @@ That is v2.
 
 | | v1 (bash) | v2 (Python) |
 |---|-----------|-------------|
-| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (2.1.0a1) |
+| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (2.1.0b2) |
 | **Audience** | Devs, CI, SSH boxes | Devs **and** non-technical site owners |
 | **Install** | curl + openssl + zsh/bash | `pipx install webaudit` (or similar) |
 | **Architecture** | Monolith script | Modular collectors, analyzers, scorers, renderers |
@@ -55,7 +55,7 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 | Document | Purpose |
 |----------|---------|
 | [docs/implementation_tracker.md](docs/implementation_tracker.md) | **Built vs planned** — module status, extension contract, Stage 2 backlog |
-| [CHANGELOG.md](CHANGELOG.md) | Release history; Unreleased = in-progress Stage 5 work |
+| [CHANGELOG.md](CHANGELOG.md) | Release history; Unreleased = Stage 6 backlog |
 | [docs/getting_started_plain.md](docs/getting_started_plain.md) | **Non-technical** — install, scan, tab completion explained simply |
 | [dev-venv.sh](dev-venv.sh) | Local `.venv` setup, activate, teardown (Mac/Linux) |
 | [docs/stages.md](docs/stages.md) | Delivery stages; Tier 1 → Tier 2 → Tier 3 stacking |
@@ -98,6 +98,28 @@ pytest
 
 Scan output lands in `./audit_logs/<timestamp>_<host>/audit_run.json`.
 
+### Optional extras (Tier 2 depth)
+
+Core install is enough for headers, DNS, TLS, paths, extensions, and HTML reports. Two **optional** add-ons need extra packages:
+
+| Extra | Install | Scan flag | What it adds |
+|-------|---------|-----------|--------------|
+| **`[js]`** | `pip install -e ".[js]"` (or `.[dev,js]`) | `--js` | Playwright post-render pass — DOM links/scripts after JavaScript runs |
+| **`[api]`** | included in base install | `--api` | GraphQL introspection + OpenAPI/Swagger probe (no extra pip package) |
+
+**Playwright browsers** (~100 MB) are downloaded separately — use the **same Python/venv** that runs `webaudit`:
+
+```bash
+cd v2_python_core
+pip install -e ".[js]"                    # once: Python package
+.venv/bin/python -m playwright install chromium chromium-headless-shell
+webaudit scan https://example.com --js
+```
+
+Browsers live in Playwright’s user cache by default (`~/Library/Caches/ms-playwright` on macOS). They are **not** committed to git (see `.gitignore`). If a scan says Chromium is missing, run the install line above from your venv — not a global `playwright` CLI unless that CLI uses the same Python.
+
+**CI / tests:** unit tests mock Playwright; CI does not need browsers installed.
+
 Or use the helper script (lists existing envs, age, setup/teardown):
 
 ```bash
@@ -127,7 +149,7 @@ Full friendly guide: **[docs/getting_started_plain.md](docs/getting_started_plai
 v2_python_core/
 ├── dev-venv.sh
 ├── pyproject.toml
-├── webaudit/                   ← Python package (2.1.0a1)
+├── webaudit/                   ← Python package (2.1.0b2)
 │   ├── cli/                    # scan, report, diff, completion
 │   ├── config/                 # settings.py + defaults.yaml
 │   ├── collectors/             # headers, dns, paths, tls, extensions/, …

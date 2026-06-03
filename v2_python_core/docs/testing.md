@@ -282,7 +282,7 @@ Fast loop before push.
 | 2 | all Tier 1 collectors mocked |
 | 3 | scoring golden files 100% |
 | 4 | three templates render |
-| 5 | baseline diff + Tier 2b extensions + DNS enrichment + **Tier 2c SEO unscored** + owner report UX tests (~145 unit tests) |
+| 5 | baseline diff + Tier 2b extensions + DNS enrichment + **Tier 2c SEO unscored** + Tier 2 depth (JS/API/links) + owner report UX tests (~181 unit tests) |
 | 6 | pip install + smoke scan in CI |
 
 ---

@@ -241,6 +241,15 @@ def collect_framework(
             return result
 
         result.body = response.text[:max_body_bytes]
+        from webaudit.collectors.bot_challenge import is_bot_challenge
+
+        if is_bot_challenge(result.body, status_code=response.status_code):
+            result.detected = "blocked"
+            result.effective_framework = "unknown"
+            result.confidence = "none"
+            result.signals = "bot_protection"
+            result.blocked = True
+            return result
         cookie_lines = response.headers.get_list("set-cookie")
         result.cookie_text = "\n".join(cookie_lines)
 

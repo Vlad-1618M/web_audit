@@ -32,6 +32,12 @@ def test_step_enabled_paths():
     settings.paths.enabled = False
     assert step_enabled("_step_paths", settings) is False
     assert step_enabled("_step_headers", settings) is True
+    assert step_enabled("_step_js", settings) is False
+    settings.collectors.js.enabled = True
+    assert step_enabled("_step_js", settings) is True
+    assert step_enabled("_step_links", settings) is False
+    settings.collectors.seo_surface.check_broken_links = True
+    assert step_enabled("_step_links", settings) is True
 
 
 def test_summarize_headers_step():
@@ -56,6 +62,35 @@ def test_summarize_headers_step():
     assert "HTTP 200" in summary
     assert "1 findings" in summary
     assert details
+
+
+def test_summarize_paths_verbose_lists_each_probe():
+    probes = [
+        {"path": "/.env", "final_status": 404, "note": "NOT_FOUND"},
+        {"path": "/robots.txt", "final_status": 200, "note": "OPEN"},
+    ]
+    summary, details = summarize_step(
+        "_step_paths",
+        [],
+        {"inventory": {"paths": {"probe_count": 2, "paths": probes}}},
+        verbose=True,
+    )
+    assert "2 probes" in summary
+    assert any("exposed: /robots.txt" in line for line in details)
+    assert any("[dark_orange]/.env[/dark_orange]" in line for line in details)
+    assert any("[dark_orange]/robots.txt[/dark_orange]" in line for line in details)
+    assert sum(1 for line in details if "[dark_orange]" in line) == 2
+
+
+def test_summarize_paths_normal_hides_probe_list():
+    probes = [{"path": "/.env", "final_status": 404, "note": "NOT_FOUND"}]
+    _summary, details = summarize_step(
+        "_step_paths",
+        [],
+        {"inventory": {"paths": {"probe_count": 1, "paths": probes}}},
+        verbose=False,
+    )
+    assert not any("[dark_orange]" in line for line in details)
 
 
 def test_summarize_policy_step_string_artifacts():

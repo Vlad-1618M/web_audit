@@ -38,3 +38,19 @@ def test_internal_link_inventory_info():
     links = next(f for f in findings if f.item == "Internal link inventory")
     assert links.category == "MISC"
     assert links.scored is False
+
+
+def test_bot_challenge_homepage_emits_verify_finding():
+    probe = HtmlProbeResult(
+        target_url="https://example.com",
+        body='<html><meta http-equiv="refresh" content="0;/.well-known/sgcaptcha/"></html>',
+        pages_scanned=0,
+        bot_challenge=True,
+        http_status=202,
+    )
+    findings = analyze_html(probe, HtmlCollectorSettings())
+    assert len(findings) == 1
+    assert findings[0].category == "HTML"
+    assert findings[0].class_ == FindingClass.VERIFY
+    assert findings[0].status == "BLOCKED"
+    assert "bot protection" in findings[0].detail.lower()

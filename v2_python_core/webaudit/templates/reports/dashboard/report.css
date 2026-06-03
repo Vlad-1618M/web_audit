@@ -532,6 +532,9 @@ section.block h2 { font-size: 1.35rem; color: var(--cyan); margin-bottom: 0.5rem
 .focus-pie-legend { list-style: none; margin: 0; padding: 0; flex: 1; min-width: 220px; }
 .focus-pie-legend li { display: flex; gap: 0.65rem; margin-bottom: 0.65rem; font-size: 0.88rem; line-height: 1.35; align-items: flex-start; }
 .focus-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; margin-top: 0.15rem; }
+.focus-swatch-hygiene { background: #ffc14d; }
+.focus-swatch-exposure { background: #39ff8c; }
+.focus-swatch-seo { background: #a855f7; }
 .focus-legend-text { display: flex; flex-direction: column; gap: 0.08rem; min-width: 0; }
 .focus-headline { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.35rem; }
 .focus-sep { color: var(--muted); font-weight: 400; }
@@ -541,10 +544,26 @@ section.block h2 { font-size: 1.35rem; color: var(--cyan); margin-bottom: 0.5rem
 .focus-scan-stack { display: flex; flex-direction: column; gap: 1.25rem; }
 .focus-status-block { border-top: 1px solid var(--border); padding-top: 1rem; }
 .focus-status-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 0.65rem; }
-.metric-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.65rem; }
-.metric-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem 0.75rem; text-align: center; }
-.metric-chip .metric-n { font-size: 1.35rem; font-weight: 700; }
-.metric-chip .metric-l { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; }
+.metric-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 0.65rem; }
+.metric-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+  text-align: center;
+  min-width: 0;
+}
+.metric-chip .metric-n { font-size: 1.35rem; font-weight: 700; line-height: 1.1; }
+.metric-chip .metric-l {
+  font-size: 0.64rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  margin-top: 0.2rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 .metric-chip.critical .metric-n { color: #ff6b9d; }
 .metric-chip.high .metric-n { color: var(--coral); }
 .metric-chip.medium .metric-n { color: var(--gold); }

@@ -58,7 +58,7 @@
             {% for item in alert_strip_items %}
             <li>
               {% if is_combined_report %}
-              <button type="button" class="alert-link" data-owner-tab="technical" data-tech-anchor="{{ item.anchor }}" title="Open technical details">{{ item.label }}</button>
+              <button type="button" class="alert-link alert-link-{{ item.tone | default('medium') }}" data-owner-tab="technical" data-tech-anchor="{{ item.anchor }}" title="Open technical details">{{ item.label }}</button>
               {% else %}
               <span class="alert-link-text">{{ item.label }}</span>
               {% endif %}

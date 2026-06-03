@@ -12,17 +12,21 @@ Stage 1   Core skeleton + config + CLI     ✓
 Stage 2   Tier 1 collectors + v1 parity    ✓
 Stage 3   Scoring + analyzers + audit_run  ✓ (parity polish ongoing)
 Stage 4   Report templates + PDF           ✓
-Stage 5   Tier 2 + Tier 2b modules         ← in progress (2.1.0a1)
+Stage 5   Tier 2 + Tier 2b modules         ✓ complete (2.1.0b2)
           · extensions (WP/Django/Laravel/Rails) — full homepage HTML via scan_html ✓
           · DNS enrichment (A/MX/NS/ASN/WHOIS)
           · owner combined report (default HTML)
           · report polish (guide, footer, leak-protection labels, discovery grid,
             extensions table, plugin chip fix, attribution hardening) ✓
+          · finding/TLS color alignment, bot-protection detection, dynamic focus pie,
+            timeline status colors, discovery scroll + metric chip fixes ✓
           · baseline diff ✓
 Stage 6   Tier 3 modules + packaging
 ```
 
-**Tier 1 (2.0.0b1):** Feature-complete for v2.0 foundation. Remaining Tier 1 item: optional CDN-aware HSTS downgrade (parity delta).
+**Tier 1 (2.0.0b1):** Feature-complete for v2.0 foundation. CDN-aware HSTS downgrade aligned with v1 in **2.1.0b1**.
+
+**Stage 5 (2.1.0b2):** Tier 2 depth + Tier 2b extensions + DNS enrichment + owner report + baseline diff. Deferred CVE cache → Stage 6 — see [CHANGELOG.md](../CHANGELOG.md) `[Unreleased]`.
 
 Stages are **sequential**. Tiers are **feature bundles** that land across stages but are owned as logical groups.
 
@@ -101,7 +105,7 @@ webaudit[pdf]      → weasyprint
 - [x] DOM-based HTML inventory (BeautifulSoup)
 - [x] Five HTML templates wired
 - [x] PDF — browser print (default); optional WeasyPrint headless
-- [x] pytest on scoring, config, collectors, analyzers, render (~145 unit tests)
+- [x] pytest on scoring, config, collectors, analyzers, render (~181 unit tests)
 
 ---
 
@@ -157,7 +161,7 @@ packaging>=24.0
 
 - [x] All `SEO_SURFACE` findings default to INFO or VERIFY — never ACTION
 - [x] `scoring.seo_surface_affects_scores: false` enforced in tests
-- [ ] Executive report shows one informational “Discoverability” block
+- [x] Executive report shows one informational “Discoverability” block
 - [x] No “SEO success %” or ranking language anywhere in UI
 - [x] pytest: `noindex` homepage → VERIFY; missing meta description → INFO
 
@@ -187,9 +191,9 @@ playwright>=1.42    # extra: webaudit[js]
 
 **Tier 2 exit criteria:**
 
-- [ ] `--js` flag runs Playwright pass when installed
+- [x] `--js` flag runs Playwright pass when installed
 - [x] Baseline diff in CLI (`webaudit diff`)
-- [ ] GraphQL / OpenAPI findings when exposed
+- [x] GraphQL / OpenAPI findings when exposed
 - [ ] Integration tests with recorded httpx cassettes (**pytest-httpx** or **vcrpy**)
 
 ---

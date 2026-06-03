@@ -1,0 +1,83 @@
+{# GraphQL / OpenAPI probes — technical tab widget #}
+{% if api_section %}
+<section id="api-probes" class="api-probe-section">
+  <h2>API surface probes</h2>
+  <p class="discovery-intro">
+    Optional Tier 2 pass (<code>--api</code>) probes common GraphQL introspection and OpenAPI/Swagger paths.
+    Unauthenticated only — confirms whether schema or docs appear publicly reachable.
+  </p>
+
+  <div class="discovery-panel api-probe-panel">
+    <div class="api-probe-panel-head">
+      <h3 class="subsection-title">GraphQL &amp; OpenAPI discovery</h3>
+      <span class="api-probe-status-pill api-probe-status-{{ api_section.status }}">{{ api_section.status_label }}</span>
+    </div>
+
+    <p class="dns-summary api-probe-summary {{ api_section.tone }}">
+      <strong>{{ api_section.headline }}.</strong> {{ api_section.summary }}
+    </p>
+
+    {% if api_section.stats %}
+    <div class="api-probe-stats" role="list">
+      {% for stat in api_section.stats %}
+      <div class="api-probe-stat api-probe-stat-{{ stat.tone | default('neutral') }}" role="listitem">
+        <div class="api-probe-stat-val">{{ stat.value }}</div>
+        <div class="api-probe-stat-lbl">{{ stat.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if api_section.graphql_rows %}
+    <h4 class="api-probe-table-title">GraphQL paths</h4>
+    <table class="api-probe-table">
+      <thead>
+        <tr><th>Path</th><th>HTTP</th><th>Result</th></tr>
+      </thead>
+      <tbody>
+        {% for row in api_section.graphql_rows %}
+        <tr>
+          <td><code>{{ row.path }}</code></td>
+          <td>{{ row.status_code }}</td>
+          <td><span class="api-probe-result api-probe-result-{{ row.tone }}">{{ row.result }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    {% if api_section.openapi_rows %}
+    <h4 class="api-probe-table-title">OpenAPI / Swagger paths</h4>
+    <table class="api-probe-table">
+      <thead>
+        <tr><th>Path</th><th>HTTP</th><th>Result</th></tr>
+      </thead>
+      <tbody>
+        {% for row in api_section.openapi_rows %}
+        <tr>
+          <td><code>{{ row.path }}</code></td>
+          <td>{{ row.status_code }}</td>
+          <td><span class="api-probe-result api-probe-result-{{ row.tone }}">{{ row.result }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    {% if api_section.enable_steps %}
+    <div class="api-probe-enable">
+      <p class="meta-inline api-probe-enable-title">To enable on this target:</p>
+      <ol class="api-enable-steps">
+        {% for step in api_section.enable_steps %}
+        <li><code>{{ step }}</code></li>
+        {% endfor %}
+      </ol>
+    </div>
+    {% endif %}
+
+    {% if api_section.has_verify %}
+    <p class="meta-inline api-probe-hint">Exposure details also appear under <a href="#findings-verify">Verify findings</a>.</p>
+    {% endif %}
+  </div>
+</section>
+{% endif %}

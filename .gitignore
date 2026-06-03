@@ -1,5 +1,6 @@
 audit_logs/
 site_configs/
+v2_python_core/.playwright-browsers/
 
 # macOS
 .DS_Store

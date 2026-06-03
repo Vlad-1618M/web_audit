@@ -136,6 +136,36 @@ class SeoSurfaceSettings(BaseModel):
     check_robots_blocks: bool = True
     check_sitemap: bool = True
     sitemap_empty_threshold: int = Field(default=1, ge=0, le=100)
+    check_broken_links: bool = False
+    broken_link_sample_max: int = Field(default=20, ge=1, le=100)
+
+
+class JsCollectorSettings(BaseModel):
+    """Tier 2 — Playwright post-render DOM pass (optional ``webaudit[js]`` extra)."""
+
+    enabled: bool = False
+    wait_seconds: float = Field(default=3.0, ge=0, le=30)
+    browser: Literal["chromium", "firefox", "webkit"] = "chromium"
+
+
+class ApiCollectorSettings(BaseModel):
+    """Tier 2 — GraphQL introspection and OpenAPI/Swagger discovery."""
+
+    enabled: bool = False
+    graphql_probe: bool = True
+    graphql_paths: list[str] = Field(
+        default_factory=lambda: ["/graphql", "/api/graphql", "/v1/graphql"],
+    )
+    openapi_paths: list[str] = Field(
+        default_factory=lambda: [
+            "/openapi.json",
+            "/swagger.json",
+            "/api/docs",
+            "/swagger",
+            "/swagger-ui/",
+            "/redoc/",
+        ],
+    )
 
 
 class CollectorsSettings(BaseModel):
@@ -150,6 +180,8 @@ class CollectorsSettings(BaseModel):
     extensions: ExtensionsCollectorSettings = Field(default_factory=ExtensionsCollectorSettings)
     wp_plugins: ExtensionsCollectorSettings = Field(default_factory=ExtensionsCollectorSettings)
     seo_surface: SeoSurfaceSettings = Field(default_factory=SeoSurfaceSettings)
+    js: JsCollectorSettings = Field(default_factory=JsCollectorSettings)
+    api: ApiCollectorSettings = Field(default_factory=ApiCollectorSettings)
 
     @model_validator(mode="before")
     @classmethod

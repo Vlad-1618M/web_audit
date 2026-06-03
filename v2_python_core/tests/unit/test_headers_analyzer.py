@@ -26,6 +26,22 @@ def test_missing_security_headers():
     assert items["Permissions-Policy"].scored is False
 
 
+def test_missing_hsts_at_cdn_edge_is_verify_not_scored():
+    probe = HeaderProbeResult(
+        target_url="https://example.com",
+        final_url="https://example.com/",
+        status_code=200,
+        headers={"cf-ray": "abc123-LAX", "server": "cloudflare"},
+    )
+    findings = analyze_headers(probe)
+    hsts = next(f for f in findings if f.item == "Strict-Transport-Security")
+    assert hsts.status == "MISSING"
+    assert hsts.class_ == FindingClass.VERIFY
+    assert hsts.severity == Severity.MEDIUM
+    assert hsts.scored is False
+    assert "Cloudflare" in hsts.detail
+
+
 def test_present_headers_and_leaks():
     probe = HeaderProbeResult(
         target_url="https://example.com",

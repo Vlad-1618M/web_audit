@@ -680,3 +680,28 @@ details[open].fold-panel > summary .fold-chevron { transform: rotate(90deg); col
 .dns-summary.good { color: var(--lime); }
 .dns-summary.warn { color: var(--gold); }
 .dns-summary.neutral { color: var(--muted); }
+
+.inner-block {
+  margin-top: 1.25rem;
+  padding: 1rem 1.15rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.discoverability-block { margin-top: 1.25rem; }
+.discoverability-intro { margin-bottom: 0.75rem; }
+.discoverability-list { margin: 0.5rem 0 0; }
+.discoverability-item { margin-bottom: 0.45rem; line-height: 1.45; }
+.discoverability-badge.verify {
+  color: var(--gold);
+  border-color: rgba(255, 193, 77, 0.35);
+  background: rgba(255, 193, 77, 0.08);
+}
+.discoverability-badge.info {
+  color: var(--cyan);
+  border-color: rgba(0, 212, 255, 0.28);
+  background: rgba(0, 212, 255, 0.06);
+}
+.discoverability-status { color: var(--muted); font-size: 0.85em; }
+.discoverability-ok { margin: 0.35rem 0 0; }

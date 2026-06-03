@@ -125,11 +125,29 @@ Your developer can turn that into an HTML report (default **owner** variant: Sec
 | **Plugins / Extensions** | WordPress (or other stack) components seen in public HTML — **0 is normal** on sites where the homepage is not WordPress (e.g. Next.js front-end) |
 | **Bottom guide** | “What this report is (and is not)” — compares Web Audit to ZAP, pentests, SEO tools |
 
-Re-render an saved scan without re-running checks:
+Re-render a saved scan without re-running checks:
 
 ```bash
 webaudit report audit_logs/<folder>/audit_run.json
 ```
+
+---
+
+## Optional: JavaScript rendering (`--js`)
+
+Some modern sites only show their real links and menus **after JavaScript runs** in a browser. The default scan reads the first HTML response (like a simple bot). That is usually enough.
+
+If your developer wants a **second pass with a real browser** (Chromium via Playwright):
+
+| Step | Who | Plain English |
+|------|-----|----------------|
+| Install JS support | Developer | `pip install -e ".[js]"` inside the project venv (one-time) |
+| Download browser | Developer | `.venv/bin/python -m playwright install chromium chromium-headless-shell` (one-time, ~100 MB) |
+| Run scan | Developer | `webaudit scan https://yoursite.com --js` |
+
+**You do not need this** for a first audit. The owner report still works without `--js`. If the browser is missing, the report shows friendly fix steps instead of raw error text.
+
+**GraphQL / API check** (`--api`): optional flag for developers checking whether GraphQL introspection or Swagger docs are exposed. No extra install beyond the normal setup.
 
 ---
 

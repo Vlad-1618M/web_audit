@@ -26,14 +26,15 @@
       </tr>
     </thead>
     <tbody>
-      {% for f in action_findings %}
+      {% for row in action_findings_rows %}
+      {% set f = row.finding %}
       <tr>
         <td><span class="sev {{ f.severity.value }}">{{ f.severity.value }}</span></td>
         <td>{{ f.category }}</td>
         <td>{{ f.item }}</td>
-        <td>{{ f.status }}</td>
+        <td><span class="finding-status finding-status-{{ row.status_tone }}">{{ f.status }}</span></td>
         <td><span class="class-tag">{{ f.class_.value }}</span></td>
-        <td>{{ f.detail }}</td>
+        <td class="finding-detail-cell">{% if row.detail_html %}{{ row.detail_html | safe }}{% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -49,12 +50,13 @@
       <tr><th>Category</th><th>Item</th><th>Status</th><th>Detail</th></tr>
     </thead>
     <tbody>
-      {% for f in verify_findings %}
+      {% for row in verify_findings_rows %}
+      {% set f = row.finding %}
       <tr>
         <td>{{ f.category }}</td>
         <td>{{ f.item }}</td>
-        <td>{{ f.status }}</td>
-        <td>{{ f.detail }}</td>
+        <td><span class="finding-status finding-status-{{ row.status_tone }}">{{ f.status }}</span></td>
+        <td class="finding-detail-cell">{% if row.detail_html %}{{ row.detail_html | safe }}{% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -68,12 +70,13 @@
       <tr><th>Category</th><th>Item</th><th>Status</th><th>Detail</th></tr>
     </thead>
     <tbody>
-      {% for f in expected_findings %}
+      {% for row in expected_findings_rows %}
+      {% set f = row.finding %}
       <tr>
         <td>{{ f.category }}</td>
         <td>{{ f.item }}</td>
-        <td>{{ f.status }}</td>
-        <td>{{ f.detail }}</td>
+        <td><span class="finding-status finding-status-{{ row.status_tone }}">{{ f.status }}</span></td>
+        <td class="finding-detail-cell">{% if row.detail_html %}{{ row.detail_html | safe }}{% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -132,7 +135,7 @@
     <thead><tr><th>Check</th><th>Result</th></tr></thead>
     <tbody>
       {% for row in tls_rows %}
-      <tr><td>{{ row.check }}</td><td>{{ row.result }}</td></tr>
+      <tr><td>{{ row.check }}</td><td><span class="tls-result tls-result-{{ row.result_tone | default('neutral') }}">{{ row.result }}</span></td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -146,6 +149,10 @@
 {% include "extensions_section.html" %}
 
 {% include "discovery_section.html" %}
+
+{% include "js_render_section.html" %}
+
+{% include "api_probe_section.html" %}
 
 {% include "attribution_section.html" %}
 

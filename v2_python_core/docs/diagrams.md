@@ -61,11 +61,13 @@ Primary job: **how safe and well-delivered** the public site is. SEO surface is 
     'titleColor': '#00f0ff'
   }
 }}%%
-pie title Pro v2 — where effort & scoring live
+pie title Pro v2 — where effort & scoring live (conceptual weights)
     "Hygiene — config & hardening" : 70
     "Exposure — leaks & secrets" : 25
     "SEO surface — INFO/VERIFY only" : 5
 ```
+
+**Live owner dashboard:** pie slice percentages are computed per scan (not fixed 70/25/5). Legend shows each slice’s share of combined hygiene + exposure + SEO weights.
 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {'darkMode': true, 'background': '#030306', 'primaryColor': '#0e0e16', 'primaryTextColor': '#eef2ff', 'primaryBorderColor': '#00f0ff', 'lineColor': '#8b95b0', 'titleColor': '#00f0ff'}}}%%

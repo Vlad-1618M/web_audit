@@ -9,20 +9,8 @@
 </head>
 <body>
   <div class="owner-shell">
-    <header class="owner-top no-print">
-      <div class="toolbar">
-        <button type="button" class="btn-edge-cyan" onclick="window.print()">Print / Save as PDF</button>
-        <span class="hint">Print → Save as PDF. Turn on <strong>Background graphics</strong> to keep the dark theme.</span>
-      </div>
-
-      <nav class="owner-tabs" role="tablist" aria-label="Report sections">
-        <button type="button" class="owner-tab active" role="tab" data-owner-tab="overview" aria-selected="true">
-          Executive summary
-        </button>
-        <button type="button" class="owner-tab" role="tab" data-owner-tab="technical" aria-selected="false">
-          Technical details
-        </button>
-      </nav>
+    <header class="owner-action-bar no-print">
+      {% include "owner_action_bar.html" %}
     </header>
 
     <div id="page-overview" class="owner-page">

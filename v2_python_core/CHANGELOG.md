@@ -8,6 +8,17 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ## [Unreleased]
 
+### Deferred (Stage 6 / Tier 3)
+
+- Plugin CVE cache / WPScan (`analyzers.plugin_vuln`)
+- httpx cassette integration tests (pytest-httpx / vcrpy) for Tier 2 collectors
+
+---
+
+## [2.1.0b2] — 2026-06-03
+
+**Stage 5 beta complete** — Tier 2 depth (Playwright JS, API probes, broken links), report UX polish, bot protection.
+
 ### Added
 
 - **Finding table colors** — Verify/Expected/Action status tones; TLS certificate/hostname row colors; dashboard alert strip by severity (`render/finding_display.py`)
@@ -15,8 +26,10 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - **Dynamic focus pie** — dashboard Scan focus chart slice sizes from live hygiene, exposure, and SEO finding weights (not fixed 70/25/5)
 - **Priority timeline colors** — category stays violet; severity/status label matches timeline bullet tone
 - **Playwright JS pass** — `collectors/js.py` + `--js` CLI flag (optional `webaudit[js]` extra); technical report section + inventory rows; Playwright errors normalized (no raw paths in HTML — full detail in `audit_run.json`)
+- **JS discovery panel** — success stats grid in owner report when Playwright completes; friendly install hints (`error_code`, `fix_steps`) when browsers missing (`render/js_display.py`)
 - **GraphQL / OpenAPI probes** — `collectors/api.py` + analyzers; `--api` CLI flag; introspection and Swagger/OpenAPI exposure as VERIFY findings
 - **Broken link sampler** — `collectors/links.py` + `analyzers/links.py`; enable via `collectors.seo_surface.check_broken_links`
+- **Owner report navigation** — action bar (Print + Executive/Technical tabs); sidebar back button and scan-target label
 
 ### Fixed
 
@@ -30,11 +43,6 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 ### Changed
 
 - **Verbose scan (`-v`)** — lists every probed path in progress output
-
-### Deferred (Stage 5 remainder)
-
-- Plugin CVE cache / WPScan (`analyzers.plugin_vuln`)
-- httpx cassette integration tests (pytest-httpx / vcrpy) for Tier 2 collectors
 
 ---
 
@@ -145,6 +153,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - pytest suite (14 tests): config, headers, DNS, scoring, completion CLI
 - Docs: `getting_started_plain.md`, synced stages/architecture/scoring
 
+[2.1.0b2]: https://github.com/Vlad-1618M/web_audit/compare/2.1.0b1...2.1.0b2
 [2.1.0b1]: https://github.com/Vlad-1618M/web_audit/compare/2.0.0b1...2.1.0b1
 [2.0.0b1]: https://github.com/Vlad-1618M/web_audit/compare/2.0.0a1...2.0.0b1
 [2.0.0a1]: https://github.com/Vlad-1618M/web_audit/releases/tag/2.0.0a1

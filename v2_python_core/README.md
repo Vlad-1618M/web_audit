@@ -1,6 +1,6 @@
 # Web Audit v2 — Python Core
 
-**Status:** **2.1.0b1 (Stage 5 beta)** — Tier 1 complete; Tier 2b extensions, DNS enrichment, SEO surface, owner report, baseline diff. **In progress:** see [CHANGELOG.md](CHANGELOG.md) `[Unreleased]` for beta polish (finding colors, bot protection, dynamic focus pie, report UX).
+**Status:** **2.1.0b2 (Stage 5 beta complete)** — Tier 1 + Tier 2 depth (Playwright `--js`, GraphQL/OpenAPI `--api`, optional broken-link sampler), Tier 2b extensions, DNS enrichment, SEO surface, owner report, baseline diff. **Next:** Stage 6 (CVE cache, packaging) — see [CHANGELOG.md](CHANGELOG.md) `[Unreleased]`.
 
 This directory is the blueprint for **Web Audit v2**. It lives beside the public **v1 bash** tool (`web_audit.sh` at the repo root). I am **not replacing v1** — people use it today, and it stays frozen as the zero-install shell edition.
 
@@ -37,7 +37,7 @@ That is v2.
 
 | | v1 (bash) | v2 (Python) |
 |---|-----------|-------------|
-| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (2.1.0b1) |
+| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (2.1.0b2) |
 | **Audience** | Devs, CI, SSH boxes | Devs **and** non-technical site owners |
 | **Install** | curl + openssl + zsh/bash | `pipx install webaudit` (or similar) |
 | **Architecture** | Monolith script | Modular collectors, analyzers, scorers, renderers |
@@ -55,7 +55,7 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 | Document | Purpose |
 |----------|---------|
 | [docs/implementation_tracker.md](docs/implementation_tracker.md) | **Built vs planned** — module status, extension contract, Stage 2 backlog |
-| [CHANGELOG.md](CHANGELOG.md) | Release history; Unreleased = in-progress Stage 5 work |
+| [CHANGELOG.md](CHANGELOG.md) | Release history; Unreleased = Stage 6 backlog |
 | [docs/getting_started_plain.md](docs/getting_started_plain.md) | **Non-technical** — install, scan, tab completion explained simply |
 | [dev-venv.sh](dev-venv.sh) | Local `.venv` setup, activate, teardown (Mac/Linux) |
 | [docs/stages.md](docs/stages.md) | Delivery stages; Tier 1 → Tier 2 → Tier 3 stacking |
@@ -127,7 +127,7 @@ Full friendly guide: **[docs/getting_started_plain.md](docs/getting_started_plai
 v2_python_core/
 ├── dev-venv.sh
 ├── pyproject.toml
-├── webaudit/                   ← Python package (2.1.0b1)
+├── webaudit/                   ← Python package (2.1.0b2)
 │   ├── cli/                    # scan, report, diff, completion
 │   ├── config/                 # settings.py + defaults.yaml
 │   ├── collectors/             # headers, dns, paths, tls, extensions/, …

@@ -4,7 +4,7 @@ Reference: repo root `web_audit.sh` (read-only). v2 code lives in `v2_python_cor
 
 **Tier 1 sign-off (2.0.0b1):** All v1-equivalent checks are implemented in Python. Intentional deltas are listed below.
 
-**Stage 5 (2.1.0b1):** Tier 2b extensions + DNS enrichment + owner report + baseline diff. Beta polish (bot protection, finding colors, dynamic focus pie) tracked in [CHANGELOG.md](../../CHANGELOG.md) `[Unreleased]`.
+**Stage 5 (2.1.0b2):** Tier 2b extensions + DNS enrichment + owner report + baseline diff + Tier 2 depth (JS/API/links). See [CHANGELOG.md](../../CHANGELOG.md).
 
 ## Module mapping
 
@@ -33,7 +33,7 @@ Reference: repo root `web_audit.sh` (read-only). v2 code lives in `v2_python_cor
 | Area | v1 | v2 (2.1.0b1) | Follow-up |
 |------|-----|--------------|-----------|
 | HSTS missing at CDN edge | VERIFY when CDN detected (unscored) | VERIFY when CDN detected | ✓ parity (2.1.0b1) |
-| WAF / bot protection (captcha interstitial) | n/a | VERIFY when homepage blocked; framework hint from `robots.txt` | v2-only (Unreleased) |
+| WAF / bot protection (captcha interstitial) | n/a | VERIFY when homepage blocked; framework hint from `robots.txt` | v2-only (2.1.0b2) |
 | PDF export | Browser `window.print()` only | Browser print (default) + optional WeasyPrint | By design |
 | Plugin/CVE probes | Hardcoded readme.txt list for high-risk slugs | Observed-only + framework profiles; no blind readme GET | Tier 2b ✓; CVE cache deferred |
 | Plugin compare scope | WordPress readme + WPScan hints | WP + Django/Laravel/Rails registry compare | v2-only extension |
@@ -67,4 +67,4 @@ cd v2_python_core
 .venv/bin/python -m pytest -q
 ```
 
-Automated v1-vs-v2 golden fixtures: planned; unit tests mock I/O today (~169 unit tests).
+Automated v1-vs-v2 golden fixtures: planned; unit tests mock I/O today (~181 unit tests).

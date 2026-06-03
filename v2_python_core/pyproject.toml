@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "webaudit"
-version = "2.1.0b1"
+version = "2.1.0b2"
 description = "Web Audit v2 — external security hygiene for public websites"
 readme = "README.md"
 requires-python = ">=3.11"

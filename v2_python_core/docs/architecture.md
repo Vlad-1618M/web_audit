@@ -85,13 +85,13 @@ sequenceDiagram
   J->>U: HTML + PDF + TXT
 ```
 
-> **Current (2.1.0b1):** Full Tier 1 pipeline + Stage 5 beta — extensions (`scan_html`), SEO surface, DNS enrichment (A/MX/NS/ASN), owner report, baseline diff, bot-protection detection, dynamic dashboard focus pie. Diagram shows the complete Tier 1 target architecture.
+> **Current (2.1.0b2):** Full Tier 1 pipeline + Stage 5 complete — extensions (`scan_html`), SEO surface, DNS enrichment (A/MX/NS/ASN), owner report, baseline diff, Tier 2 JS/API/links, bot-protection detection, dynamic dashboard focus pie. Diagram shows the complete Tier 1 target architecture.
 
 **Extensions step (2.1.0b1):** After HTML collection, `pipeline._step_extensions` fingerprints plugins/packages from `artifacts.inventory.html.scan_html` (full homepage). Framework fingerprint body is fallback only; `robots.txt` hints when WAF blocks homepage.
 
 ---
 
-## Package structure (implemented — 2.1.0b1)
+## Package structure (implemented — 2.1.0b2)
 
 See [implementation_tracker.md](implementation_tracker.md) for the live module table. Summary:
 
@@ -111,7 +111,7 @@ v2_python_core/
 │   ├── pipeline.py
 │   └── models/
 ├── templates/reports/          # Jinja HTML + CSS (six variants; owner default)
-├── tests/unit/                 # pytest (~169 tests)
+├── tests/unit/                 # pytest (~181 tests)
 └── docs/
 ```
 

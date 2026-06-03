@@ -10,7 +10,8 @@ Update this file **whenever** a module lands or a contract changes. Cross-check 
 
 | Tag | Date | Notes |
 |-----|------|-------|
-| **2.1.0b1** | 2026-06 | **Stage 5 beta** — Tier 2b/2c, owner report, CDN HSTS parity, Discoverability block; beta polish in `[Unreleased]` |
+| **2.1.0b2** | 2026-06 | **Stage 5 beta complete** — Tier 2 JS/API/links, bot protection, report UX polish |
+| **2.1.0b1** | 2026-06 | **Stage 5 beta** — Tier 2b/2c, owner report, CDN HSTS parity, Discoverability block |
 | **2.1.0a1** | 2026-05 | **Stage 5 alpha** — Tier 2b extensions, DNS enrichment, report polish, baseline diff |
 | **2.0.0b1** | 2026-06 | **Tier 1 complete** — all v1-equivalent modules, reports, CLI polish |
 | **2.0.0a1** | 2026-05 | Stage 1 alpha — CLI, config, headers + DNS, scoring, `audit_run.json` |
@@ -208,9 +209,9 @@ Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
 - [ ] `pipeline.py` or orchestrator wired; no scoring logic in collector  
 - [ ] Unit tests with mocks (no live internet in CI)  
 - [ ] `defaults.yaml` + `PathsSettings` / collector settings if new flags  
-- [ ] [CHANGELOG.md](../CHANGELOG.md) Unreleased section  
+- [ ] [CHANGELOG.md](../CHANGELOG.md) Unreleased section (Stage 6 items only after 2.1.0b2)  
 - [ ] Parity delta noted if v1 behavior intentionally differs  
 
 ---
 
-*Last updated: Tier 2 depth — JS pass, API probes, broken link sampler (2026-05).*
+*Last updated: Stage 5 beta closed — release **2.1.0b2** (2026-06).*

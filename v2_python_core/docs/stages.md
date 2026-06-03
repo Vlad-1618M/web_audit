@@ -12,7 +12,7 @@ Stage 1   Core skeleton + config + CLI     ✓
 Stage 2   Tier 1 collectors + v1 parity    ✓
 Stage 3   Scoring + analyzers + audit_run  ✓ (parity polish ongoing)
 Stage 4   Report templates + PDF           ✓
-Stage 5   Tier 2 + Tier 2b modules         ✓ beta (2.1.0b1+ polish)
+Stage 5   Tier 2 + Tier 2b modules         ✓ complete (2.1.0b2)
           · extensions (WP/Django/Laravel/Rails) — full homepage HTML via scan_html ✓
           · DNS enrichment (A/MX/NS/ASN/WHOIS)
           · owner combined report (default HTML)
@@ -26,7 +26,7 @@ Stage 6   Tier 3 modules + packaging
 
 **Tier 1 (2.0.0b1):** Feature-complete for v2.0 foundation. CDN-aware HSTS downgrade aligned with v1 in **2.1.0b1**.
 
-**Stage 5 remainder (deferred → Tier 3):** Plugin CVE cache — see [CHANGELOG.md](../CHANGELOG.md) `[Unreleased]` · [implementation_tracker.md](implementation_tracker.md).
+**Stage 5 (2.1.0b2):** Tier 2 depth + Tier 2b extensions + DNS enrichment + owner report + baseline diff. Deferred CVE cache → Stage 6 — see [CHANGELOG.md](../CHANGELOG.md) `[Unreleased]`.
 
 Stages are **sequential**. Tiers are **feature bundles** that land across stages but are owned as logical groups.
 
@@ -105,7 +105,7 @@ webaudit[pdf]      → weasyprint
 - [x] DOM-based HTML inventory (BeautifulSoup)
 - [x] Five HTML templates wired
 - [x] PDF — browser print (default); optional WeasyPrint headless
-- [x] pytest on scoring, config, collectors, analyzers, render (~169 unit tests)
+- [x] pytest on scoring, config, collectors, analyzers, render (~181 unit tests)
 
 ---
 

@@ -1434,3 +1434,61 @@ details[open] summary {
   padding-left: 1.15rem;
   color: var(--muted);
 }
+
+/* API probe widget */
+.api-probe-panel { margin-top: 0.75rem; }
+
+.api-probe-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.65rem;
+  margin-bottom: 0.65rem;
+}
+
+.api-probe-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.65rem;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.api-probe-stat {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.75rem;
+}
+
+.api-probe-stat-val { font-size: 1.25rem; font-weight: 700; }
+.api-probe-stat-lbl { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+.api-probe-stat-cyan .api-probe-stat-val { color: var(--cyan); }
+.api-probe-stat-violet .api-probe-stat-val { color: var(--violet); }
+.api-probe-stat-good .api-probe-stat-val { color: var(--lime); }
+.api-probe-stat-bad .api-probe-stat-val { color: var(--red, #ff6b6b); }
+
+.api-probe-status-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--border);
+}
+
+.api-probe-status-ok {
+  color: var(--lime);
+  border-color: rgba(80, 220, 140, 0.35);
+  background: rgba(80, 220, 140, 0.08);
+}
+
+.api-probe-table-title {
+  margin: 1rem 0 0.45rem;
+  font-size: 0.92rem;
+}
+
+.api-probe-result-good { color: var(--lime); }
+.api-probe-result-warn { color: var(--gold); }
+.api-probe-result-bad { color: var(--red, #ff6b6b); }
+.api-probe-result-neutral { color: var(--muted); }

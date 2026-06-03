@@ -98,6 +98,28 @@ pytest
 
 Scan output lands in `./audit_logs/<timestamp>_<host>/audit_run.json`.
 
+### Optional extras (Tier 2 depth)
+
+Core install is enough for headers, DNS, TLS, paths, extensions, and HTML reports. Two **optional** add-ons need extra packages:
+
+| Extra | Install | Scan flag | What it adds |
+|-------|---------|-----------|--------------|
+| **`[js]`** | `pip install -e ".[js]"` (or `.[dev,js]`) | `--js` | Playwright post-render pass — DOM links/scripts after JavaScript runs |
+| **`[api]`** | included in base install | `--api` | GraphQL introspection + OpenAPI/Swagger probe (no extra pip package) |
+
+**Playwright browsers** (~100 MB) are downloaded separately — use the **same Python/venv** that runs `webaudit`:
+
+```bash
+cd v2_python_core
+pip install -e ".[js]"                    # once: Python package
+.venv/bin/python -m playwright install chromium chromium-headless-shell
+webaudit scan https://example.com --js
+```
+
+Browsers live in Playwright’s user cache by default (`~/Library/Caches/ms-playwright` on macOS). They are **not** committed to git (see `.gitignore`). If a scan says Chromium is missing, run the install line above from your venv — not a global `playwright` CLI unless that CLI uses the same Python.
+
+**CI / tests:** unit tests mock Playwright; CI does not need browsers installed.
+
 Or use the helper script (lists existing envs, age, setup/teardown):
 
 ```bash

@@ -18,6 +18,7 @@ from webaudit.collectors.tls_cert import (
     issuer_display_name,
     subject_common_name,
 )
+from webaudit.render.api_display import build_api_section
 from webaudit.render.discoverability_display import build_discoverability_section
 from webaudit.render.js_display import build_js_section
 from webaudit.render.dns_display import build_dns_cards, build_whois_card, format_net_tools
@@ -649,7 +650,16 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
         target_url=run.meta.target_url,
         findings=run.findings,
     )
-    inventory_rows = _inventory_rows(artifacts) + js_section.get("inventory_rows", [])
+    api_section = build_api_section(
+        artifacts,
+        target_url=run.meta.target_url,
+        findings=run.findings,
+    )
+    inventory_rows = (
+        _inventory_rows(artifacts)
+        + js_section.get("inventory_rows", [])
+        + api_section.get("inventory_rows", [])
+    )
 
     return {
         "run": run,
@@ -733,6 +743,7 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
         "metric_chips": metric_chips,
         "robots_section": robots_section,
         "js_section": js_section,
+        "api_section": api_section,
         "attribution": attribution,
         "report_footer": footer,
     }

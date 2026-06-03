@@ -20,16 +20,6 @@ You type a command with your site URL. You get a short summary and a saved repor
 - Technical Summary
 ![wiki_scan_3](/v2_python_core/mockups/screenshots/wiki_page_3.png)
 
-### Scan Example Report - Zillow Set:
-- Executive Summary
-![zillow_scan_1](/v2_python_core/mockups/screenshots/z_page_1.png)
-- Executive Summary
-![zillow_scan_2](/v2_python_core/mockups/screenshots/z_page_2.png)
-- Technical Summary
-![zillow_scan_3](/v2_python_core/mockups/screenshots/z_page_3.png)
-- Technical Summary
-![zillow_scan_4](/v2_python_core/mockups/screenshots/z_page_4.png)
-
 ---
 
 ## “Installing” the tool — what that actually means
@@ -125,13 +115,180 @@ Typical output:
 | **Verdict** | Plain label: **PASS**, **NEEDS ATTENTION**, or **AT_RISK**. |
 | **Findings** | Count of individual checks (missing header, missing DMARC, etc.). |
 
+### Scan Example Report - Zillow Set:
+- Executive Summary
+![zillow_scan_1](/v2_python_core/mockups/screenshots/z_page_1.png)
+- Executive Summary
+![zillow_scan_2](/v2_python_core/mockups/screenshots/z_page_2.png)
+- Technical Summary
+![zillow_scan_3](/v2_python_core/mockups/screenshots/z_page_3.png)
+- Technical Summary
+![zillow_scan_4](/v2_python_core/mockups/screenshots/z_page_4.png)
+
 The full detail is in a JSON file:
 
 ```text
 audit_logs/<date>_<your-site>/audit_run.json
 ```
+### JSON data Example:
+```json
+{
+  "schema_version": "2.0",
+  "meta": {
+    "target_url": "https://www.zillow.com",
+    "started_at": "2026-06-03T15:39:06+00:00",
+    "finished_at": "2026-06-03T15:40:45+00:00",
+    "webaudit_version": "2.1.0b2",
+    "framework": "unknown"
+  },
+  "config_snapshot": {
+    "runtime": {
+      "timeout_seconds": 15,
+      "max_concurrency": 8,
+      "probe_delay_ms": 0,
+      "user_agent": "WebAudit/2.0 (+https://github.com/Vlad-1618M/web_audit)"
+    },
+    "paths": {
+      "enabled": true,
+      "sensitive_builtin": true,
+      "max_probe_urls": 250,
+      "extra_paths": [],
+      "expected_open": []
+    },
+    "policy": {
+      "enabled": true,
+      "hsts_min_max_age_seconds": 15552000,
+      "csp_detail_max_length": 500
+    },
+    "collectors": {
+      "dns": {
+        "enabled": true,
+        "check_spf": true,
+        "check_dmarc": true,
+        "check_dkim": false,
+        "check_caa": true,
+        "check_dnssec": true,
+        "check_aaaa": true,
+        "check_a": true,
+        "check_mx": true,
+        "check_ns": true,
+        "check_asn": true,
+        "use_host_tools": true
+      },
+      "tls": {
+        "enabled": true,
+        "check_deprecated_versions": true,
+        "check_chain": true,
+        "check_ciphers": false,
+        "check_ocsp": false,
+        "expiry_warn_days": 30
+      },
+      "cookies": {
+        "enabled": true
+      },
+      "artifacts": {
+        "enabled": true,
+        "check_robots": true,
+        "check_security_txt": true,
+        "check_sitemap": true,
+        "max_robots_bytes": 12000,
+        "max_security_txt_bytes": 8000,
+        "max_sitemap_bytes": 16000,
+        "max_sitemap_urls": 150
+      },
+      "rate_limit": {
+        "enabled": true,
+        "get_burst_count": 6,
+        "post_burst_count": 15
+      },
+      "cors": {
+        "enabled": true,
+        "probe_origin": "https://evil.example.com",
+        "api_paths": [
+          "/api/",
+          "/api/v1/"
+        ]
+      },
+
+```
 
 Your developer can turn that into an HTML report (default **owner** variant: Security dashboard + Executive summary on one page, Technical details on a second tab). Mockups of standalone variants are in [mockups/reports/](../mockups/reports/).
+
+### HTML data Example:
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit — zillow.com (Owner report)</title>
+<meta name="color-scheme" content="dark">
+<style>
+  @media print {
+    html, body {
+      background: #030306 !important;
+      color: #eef2ff !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+</style>  <link rel="stylesheet" href="report.css">
+</head>
+<body>
+  <div class="owner-shell">
+    <header class="owner-action-bar no-print">
+<div class="owner-action-bar-inner">
+  <div class="owner-action-primary">
+    <button type="button" class="btn-edge-cyan" onclick="window.print()">Print / Save as PDF</button>
+    <span class="hint owner-print-hint">Print → Save as PDF. Turn on <strong>Background graphics</strong> for the dark theme.</span>
+  </div>
+  <nav class="owner-tab-switch" role="tablist" aria-label="Report sections">
+    <button type="button" class="owner-tab active" role="tab" data-owner-tab="overview" aria-selected="true">
+      Executive summary
+    </button>
+    <button type="button" class="owner-tab" role="tab" data-owner-tab="technical" aria-selected="false">
+      Technical details
+    </button>
+  </nav>
+</div>    </header>
+
+    <div id="page-overview" class="owner-page">
+      <div class="owner-overview-wrap">
+
+<section class="block dashboard-block">
+  <div class="dashboard-header-row">
+    <div class="section-heading-row">
+      <h2>Security dashboard</h2>
+      <p class="url section-heading-url"><a href="https://www.zillow.com" class="site-link" target="_blank" rel="noopener">https://www.zillow.com</a>
+</p>
+    </div>
+    <div class="tag-row dashboard-tags">
+      <span class="tag c">unknown</span>
+      <span class="tag m">AT RISK</span>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric score-band critical">
+      <div class="val">30</div>
+      <div class="lbl">Hygiene score</div>
+      <div class="metric-hint">Higher = better hardened</div>
+    </div>
+    <div class="metric score-band poor">
+      <div class="val">50</div>
+      <div class="lbl">Leak protection</div>
+      <div class="metric-hint">Higher = fewer public leaks</div>
+    </div>
+    <div class="metric gold">
+      <div class="val">103</div>
+      <div class="lbl">Path probes</div>
+    </div>
+    <div class="metric violet">
+      <div class="val">10</div>
+      <div class="lbl">Action items</div>
+    </div>
+  </div>
+```
 
 ### Reading the owner report (quick guide)
 
@@ -142,9 +299,15 @@ Your developer can turn that into an HTML report (default **owner** variant: Sec
 | **Technical details** | Full findings tables, DNS cards, site discovery URLs, **Plugins / Extensions** |
 | **Plugins / Extensions** | WordPress (or other stack) components seen in public HTML — **0 is normal** on sites where the homepage is not WordPress (e.g. Next.js front-end) |
 | **Bottom guide** | “What this report is (and is not)” — compares Web Audit to ZAP, pentests, SEO tools |
+---
+- Security dashboard preview
+![dashboard](/v2_python_core/mockups/screenshots/dashboard.png)
+- Technical details preview
+![Technical](/v2_python_core/mockups/screenshots/tech_view.png)
+- Bottom guide preview
+![Bottom guide](/v2_python_core/mockups/screenshots/is_isnot.png)
 
 Re-render a saved scan without re-running checks:
-
 ```bash
 webaudit report audit_logs/<folder>/audit_run.json
 ```

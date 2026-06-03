@@ -1,13 +1,34 @@
 {# Resizable technical report sidebar #}
 <aside class="sidebar" id="report-sidebar">
   <h1>Web Audit v2</h1>
-  {% from "site_link.html" import site_link %}
-  <p class="target">{{ site_link(target_href, target_url) }}</p>
+
   {% if show_sidebar_back %}
-  <p class="sidebar-back no-print">
-    <button type="button" class="link-tab" data-owner-tab="overview">← Back to owner summary</button>
-  </p>
+  <div class="sidebar-back-wrap no-print">
+    <button type="button" class="sidebar-back-btn" data-owner-tab="overview">
+      <span class="sidebar-back-icon" aria-hidden="true"></span>
+      <span class="sidebar-back-label">Back to owner summary</span>
+    </button>
+  </div>
+  <div class="sidebar-scope-divider" aria-hidden="true"></div>
   {% endif %}
+
+  <p class="sidebar-scope-label">Scan target</p>
+  {% from "site_link.html" import site_link %}
+  <p class="target sidebar-target">{{ site_link(target_href, target_url) }}</p>
+
+  {% if is_combined_report and show_sidebar_back %}
+  <nav class="sidebar-tab-switch no-print" role="tablist" aria-label="Report sections">
+    <button type="button" class="owner-tab sidebar-section-tab" role="tab" data-owner-tab="overview" aria-selected="false">
+      Summary
+    </button>
+    <button type="button" class="owner-tab sidebar-section-tab active" role="tab" data-owner-tab="technical" aria-selected="true">
+      Technical
+    </button>
+  </nav>
+  <div class="sidebar-nav-divider" aria-hidden="true"></div>
+  {% endif %}
+
+  <p class="sidebar-nav-label">On this page</p>
   <nav class="nav">
     <a href="#scores">Scores</a>
     {% if cert_summary %}<a href="#certificate">Certificate</a>{% endif %}
@@ -19,6 +40,7 @@
     {% if extension_section %}<a href="#extensions">Plugins</a>{% endif %}
     <a href="#attribution">Designer</a>
     <a href="#discovery">Site discovery</a>
+    <a href="#js-render">JavaScript</a>
     <a href="#inventory">Inventory</a>
     <a href="#report-system">System</a>
   </nav>

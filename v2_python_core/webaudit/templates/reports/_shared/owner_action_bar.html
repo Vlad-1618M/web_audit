@@ -1,0 +1,15 @@
+{# Owner combined report — print + section tabs (one bar, tabs on the right) #}
+<div class="owner-action-bar-inner">
+  <div class="owner-action-primary">
+    <button type="button" class="btn-edge-cyan" onclick="window.print()">Print / Save as PDF</button>
+    <span class="hint owner-print-hint">Print → Save as PDF. Turn on <strong>Background graphics</strong> for the dark theme.</span>
+  </div>
+  <nav class="owner-tab-switch" role="tablist" aria-label="Report sections">
+    <button type="button" class="owner-tab active" role="tab" data-owner-tab="overview" aria-selected="true">
+      Executive summary
+    </button>
+    <button type="button" class="owner-tab" role="tab" data-owner-tab="technical" aria-selected="false">
+      Technical details
+    </button>
+  </nav>
+</div>

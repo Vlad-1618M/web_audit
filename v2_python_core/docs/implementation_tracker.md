@@ -39,6 +39,9 @@ See [CHANGELOG.md](../CHANGELOG.md) for release notes.
 | **render** | n/a | `render/html.py`, `render/txt.py`, `render/pdf.py`, `render/reports.py` ✓ | wired ✓ | ✓ | **4** ✓ |
 | **render helpers** | n/a | `dns_display`, `probe_status`, `extension_display`, `discoverability_display`, `robots_display`, `report_metrics`, `focus_pie`, `finding_display`, `system_info` ✓ | wired ✓ | ✓ | **4 / 5** ✓ |
 | **bot_challenge** | `collectors/bot_challenge.py` ✓ | used by framework/html/site_discovery ✓ | wired ✓ | ✓ | **5** ✓ |
+| **js** (Playwright) | `collectors/js.py` ✓ | `analyzers/js.py` ✓ | wired ✓ | ✓ | **5 / 2** ✓ |
+| **api** (GraphQL/OpenAPI) | `collectors/api.py` ✓ | `analyzers/graphql.py`, `openapi.py` ✓ | wired ✓ | ✓ | **5 / 2** ✓ |
+| **links** (broken sample) | `collectors/links.py` ✓ | `analyzers/links.py` ✓ | wired ✓ | ✓ | **5 / 2c** ✓ |
 | **profiles** (WP/Django/Laravel/Rails YAML) | `profiles/loader.py` ✓ | — | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **extensions** (multi-framework) | `collectors/extensions/` ✓ | `analyzers/extensions.py` ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **wp_plugins** (WP HTML/readme) | via `collectors/extensions/wordpress.py` ✓ | via unified analyzer ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
@@ -210,4 +213,4 @@ Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
 
 ---
 
-*Last updated: Stage 5 beta polish — bot protection, finding colors, dynamic focus pie, report UX fixes (2026-06).*
+*Last updated: Tier 2 depth — JS pass, API probes, broken link sampler (2026-05).*

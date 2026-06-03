@@ -14,6 +14,9 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - **Bot protection detection** — SiteGround/captcha interstitials (HTTP 202, `sgcaptcha`); HTML VERIFY when homepage blocked; WordPress hint from `robots.txt` when framework fingerprint fails (`collectors/bot_challenge.py`)
 - **Dynamic focus pie** — dashboard Scan focus chart slice sizes from live hygiene, exposure, and SEO finding weights (not fixed 70/25/5)
 - **Priority timeline colors** — category stays violet; severity/status label matches timeline bullet tone
+- **Playwright JS pass** — `collectors/js.py` + `--js` CLI flag (optional `webaudit[js]` extra); technical report section + inventory rows; Playwright errors normalized (no raw paths in HTML — full detail in `audit_run.json`)
+- **GraphQL / OpenAPI probes** — `collectors/api.py` + analyzers; `--api` CLI flag; introspection and Swagger/OpenAPI exposure as VERIFY findings
+- **Broken link sampler** — `collectors/links.py` + `analyzers/links.py`; enable via `collectors.seo_surface.check_broken_links`
 
 ### Fixed
 
@@ -30,10 +33,8 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ### Deferred (Stage 5 remainder)
 
-- Playwright `--js` collector
-- GraphQL/OpenAPI discovery
-- Broken internal links (`analyzers.links`)
 - Plugin CVE cache / WPScan (`analyzers.plugin_vuln`)
+- httpx cassette integration tests (pytest-httpx / vcrpy) for Tier 2 collectors
 
 ---
 

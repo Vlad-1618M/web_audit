@@ -26,7 +26,7 @@ Stage 6   Tier 3 modules + packaging
 
 **Tier 1 (2.0.0b1):** Feature-complete for v2.0 foundation. CDN-aware HSTS downgrade aligned with v1 in **2.1.0b1**.
 
-**Stage 5 remainder (deferred → Tier 2/3):** Playwright `--js`, GraphQL/OpenAPI discovery, broken internal links (`analyzers.links`), plugin CVE cache — see [CHANGELOG.md](../CHANGELOG.md) `[Unreleased]` · [implementation_tracker.md](implementation_tracker.md).
+**Stage 5 remainder (deferred → Tier 3):** Plugin CVE cache — see [CHANGELOG.md](../CHANGELOG.md) `[Unreleased]` · [implementation_tracker.md](implementation_tracker.md).
 
 Stages are **sequential**. Tiers are **feature bundles** that land across stages but are owned as logical groups.
 
@@ -191,9 +191,9 @@ playwright>=1.42    # extra: webaudit[js]
 
 **Tier 2 exit criteria:**
 
-- [ ] `--js` flag runs Playwright pass when installed
+- [x] `--js` flag runs Playwright pass when installed
 - [x] Baseline diff in CLI (`webaudit diff`)
-- [ ] GraphQL / OpenAPI findings when exposed
+- [x] GraphQL / OpenAPI findings when exposed
 - [ ] Integration tests with recorded httpx cassettes (**pytest-httpx** or **vcrpy**)
 
 ---

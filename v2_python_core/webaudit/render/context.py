@@ -19,6 +19,7 @@ from webaudit.collectors.tls_cert import (
     subject_common_name,
 )
 from webaudit.render.discoverability_display import build_discoverability_section
+from webaudit.render.js_display import build_js_section
 from webaudit.render.dns_display import build_dns_cards, build_whois_card, format_net_tools
 from webaudit.render.finding_display import enrich_findings_table, tls_result_tone
 from webaudit.render.extension_display import build_extension_section
@@ -643,6 +644,12 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
     focus_pie_gradient = focus_pie_conic_gradient(focus_pie_slices)
     seo_findings = [f for f in run.findings if f.category == "SEO_SURFACE"]
     discoverability_section = build_discoverability_section(seo_findings)
+    js_section = build_js_section(
+        artifacts,
+        target_url=run.meta.target_url,
+        findings=run.findings,
+    )
+    inventory_rows = _inventory_rows(artifacts) + js_section.get("inventory_rows", [])
 
     return {
         "run": run,
@@ -676,7 +683,7 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
         "cert_summary": cert_summary,
         "path_rows": path_rows,
         "path_row_count": len(path_rows),
-        "inventory_rows": _inventory_rows(artifacts),
+        "inventory_rows": inventory_rows,
         "policy": artifacts.get("policy") or {},
         "category_health": _category_health(run.findings),
         "focus_pie_slices": focus_pie_slices,
@@ -725,6 +732,7 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
         "external_link_count": html_inv.get("external_link_count", 0),
         "metric_chips": metric_chips,
         "robots_section": robots_section,
+        "js_section": js_section,
         "attribution": attribution,
         "report_footer": footer,
     }

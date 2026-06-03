@@ -12,6 +12,24 @@ It is **not** a full penetration test. It is a **health check**: headers, DNS em
 
 You type a command with your site URL. You get a short summary and a saved report file you can open or send to your developer.
 
+### Scan Example Report - Wikipedia Set:
+- Executive Summary
+![wiki_scan_1](/v2_python_core/mockups/screenshots/wiki_page_1.png)
+- Technical Summary
+![wiki_scan_2](/v2_python_core/mockups/screenshots/wiki_page_2.png)
+- Technical Summary
+![wiki_scan_3](/v2_python_core/mockups/screenshots/wiki_page_3.png)
+
+### Scan Example Report - Zillow Set:
+- Executive Summary
+![zillow_scan_1](/v2_python_core/mockups/screenshots/z_page_1.png)
+- Executive Summary
+![zillow_scan_2](/v2_python_core/mockups/screenshots/z_page_2.png)
+- Technical Summary
+![zillow_scan_3](/v2_python_core/mockups/screenshots/z_page_3.png)
+- Technical Summary
+![zillow_scan_4](/v2_python_core/mockups/screenshots/z_page_4.png)
+
 ---
 
 ## “Installing” the tool — what that actually means

@@ -30,8 +30,14 @@ They pay for site support, Google Ads, SEO optimizations. No business leads show
 **Wat I want is simple, manageable way for anyone — especially people who have only seen a terminal in the movies — to understand what their public website is actually exposing.**
 
 That is v2.
-
 ---
+#### Report Examples -  ***v1-shell based*** VS ***v2-Python Core***
+- *v1 left* | *v2 right* - side-by-side preview
+![report_view](/v2_python_core/mockups/screenshots/v1_vs_v2_report_view_0.png)
+- *v1 left* | *v2 right* - side-by-side preview
+![report_view](/v2_python_core/mockups/screenshots/v1_vs_v2_report_view_1.png)
+- *v1 left* | *v2 right* - side-by-side preview
+![report_view](/v2_python_core/mockups/screenshots/v1_vs_v2_report_view_2.png)
 
 ## What v2 is
 

@@ -320,7 +320,7 @@ See **[docker_ci.md](docker_ci.md)** for full detail.
 | Workflow | Gate |
 |----------|------|
 | `.github/workflows/ci.yml` | Unit tests (required on PR) + WP Docker integration + Docker build |
-| `.github/workflows/ci.yml` → `publish-ghcr` | Push `ghcr.io/<owner>/webaudit` on merge to `main` / `v.tools_main` / `v*` tags |
+| `.github/workflows/ci.yml` → `publish-ghcr` | Multi-arch push `ghcr.io/<owner>/webaudit` (`linux/amd64` + `linux/arm64`) on merge to `main` / `v.tools_main` / `v*` tags |
 | `.github/workflows/publish-ghcr.yml` | Manual **Run workflow** GHCR publish |
 | `.github/workflows/security.yml` | CodeQL, pip-audit, dependency review |
 

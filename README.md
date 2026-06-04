@@ -1,17 +1,58 @@
 # Web Audit
 
-**Zero Install external security hygiene checks for public websites** — one shell script, `curl` + `openssl` only.
+External security hygiene checks for **public websites** you own or have permission to test.
+
+This repository ships **two editions**. They share the same philosophy (passive, unauthenticated, external-only) but differ in install and depth.
+
+| | **v1 Audit Lite** | **v2 Audit Pro** |
+|---|-------------------|------------------|
+| **What** | Single shell script | Python package + HTML reports |
+| **Location** | [`web_audit.sh`](web_audit.sh) (repo root) | [`v2_python_core/`](v2_python_core/) |
+| **Install** | `git clone` + zsh/bash — **no pip, no Docker** | **Docker** (recommended for visitors) or `pip install` from source |
+| **Best for** | SSH boxes, CI, minimal deps | Site owners, richer reports, WP themes, DNS/TLS depth |
+| **Docs** | This file (below) | [**v2 README**](v2_python_core/README.md) · [Docker / CI guide](v2_python_core/docs/docker_ci.md) |
+
+> **Not** a penetration test, authenticated scanner, or replacement for OWASP ZAP / nuclei. Use on sites you own or have explicit permission to test.
+
+---
+
+## Docker / GitHub Packages — v2 Audit Pro
+
+**If you opened the [GHCR package `webaudit`](https://github.com/users/Vlad-1618M/packages/container/webaudit)** or ran `docker pull ghcr.io/vlad-1618m/webaudit`, you want **v2**, not the bash script below.
+
+The container is **Web Audit Pro** (Python `webaudit` CLI). Image reference must be **lowercase**:
+
+```bash
+docker pull ghcr.io/vlad-1618m/webaudit:latest
+
+mkdir -p audit_logs
+docker run --rm \
+  -v "$(pwd)/audit_logs:/work/audit_logs" \
+  ghcr.io/vlad-1618m/webaudit:latest \
+  scan https://example.com --open none
+```
+
+Open `audit_logs/*/report.html` in your browser. Multi-arch: `linux/amd64` + `linux/arm64` (Intel Mac, Apple Silicon, Linux).
+
+| Resource | Link |
+|----------|------|
+| **v2 full README** (reports, optional `--js`, dev setup) | [v2_python_core/README.md](v2_python_core/README.md) |
+| **Docker, CI, GHCR publish** | [v2_python_core/docs/docker_ci.md](v2_python_core/docs/docker_ci.md) |
+| **Plain-English guide** (non-developers) | [v2_python_core/docs/getting_started_plain.md](v2_python_core/docs/getting_started_plain.md) |
+| **v1 bash script** (zero-install shell edition) | [↓ v1 section below](#v1-audit-lite--bash-quick-start) |
+
+---
+
+## v1 Audit Lite — bash quick start
+
+**Zero Install** — one shell script, `curl` + `openssl` only.
 
 Probe headers, TLS, paths, cookies, robots.txt, CORS, and login rate limits.<br> 
 Gets **Hygiene** and **Exposure** scores with HTML, JSON, and terminal reports. Supports **Django**, **WordPress**, **Laravel**, **Rails**, and generic PHP.
 
-> **Not** A: <br>Penetration test<br> Authenticated scanner <br>or a Replacement for OWASP ZAP / nuclei. <br>Use on sites you own or have explicit permission to test !
-
----
-
-## Quick start
-
 **Requirements:** zsh (macOS) or bash 4+, `curl`, `openssl`, standard Unix utilities. No pip/npm/Docker.
+
+**Looking for v2 / Docker instead?** See [Docker / GitHub Packages](#docker--github-packages--v2-audit-pro) or [v2_python_core/README.md](v2_python_core/README.md).
 
 ```bash
 git clone git@github.com:Vlad-1618M/web_audit.git
@@ -273,14 +314,17 @@ POST rate-limit probes send **real invalid login traffic** — use responsibly.
 
 ## Repository layout
 
-| File | Role |
+| Path | Role |
 |------|------|
-| `web_audit.sh` | Main audit tool (v2.5) |
-| `site.conf.template` | Per-site config template |
-| `README.md` | Quick start, evaluation overview, score math |
-| `run_notes.md` | Extended reference + code-level scoring/pipeline docs |
+| `web_audit.sh` | **v1** — main bash audit tool |
+| `v2_python_core/` | **v2** — Python package, Docker image source, docs |
+| `v2_python_core/docker/webaudit/Dockerfile` | Builds `ghcr.io/vlad-1618m/webaudit` |
+| `site.conf.template` | v1 per-site config template |
+| `README.md` | **This hub** — v1 quick start + v2/Docker pointers |
+| `v2_python_core/README.md` | v2 Audit Pro — full product README |
+| `run_notes.md` | v1 extended reference + scoring pipeline |
 | `audit_logs/` | Generated reports (gitignored) |
-| `site_configs/` | Auto-generated per-host configs (gitignored; interactive create) |
+| `site_configs/` | v1 auto-generated per-host configs (gitignored) |
 
 ---
 ## Report Sample View

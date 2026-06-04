@@ -2,7 +2,7 @@
 
 Run **unit tests first**, then optional **WordPress Docker fixture** integration tests, and build the **webaudit Pro** image for Windows/macOS/Linux users who prefer Docker over a local Python venv.
 
-Published images: **`ghcr.io/<your-github-user>/webaudit`** (GitHub Container Registry).
+Published images: **`ghcr.io/<your-github-user>/webaudit`** (GitHub Container Registry). Use **lowercase** for the owner segment (`vlad-1618m`, not `Vlad-1618M`). CI publishes a **multi-arch** manifest (`linux/amd64` + `linux/arm64`) under one tag — Apple Silicon Macs and Linux servers pull the matching variant automatically.
 
 **Diagrams:** [Docker stack](#docker-test-stack-architecture) · [`--all` flow](#local-orchestrator---orchestrateshall---all) · [CI pipeline](#github-actions-ci-githubworkflowsciyml) · [scan paths](#scan-paths--host-vs-container)
 
@@ -296,12 +296,16 @@ webaudit scan http://127.0.0.1:8080 -v --open html
 
 ### Pull from GHCR (after CI publish or manual push)
 
-Replace `Vlad-1618M` with your GitHub username/org:
+Replace `vlad-1618m` with your GitHub username/org (**lowercase** — Docker rejects mixed case):
 
 ```bash
-docker pull ghcr.io/Vlad-1618M/webaudit:latest
-docker run --rm ghcr.io/Vlad-1618M/webaudit:latest scan https://example.com --open none
+docker pull ghcr.io/vlad-1618m/webaudit:latest
+docker run --rm \
+  -v "$(pwd)/audit_logs:/work/audit_logs" \
+  ghcr.io/vlad-1618m/webaudit:latest scan https://example.com --open none
 ```
+
+**Platforms:** each tag is a multi-arch manifest (`linux/amd64`, `linux/arm64`). No separate Mac/Linux tags. If you pulled an older amd64-only image on Apple Silicon, re-pull after the next CI publish (or use `docker pull --platform linux/amd64 …` as a fallback).
 
 Tags pushed by CI:
 
@@ -345,6 +349,8 @@ After the first publish:
 2. **Package settings → Link repository** → `web_audit`
 3. Confirm visibility is **Public** (recommended for a public tool)
 
+**Package README:** GHCR displays the **linked repo’s root [README.md](../../README.md)** — that file is now a **hub** (v1 bash + v2 Docker). Point visitors to [v2_python_core/README.md](../README.md) for Audit Pro details.
+
 ### Automatic publish (CI)
 
 Workflow: `.github/workflows/ci.yml` — job **`publish-ghcr`**
@@ -358,6 +364,8 @@ Runs when **unit tests pass** and you **push** to:
 **Pull requests:** build + smoke test only — **no push** (so forks cannot publish to your GHCR).
 
 Uses `GITHUB_TOKEN` with `packages: write` — no extra secrets required.
+
+Pushes **multi-arch** images (`linux/amd64`, `linux/arm64`) under one tag via `docker/build-push-action` + QEMU. Image reference owner is forced to **lowercase** (`ghcr.io/vlad-1618m/webaudit`).
 
 ### Manual publish from GitHub UI
 
@@ -383,7 +391,7 @@ gh auth token | docker login ghcr.io -u YOUR_GITHUB_USER --password-stdin
 ./orchestrate.sh --job docker-push-ghcr
 
 # Or explicitly:
-GHCR_OWNER=Vlad-1618M ./orchestrate.sh --job docker-push-ghcr
+GHCR_OWNER=vlad-1618m ./orchestrate.sh --job docker-push-ghcr
 ```
 
 PAT alternative (classic token scopes: `read:packages`, `write:packages`):

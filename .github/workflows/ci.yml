@@ -138,6 +138,12 @@ jobs:
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "Package version: ${version}"
 
+      - name: Lowercase GHCR owner
+        id: ghcr
+        run: echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-qemu-action@v3
+
       - uses: docker/setup-buildx-action@v3
 
       - name: Log in to GHCR
@@ -151,18 +157,19 @@ jobs:
         id: docker_meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/webaudit
+          images: ghcr.io/${{ steps.ghcr.outputs.owner }}/webaudit
           tags: |
             type=raw,value=${{ steps.meta.outputs.version }}
             type=sha,prefix=sha-,format=short
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/v.tools_main' || github.ref == 'refs/heads/main' }}
             type=ref,event=tag
 
-      - name: Build and push
+      - name: Build and push (linux/amd64 + linux/arm64)
         uses: docker/build-push-action@v6
         with:
           context: v2_python_core
           file: v2_python_core/docker/webaudit/Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
@@ -174,8 +181,10 @@ jobs:
           {
             echo "### webaudit Pro image published to GHCR"
             echo ""
+            echo "Multi-arch manifest: \`linux/amd64\`, \`linux/arm64\` (Intel/ARM Mac + Linux)."
+            echo ""
             echo '```bash'
-            echo "docker pull ghcr.io/${{ github.repository_owner }}/webaudit:${{ steps.meta.outputs.version }}"
-            echo "docker run --rm ghcr.io/${{ github.repository_owner }}/webaudit:${{ steps.meta.outputs.version }} scan https://example.com --open none"
+            echo "docker pull ghcr.io/${{ steps.ghcr.outputs.owner }}/webaudit:${{ steps.meta.outputs.version }}"
+            echo "docker run --rm ghcr.io/${{ steps.ghcr.outputs.owner }}/webaudit:${{ steps.meta.outputs.version }} scan https://example.com --open none"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"

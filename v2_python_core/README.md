@@ -2,7 +2,10 @@
 
 **Status:** **2.1.0b3 (Stage 6 CI/Docker + Stage 5 themes)** — Tier 1 + Tier 2 depth, WP themes, **Docker CI / orchestrate.sh / GHCR**. **Next:** CVE cache, SARIF, packaging — see [CHANGELOG.md](CHANGELOG.md).
 
-This directory is the blueprint for **Web Audit v2**. It lives beside the public **v1 bash** tool (`web_audit.sh` at the repo root). I am **not replacing v1** — people use it today, and it stays frozen as the zero-install shell edition.
+> **GHCR / Docker visitors:** Package [`ghcr.io/vlad-1618m/webaudit`](https://github.com/users/Vlad-1618M/packages/container/webaudit) runs **this v2 edition**. Pull and scan — see [Docker quick start](#docker--ghcr-public-usage) below.  
+> **v1 bash script (no Docker):** [Root README — Audit Lite](../README.md#v1-audit-lite--bash-quick-start).
+
+This directory is the home of **Web Audit v2 (Audit Pro)**. It lives beside the public **v1 bash** tool ([`web_audit.sh`](../web_audit.sh) at the repo root). v1 is **not** being replaced — it stays the zero-install shell edition.
 
 ---
 
@@ -43,16 +46,35 @@ That is v2.
 
 | | v1 (bash) | v2 (Python) |
 |---|-----------|-------------|
-| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (2.1.0b3) |
+| **Location** | Repo root [`web_audit.sh`](../web_audit.sh) | `v2_python_core/webaudit/` package (2.1.0b3) |
 | **Audience** | Devs, CI, SSH boxes | Devs **and** non-technical site owners |
-| **Install** | curl + openssl + zsh/bash | `pipx install webaudit` (or similar) |
+| **Install** | curl + openssl + zsh/bash | **Docker** (`ghcr.io/vlad-1618m/webaudit`) or `pip install` from source |
 | **Architecture** | Monolith script | Modular collectors, analyzers, scorers, renderers |
 | **Reports** | HTML with browser “Save as PDF” | **`owner`** combined HTML (default) + five standalone variants; native PDF optional |
 | **Scope** | External hygiene snapshot | Same philosophy, **deeper signal** (DNS, TLS, DOM, optional JS) |
+| **Hub / compare** | [Root README](../README.md) | This file |
 
 v1 remains **Audit Lite** — zero dependencies, Unix-first, public forever.
 
 v2 is **Audit Pro** — built properly for broader consumption, free as any tool should be, installable without living in a terminal.
+
+---
+
+## Docker / GHCR (public usage)
+
+Published image: **`ghcr.io/vlad-1618m/webaudit`** (multi-arch: Intel + Apple Silicon + Linux). Full guide: [docs/docker_ci.md](docs/docker_ci.md).
+
+```bash
+docker pull ghcr.io/vlad-1618m/webaudit:latest
+
+mkdir -p audit_logs
+docker run --rm \
+  -v "$(pwd)/audit_logs:/work/audit_logs" \
+  ghcr.io/vlad-1618m/webaudit:latest \
+  scan https://example.com --open none
+```
+
+The [GitHub Packages page](https://github.com/users/Vlad-1618M/packages/container/webaudit) shows the **repo root README** (v1 + v2 hub). This file is the **v2-specific** documentation.
 
 ---
 
@@ -112,7 +134,7 @@ pytest
 ./orchestrate.sh --job wp-integration --wp-profile good
 
 # Or pull published image (after push to GHCR)
-docker run --rm ghcr.io/Vlad-1618M/webaudit:latest scan https://example.com --open none
+docker run --rm ghcr.io/vlad-1618m/webaudit:latest scan https://example.com --open none
 ```
 
 Scan output lands in `./audit_logs/<timestamp>_<host>/audit_run.json`.

@@ -81,6 +81,7 @@ ghcr_resolve_target() {
   if [[ -z "$GHCR_PUSH_OWNER" ]]; then
     GHCR_PUSH_OWNER="$(git -C "$PROJECT_ROOT" remote get-url origin 2>/dev/null | sed -n 's/.*github\.com[:/]\([^/]*\).*/\1/p' | tr -d '\r')"
   fi
+  GHCR_PUSH_OWNER="$(printf '%s' "$GHCR_PUSH_OWNER" | tr '[:upper:]' '[:lower:]')"
   GHCR_PUSH_VERSION="$(grep '__version__' "$PROJECT_ROOT/webaudit/__version__.py" | sed 's/.*"\(.*\)".*/\1/')"
   if [[ -n "$GHCR_PUSH_OWNER" ]]; then
     GHCR_PUSH_REMOTE="ghcr.io/${GHCR_PUSH_OWNER}/webaudit"

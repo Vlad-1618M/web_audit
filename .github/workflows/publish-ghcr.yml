@@ -27,6 +27,12 @@ jobs:
           version="$(grep '__version__' webaudit/__version__.py | sed 's/.*"\(.*\)".*/\1/')"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
+      - name: Lowercase GHCR owner
+        id: ghcr
+        run: echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-qemu-action@v3
+
       - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
@@ -38,7 +44,7 @@ jobs:
       - name: Build tag list
         id: tags
         run: |
-          owner="${{ github.repository_owner }}"
+          owner="${{ steps.ghcr.outputs.owner }}"
           version="${{ steps.meta.outputs.version }}"
           extra="${{ github.event.inputs.tag }}"
           list="ghcr.io/${owner}/webaudit:${version},ghcr.io/${owner}/webaudit:latest,ghcr.io/${owner}/webaudit:sha-${GITHUB_SHA::7}"
@@ -47,18 +53,24 @@ jobs:
           fi
           echo "list=${list}" >> "$GITHUB_OUTPUT"
 
-      - uses: docker/build-push-action@v6
+      - name: Build and push (linux/amd64 + linux/arm64)
+        uses: docker/build-push-action@v6
         with:
           context: v2_python_core
           file: v2_python_core/docker/webaudit/Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.tags.outputs.list }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Summary
         run: |
           {
             echo "### Published to GHCR"
             echo ""
-            echo "- \`ghcr.io/${{ github.repository_owner }}/webaudit:${{ steps.meta.outputs.version }}\`"
-            echo "- \`ghcr.io/${{ github.repository_owner }}/webaudit:latest\`"
+            echo "Multi-arch: \`linux/amd64\`, \`linux/arm64\`"
+            echo ""
+            echo "- \`ghcr.io/${{ steps.ghcr.outputs.owner }}/webaudit:${{ steps.meta.outputs.version }}\`"
+            echo "- \`ghcr.io/${{ steps.ghcr.outputs.owner }}/webaudit:latest\`"
           } >> "$GITHUB_STEP_SUMMARY"

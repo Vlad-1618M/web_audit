@@ -150,7 +150,7 @@ I have used **httpx** and **dnspython** before; they are proven choices for me, 
 | **M2 — Tier 1 parity+** | v1-equivalent checks in Python + DNS + TLS depth |
 | **M3 — Reports** | Three template variants + PDF |
 | **M4 — Tier 2** | JS pass, API probes, baselines |
-| **M4b — Tier 2b** | Framework profiles, multi-framework extension/version module | ← **2.1.0b2** |
+| **M4b — Tier 2b** | Framework profiles, multi-framework extension/version module + **WP theme fingerprint** | ← **2.1.0b2+** |
 | **M4c — Tier 2c** | SEO surface checks (INFO/VERIFY only) |
 | **M5 — Tier 3** | CT subdomains, vuln snapshot, SARIF export |
 | **M6 — Install** | pipx, Homebrew formula, docs for non-terminal users |
@@ -175,7 +175,7 @@ I have used **httpx** and **dnspython** before; they are proven choices for me, 
 
 Full library list per tier: [stages.md](stages.md) and [architecture.md](architecture.md).
 
-Plugin/extension planning: [plugin_vulnerability_research.md](plugin_vulnerability_research.md) · [framework_profiles.md](framework_profiles.md).
+Plugin/extension planning: [plugin_vulnerability_research.md](plugin_vulnerability_research.md) · [framework_profiles.md](framework_profiles.md) · [wordpress_theme_threat_model.md](wordpress_theme_threat_model.md).
 
 SEO surface (informational): [seo_surface.md](seo_surface.md).
 

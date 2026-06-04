@@ -55,11 +55,15 @@ class FrameworkProfile(BaseModel):
     compare: ProfileCompareSettings = Field(default_factory=ProfileCompareSettings)
     scoring: ProfileScoringSettings = Field(default_factory=ProfileScoringSettings)
     watchlist: list[WatchlistEntry] = Field(default_factory=list)
+    theme_watchlist: list[WatchlistEntry] = Field(default_factory=list)
     aliases: dict[str, str] = Field(default_factory=dict)
     signals: dict[str, str] = Field(default_factory=dict)
 
     def watchlist_map(self) -> dict[str, WatchlistEntry]:
         return {entry.name: entry for entry in self.watchlist}
+
+    def theme_watchlist_map(self) -> dict[str, WatchlistEntry]:
+        return {entry.name: entry for entry in self.theme_watchlist}
 
     def normalize_slug(self, slug: str) -> str:
         return self.aliases.get(slug, slug)
@@ -79,6 +83,16 @@ def _normalize_watchlist(data: dict[str, Any]) -> None:
             item = {**item, "slug": item["package"]}
         entries.append(WatchlistEntry.model_validate(item))
     data["watchlist"] = entries
+
+    theme_raw = data.get("theme_watchlist") or []
+    theme_entries: list[WatchlistEntry] = []
+    for item in theme_raw:
+        if not isinstance(item, dict):
+            continue
+        if "package" in item and "slug" not in item:
+            item = {**item, "slug": item["package"]}
+        theme_entries.append(WatchlistEntry.model_validate(item))
+    data["theme_watchlist"] = theme_entries
 
 
 @lru_cache(maxsize=8)

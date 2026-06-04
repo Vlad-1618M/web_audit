@@ -24,6 +24,7 @@ from webaudit.render.js_display import build_js_section
 from webaudit.render.dns_display import build_dns_cards, build_whois_card, format_net_tools
 from webaudit.render.finding_display import enrich_findings_table, tls_result_tone
 from webaudit.render.extension_display import build_extension_section
+from webaudit.render.theme_display import build_theme_section
 from webaudit.render.focus_pie import (
     build_focus_pie_slices,
     focus_pie_chart_html,
@@ -632,6 +633,7 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
     probe_urls = _probe_url_rows(run.meta.target_url, artifacts, framework=run.meta.framework)
     site_urls = _site_url_rows(run.meta.target_url, artifacts)
     extension_section = build_extension_section(artifacts, run.findings, framework=run.meta.framework)
+    theme_section = build_theme_section(artifacts, run.findings, framework=run.meta.framework)
     image_rows = _image_rows(artifacts)
     path_rows = _path_rows(artifacts, framework=run.meta.framework)
     footer = build_report_footer(scanned_at=run.meta.finished_at or run.meta.started_at)
@@ -714,6 +716,7 @@ def build_report_context(run: AuditRun, *, variant: str, theme: str) -> dict[str
         "cert_issuer_display": cert_summary.get("issuer_display") if cert_summary else None,
         "action_count": len(groups["action"]),
         "extension_section": extension_section,
+        "theme_section": theme_section,
         "extension_rows": extension_section.get("rows", []) if extension_section else [],
         "extension_section_title": (
             f"{extension_section['framework_label']} {extension_section['unit_plural']} & version check"

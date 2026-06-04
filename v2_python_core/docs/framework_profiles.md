@@ -73,6 +73,8 @@ v2_python_core/mockups/config/profiles/
 
 WordPress uses `plugins`; Django/Laravel use `packages` — same schema shape, different probe paths.
 
+WordPress also ships a **`theme_watchlist`** in `profiles/wordpress/extensions.yaml` for premium parent themes (Avada, Divi, …). Theme fingerprinting runs alongside plugins when extensions are enabled — see [wordpress_theme_threat_model.md](wordpress_theme_threat_model.md).
+
 ---
 
 ## Shared schema (extensions block)

@@ -1,6 +1,6 @@
 # Web Audit v2 — Python Core
 
-**Status:** **2.1.0b2 (Stage 5 beta complete)** — Tier 1 + Tier 2 depth (Playwright `--js`, GraphQL/OpenAPI `--api`, optional broken-link sampler), Tier 2b extensions, DNS enrichment, SEO surface, owner report, baseline diff. **Next:** Stage 6 (CVE cache, packaging) — see [CHANGELOG.md](CHANGELOG.md) `[Unreleased]`.
+**Status:** **2.1.0b3 (Stage 6 CI/Docker + Stage 5 themes)** — Tier 1 + Tier 2 depth, WP themes, **Docker CI / orchestrate.sh / GHCR**. **Next:** CVE cache, SARIF, packaging — see [CHANGELOG.md](CHANGELOG.md).
 
 This directory is the blueprint for **Web Audit v2**. It lives beside the public **v1 bash** tool (`web_audit.sh` at the repo root). I am **not replacing v1** — people use it today, and it stays frozen as the zero-install shell edition.
 
@@ -30,14 +30,20 @@ They pay for site support, Google Ads, SEO optimizations. No business leads show
 **Wat I want is simple, manageable way for anyone — especially people who have only seen a terminal in the movies — to understand what their public website is actually exposing.**
 
 That is v2.
-
 ---
+#### Report Examples -  ***v1-shell based*** VS ***v2-Python Core***
+- *v1 left* | *v2 right* - side-by-side preview
+![report_view](/v2_python_core/mockups/screenshots/v1_vs_v2_report_view_0.png)
+- *v1 left* | *v2 right* - side-by-side preview
+![report_view](/v2_python_core/mockups/screenshots/v1_vs_v2_report_view_1.png)
+- *v1 left* | *v2 right* - side-by-side preview
+![report_view](/v2_python_core/mockups/screenshots/v1_vs_v2_report_view_2.png)
 
 ## What v2 is
 
 | | v1 (bash) | v2 (Python) |
 |---|-----------|-------------|
-| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (2.1.0b2) |
+| **Location** | Repo root `web_audit.sh` | `v2_python_core/webaudit/` package (2.1.0b3) |
 | **Audience** | Devs, CI, SSH boxes | Devs **and** non-technical site owners |
 | **Install** | curl + openssl + zsh/bash | `pipx install webaudit` (or similar) |
 | **Architecture** | Monolith script | Modular collectors, analyzers, scorers, renderers |
@@ -55,13 +61,15 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 | Document | Purpose |
 |----------|---------|
 | [docs/implementation_tracker.md](docs/implementation_tracker.md) | **Built vs planned** — module status, extension contract, Stage 2 backlog |
-| [CHANGELOG.md](CHANGELOG.md) | Release history; Unreleased = Stage 6 backlog |
+| [CHANGELOG.md](CHANGELOG.md) | Release history; Unreleased = remaining Stage 6 product backlog |
 | [docs/getting_started_plain.md](docs/getting_started_plain.md) | **Non-technical** — install, scan, tab completion explained simply |
 | [dev-venv.sh](dev-venv.sh) | Local `.venv` setup, activate, teardown (Mac/Linux) |
 | [docs/stages.md](docs/stages.md) | Delivery stages; Tier 1 → Tier 2 → Tier 3 stacking |
 | [docs/architecture.md](docs/architecture.md) | Module layout, libraries, data flow, diagrams |
 | [docs/scoring.md](docs/scoring.md) | Math for Hygiene, Exposure, verdicts, baselines |
 | [docs/testing.md](docs/testing.md) | pytest strategy, fixtures, CI gates |
+| [docs/docker_ci.md](docs/docker_ci.md) | **Docker WP fixture**, `orchestrate.sh`, CI, webaudit Pro image |
+| [docs/release_flow_t3_stage_6.md](docs/release_flow_t3_stage_6.md) | **Release notes** — tag/push/GHCR flow for 2.1.0b3 (working doc) |
 | [docs/config.md](docs/config.md) | YAML config system — global + per-site + framework profiles |
 | [docs/framework_profiles.md](docs/framework_profiles.md) | Detect → load profile; WordPress/Django/Laravel |
 | [docs/plugin_vulnerability_research.md](docs/plugin_vulnerability_research.md) | WP plugin CVE research + v2 criteria refinements |
@@ -93,7 +101,18 @@ cd v2_python_core
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 webaudit scan https://example.com
+./orchestrate.sh --pytest-only    # unit tests + coverage (same as CI gate)
 pytest
+```
+
+**Docker / CI:** see [docs/docker_ci.md](docs/docker_ci.md) — WordPress test container, `./orchestrate.sh`, GHCR image publish, GitHub Actions on PRs.
+
+```bash
+# Run from source
+./orchestrate.sh --job wp-integration --wp-profile good
+
+# Or pull published image (after push to GHCR)
+docker run --rm ghcr.io/Vlad-1618M/webaudit:latest scan https://example.com --open none
 ```
 
 Scan output lands in `./audit_logs/<timestamp>_<host>/audit_run.json`.
@@ -149,7 +168,7 @@ Full friendly guide: **[docs/getting_started_plain.md](docs/getting_started_plai
 v2_python_core/
 ├── dev-venv.sh
 ├── pyproject.toml
-├── webaudit/                   ← Python package (2.1.0b2)
+├── webaudit/                   ← Python package (2.1.0b3)
 │   ├── cli/                    # scan, report, diff, completion
 │   ├── config/                 # settings.py + defaults.yaml
 │   ├── collectors/             # headers, dns, paths, tls, extensions/, …

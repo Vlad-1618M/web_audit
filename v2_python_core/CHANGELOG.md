@@ -8,10 +8,44 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ## [Unreleased]
 
-### Deferred (Stage 6 / Tier 3)
+### Deferred (Stage 6 / Tier 3 — product modules)
 
+- Theme CVE match via WPScan cache
 - Plugin CVE cache / WPScan (`analyzers.plugin_vuln`)
-- httpx cassette integration tests (pytest-httpx / vcrpy) for Tier 2 collectors
+- httpx cassette integration tests (pytest-httpx / vcrpy) for Tier 2 collectors — *WP Docker integration tests exist; cassettes remain optional*
+- SARIF export, INI → YAML migrator, Homebrew formula, i18n stub
+
+---
+
+## [2.1.0b3] — 2026-06-04
+
+**Stage 6 started (CI / Docker / QA harness)** — local orchestrator, GitHub Actions, WordPress fixture integration tests, GHCR publish. **Stage 5 product** additions: WP theme fingerprint, live path probe progress.
+
+### Added
+
+- **Docker CI stack** — MariaDB + WordPress fixture (`docker/docker-compose.yml`); profiles **weak | mid | good** via `docker/wp-test/init-wordpress.sh`; volumes `wp_db_data` + `wp_html`
+- **`orchestrate.sh`** — `--all`, `--pytest-only`, `--job …`, colored `--help` / `--h`; chains multiple jobs; `--keep-wp`, `--no-report-prompt`
+- **webaudit Pro Dockerfile** — `docker/webaudit/Dockerfile` → `webaudit:local`; scan from host network or `http://wordpress` on `webaudit-test-net`
+- **GitHub Actions** — `.github/workflows/ci.yml`: unit-tests → integration-wp + docker-image; **publish-ghcr** on push to `main` / `v.tools_main` / `v*` tags (not on PRs)
+- **Security / Dependabot** — CodeQL, pip-audit, dependency review; weekly Dependabot
+- **Manual GHCR publish** — `.github/workflows/publish-ghcr.yml` (workflow dispatch)
+- **WP integration tests** — `tests/integration/test_wp_docker_scan.py` (framework, plugins, themes, wp-config VERIFY)
+- **pytest HTML reports (QA)** — `pytest-html` + `scripts/pytest_reports.sh`; **Test case** row per test (docstring / `@pytest.mark.test_case`); browser prompt after local pytest
+- **WordPress theme fingerprint** — `collectors/wp_themes.py`, `analyzers/wp_themes.py`, Technical report theme section; wp.org compare; child-theme / update-trap VERIFY
+- **Live path probe progress** — streaming counter (normal) and per-path lines (`-v`); Rich `highlight=False` for stable output
+- **`--js` scan help** — Playwright / `webaudit[js]` install steps in CLI help
+- **docs/docker_ci.md** — full guide + Mermaid diagrams (stack, `--all`, CI, scan paths)
+
+### Fixed
+
+- **wp-init** — `wp-config.php` writable on shared Docker volume (`user: "0:0"` + `ensure_fs_writable`)
+- **scan_progress tests** — Rich highlighter no longer splits `1/2` and path strings in assertions
+- **test_output_ui** — StringIO console prevents `Opened:` leaking into pytest `-s` output
+
+### Changed
+
+- **wp-config hardening advisory** — VERIFY mentions both `DISALLOW_FILE_EDIT` and `DISALLOW_FILE_MODS` when wp-admin reachable
+- **~201 unit tests** — one-line QA docstrings on test functions; `tests/test_case.py` + conftest HTML hooks
 
 ---
 
@@ -153,6 +187,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 - pytest suite (14 tests): config, headers, DNS, scoring, completion CLI
 - Docs: `getting_started_plain.md`, synced stages/architecture/scoring
 
+[2.1.0b3]: https://github.com/Vlad-1618M/web_audit/compare/2.1.0b2...2.1.0b3
 [2.1.0b2]: https://github.com/Vlad-1618M/web_audit/compare/2.1.0b1...2.1.0b2
 [2.1.0b1]: https://github.com/Vlad-1618M/web_audit/compare/2.0.0b1...2.1.0b1
 [2.0.0b1]: https://github.com/Vlad-1618M/web_audit/compare/2.0.0a1...2.0.0b1

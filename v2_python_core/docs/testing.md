@@ -39,6 +39,9 @@ Goals:
 | **pytest-asyncio** | Async collectors |
 | **pytest-httpx** | Mock httpx requests declaratively |
 | **pytest-cov** | Coverage gate (target 85%+ on scoring/analyzers) |
+| **pytest-html** | Single dated HTML report with per-test details for QA |
+| **orchestrate.sh** | Local CI — pytest first, optional WP Docker fixture ([docker_ci.md](docker_ci.md) · [diagrams](docker_ci.md#diagrams)) |
+| **pytest_reports.sh** | List / open archived HTML reports ([docker_ci.md](docker_ci.md#pytest-html-reports-qa)) |
 | **freezegun** | Cert expiry edge cases |
 | **jsonschema** | Validate `audit_run.json` against schema |
 
@@ -47,6 +50,7 @@ dev dependencies (pyproject.toml today):
   pytest>=8.0
   pytest-httpx>=0.30
   pytest-cov>=5.0
+  pytest-html>=4.0
 
 planned (Tier 1 complete):
   pytest-asyncio>=0.23
@@ -56,11 +60,84 @@ planned (Tier 1 complete):
 
 ---
 
+## HTML reports for QA
+
+Two different HTML outputs — do not confuse them:
+
+| Report | Tool | Path | Contents |
+|--------|------|------|----------|
+| **Test run report** | pytest-html | `pytest_reports/webaudit_pytest_YYYY-MM-DD_HHMMSS.html` | Every test, pass/fail/skip, expandable **Test case** row |
+| **Coverage report** | pytest-cov | `htmlcov/index.html` | Line coverage by module |
+
+### Running locally
+
+```bash
+cd v2_python_core
+
+# Recommended — unit tests + both reports + optional browser prompt
+./orchestrate.sh --pytest-only
+
+# CI / scripts — skip “open report in browser?”
+./orchestrate.sh --pytest-only --no-report-prompt
+
+# Raw pytest (same flags the orchestrator uses)
+python -m pytest tests/unit -v -s -x -ra \
+  --cov=webaudit --cov-report=html:htmlcov \
+  --html=pytest_reports/webaudit_pytest_manual.html --self-contained-html
+```
+
+After `./orchestrate.sh --pytest-only`, the orchestrator lists saved reports (newest in **green**, older in **orange**) and asks whether to open one in the browser. Pick by index `0`, `1`, … or decline and copy the path.
+
+Manage reports without re-running tests:
+
+```bash
+./scripts/pytest_reports.sh list
+./scripts/pytest_reports.sh open 0
+WEBAUDIT_SKIP_PYTEST_OPEN=1 ./orchestrate.sh --pytest-only
+```
+
+### Test case text in the HTML report
+
+Each test row expands to a **Test case** block (not empty “No log output captured.” for passing tests). Resolution order in `tests/test_case.py` + `tests/conftest.py`:
+
+1. `@pytest.mark.test_case("…")` — explicit QA wording (preferred for complex scenarios)
+2. Function docstring — first paragraph shown as-is
+3. Auto-generated fallback — `Area:` (module docstring) + `Test case: Ensures …`
+
+**Example — explicit marker:**
+
+```python
+import pytest
+
+@pytest.mark.test_case("GraphQL introspection must be flagged when __schema is returned.")
+def test_graphql_introspection_detected(httpx_mock):
+    ...
+```
+
+**Example — docstring (most unit tests today):**
+
+```python
+def test_graphql_introspection_detected(httpx_mock):
+    """Ensures GraphQL introspection is detected when the endpoint returns schema data."""
+    ...
+```
+
+To bulk-fill missing docstrings (one-time / after adding new tests):
+
+```bash
+python tests/test_case.py   # adds one-line docstrings where absent
+```
+
+QA workflow: open latest `pytest_reports/*.html` → filter by Failed/Skipped → expand row → read **Test case** → cross-check against product spec or manual test plan.
+
+---
+
 ## Directory layout
 
 ```text
 tests/
-├── conftest.py                 # shared fixtures, httpx mock client
+├── conftest.py                 # fixtures, HTML report hooks (Test case rows)
+├── test_case.py                # resolve QA description for pytest-html
 ├── unit/
 │   ├── test_config_loader.py
 │   ├── test_scoring_hygiene.py
@@ -71,6 +148,7 @@ tests/
 │   ├── test_analyzer_cookies.py
 │   ├── test_dns_parser.py
 │   ├── test_config_profiles.py      # Tier 2b — framework profile merge
+│   ├── test_wp_themes.py
 │   ├── test_wp_plugin_fingerprint.py
 │   ├── test_wp_plugin_stale.py
 │   ├── test_plugin_vuln_auth_class.py
@@ -235,22 +313,33 @@ Full bash execution in CI is optional — run v1 `zsh -n web_audit.sh` syntax ch
 
 ---
 
-## CI pipeline (planned)
+## CI pipeline (implemented)
 
-```yaml
-# .github/workflows/test.yml (future, under v2_python_core or repo root)
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.12" }
-      - run: pip install -e ".[dev,pdf]"
-      - run: pytest tests/ --cov=webaudit --cov-fail-under=85
-      - run: ruff check webaudit
+See **[docker_ci.md](docker_ci.md)** for full detail.
+
+| Workflow | Gate |
+|----------|------|
+| `.github/workflows/ci.yml` | Unit tests (required on PR) + WP Docker integration + Docker build |
+| `.github/workflows/ci.yml` → `publish-ghcr` | Push `ghcr.io/<owner>/webaudit` on merge to `main` / `v.tools_main` / `v*` tags |
+| `.github/workflows/publish-ghcr.yml` | Manual **Run workflow** GHCR publish |
+| `.github/workflows/security.yml` | CodeQL, pip-audit, dependency review |
+
+Local equivalent:
+
+```bash
+./orchestrate.sh --pytest-only
+./orchestrate.sh --job wp-integration
 ```
 
-Separate job: `zsh -n web_audit.sh` — v1 untouched syntax gate.
+Non-interactive (matches CI — no report browser prompt):
+
+```bash
+./orchestrate.sh --pytest-only --no-report-prompt
+```
+
+See [docker_ci.md — Pytest HTML reports](docker_ci.md#pytest-html-reports-qa) for report paths and env vars.
+
+Separate job (future): `zsh -n web_audit.sh` — v1 syntax gate.
 
 ---
 
@@ -260,6 +349,8 @@ Separate job: `zsh -n web_audit.sh` — v1 untouched syntax gate.
 ruff check
 ruff format --check
 pytest tests/unit -q
+# or full orchestrator parity:
+./orchestrate.sh --pytest-only --no-report-prompt
 ```
 
 Fast loop before push.
@@ -282,9 +373,9 @@ Fast loop before push.
 | 2 | all Tier 1 collectors mocked |
 | 3 | scoring golden files 100% |
 | 4 | three templates render |
-| 5 | baseline diff + Tier 2b extensions + DNS enrichment + **Tier 2c SEO unscored** + Tier 2 depth (JS/API/links) + owner report UX tests (~181 unit tests) |
-| 6 | pip install + smoke scan in CI |
+| 5 | baseline diff + Tier 2b extensions + **WP theme fingerprint** + DNS enrichment + **Tier 2c SEO unscored** + Tier 2 depth (JS/API/links) + owner report UX + **Docker CI / WP integration** (~201 unit tests) |
+| 6 | pip install + smoke scan in CI — **docker build + GHCR** ✓; pipx/Homebrew pending |
 
 ---
 
-*Related: [scoring.md](scoring.md) · [architecture.md](architecture.md)*
+*Related: [scoring.md](scoring.md) · [architecture.md](architecture.md) · [docker_ci.md](docker_ci.md)*

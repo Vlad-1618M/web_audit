@@ -41,3 +41,37 @@ watchlist:
 
 aliases:
   wordpress-seo: yoast-seo
+
+theme_watchlist:
+  - slug: avada
+    tier: critical
+    premium: true
+    compare_latest: false
+  - slug: divi
+    tier: critical
+    premium: true
+    compare_latest: false
+  - slug: oceanwp
+    tier: high
+    premium: true
+    compare_latest: false
+  - slug: astra
+    tier: high
+    premium: false
+  - slug: generatepress
+    tier: medium
+    premium: false
+  - slug: flatsome
+    tier: high
+    premium: true
+    compare_latest: false
+  - slug: neve
+    tier: medium
+    premium: false
+  - slug: blocksy
+    tier: medium
+    premium: false
+  - slug: motors
+    tier: critical
+    premium: true
+    compare_latest: false

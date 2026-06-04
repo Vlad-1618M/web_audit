@@ -23,6 +23,7 @@ from webaudit.analyzers.headers import analyze_headers
 from webaudit.analyzers.html import analyze_html
 from webaudit.analyzers.paths import analyze_paths
 from webaudit.analyzers.extensions import analyze_extensions
+from webaudit.analyzers.wp_themes import analyze_wp_themes
 from webaudit.analyzers.extension_compare import registry_for_framework, registry_meta
 from webaudit.analyzers.policy import analyze_policy
 from webaudit.analyzers.rate_limit import analyze_rate_limit
@@ -32,6 +33,7 @@ from webaudit.analyzers.links import analyze_links
 from webaudit.analyzers.openapi import analyze_openapi
 from webaudit.analyzers.tls import analyze_tls
 from webaudit.collectors.extensions import collect_extensions
+from webaudit.collectors.wp_themes import collect_wp_themes
 from webaudit.collectors.artifacts import collect_artifacts
 from webaudit.collectors.cookies import collect_cookies
 from webaudit.collectors.cors import collect_cors
@@ -137,9 +139,22 @@ def _step_dns(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, An
     return analyze_dns(probe, settings.collectors.dns), {"dns": probe.to_artifact()}
 
 
-def _step_paths(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+def _step_paths(
+    settings: Settings,
+    *,
+    progress: ScanProgress | None = None,
+) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
     if not settings.paths.enabled:
         return [], {}
+
+    on_probe_start = None
+    on_probe = None
+    if progress is not None:
+        on_probe_start = progress.paths_probe_start
+        on_probe = lambda entry, index, total: progress.paths_probe_done(
+            entry.to_dict(), index, total
+        )
+
     probe = collect_paths(
         settings.target.url,
         framework=settings.target.framework,
@@ -147,6 +162,8 @@ def _step_paths(settings: Settings) -> tuple[list[Finding], dict[str, dict[str, 
         user_agent=settings.runtime.user_agent,
         timeout_seconds=settings.runtime.timeout_seconds,
         probe_delay_ms=settings.runtime.probe_delay_ms,
+        on_probe_start=on_probe_start,
+        on_probe=on_probe,
     )
     findings = analyze_paths(
         probe,
@@ -381,8 +398,7 @@ def _step_html(
 
 def _step_extensions(
     settings: Settings,
-    result: PipelineResult,
-) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    result: PipelineResult,) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
     if not settings.collectors.extensions.enabled:
         return [], {}
 
@@ -424,6 +440,26 @@ def _step_extensions(
         timeout_seconds=settings.runtime.timeout_seconds,
     )
     artifact = probe.to_artifact()
+    if framework == "wordpress":
+        paths_art = result.artifacts.get("inventory", {}).get("paths", {})
+        path_probes = paths_art.get("paths") or []
+        theme_probe = collect_wp_themes(
+            settings.target.url,
+            body,
+            profile,
+            user_agent=settings.runtime.user_agent,
+            timeout_seconds=settings.runtime.timeout_seconds,
+        )
+        findings.extend(
+            analyze_wp_themes(
+                theme_probe,
+                profile,
+                user_agent=settings.runtime.user_agent,
+                timeout_seconds=settings.runtime.timeout_seconds,
+                path_probes=path_probes,
+            )
+        )
+        artifact["themes"] = theme_probe.to_artifact()
     registry = registry_for_framework(framework)
     if registry:
         artifact["registry"] = registry
@@ -562,7 +598,9 @@ def run_pipeline(
             continue
         if progress:
             progress.step_start(label, description)
-        if step_name in _CONTEXT_STEPS:
+        if step_name == "_step_paths":
+            findings, artifact_parts = step(settings, progress=progress)
+        elif step_name in _CONTEXT_STEPS:
             findings, artifact_parts = step(settings, result)
         else:
             findings, artifact_parts = step(settings)

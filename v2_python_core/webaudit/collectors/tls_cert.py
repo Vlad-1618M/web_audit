@@ -77,6 +77,18 @@ def validate_hostname(hostname: str, *, subject: str | None, san: list[str]) -> 
         candidates.append(cn)
     candidates.extend(san)
 
+    seen: set[str] = set()
+    unique_candidates: list[str] = []
+    for pattern in candidates:
+        if not isinstance(pattern, str):
+            continue
+        key = pattern.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        unique_candidates.append(pattern)
+    candidates = unique_candidates
+
     if not candidates:
         return True, "No CN/SAN to compare — assumed OK"
 

@@ -1,0 +1,14 @@
+paths-ignore:
+  - "**/*.md"
+  - "**/mockups/**"
+  - "**/pen/**"
+
+queries:
+  - uses: security-and-quality
+
+# Test assertions use fixed fixture URLs; substring checks are false positives here.
+query-filters:
+  - exclude:
+      id: py/incomplete-url-substring-sanitization
+    paths:
+      - "v2_python_core/tests/**"

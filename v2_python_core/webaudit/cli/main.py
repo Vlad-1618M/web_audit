@@ -23,6 +23,23 @@ from webaudit.cli.report_cmd import report_command
 from webaudit.cli.scan_progress import ScanProgress, Verbosity, resolve_verbosity
 from webaudit.orchestrator import audit_run_to_json, run_audit
 
+# Plain pip install webaudit does NOT include Playwright — show both steps in --help and at scan time.
+_JS_HELP = (
+    "Playwright JS pass (optional — not in base install). "
+    "Setup: pip install 'webaudit\\[js]' OR pip install -e \".\\[js]\" from repo; "
+    "then python -m playwright install chromium chromium-headless-shell (same venv)"
+)
+
+
+def _print_js_setup_hint(console: Console) -> None:
+    console.print(
+        "[yellow]--js requires a one-time setup (not included in plain pip install webaudit):[/yellow]"
+    )
+    console.print("  [dim]1.[/dim] pip install 'webaudit\\[js]'")
+    console.print("     [dim](from this repo: cd v2_python_core && pip install -e \".\\[js]\")[/dim]")
+    console.print("  [dim]2.[/dim] python -m playwright install chromium chromium-headless-shell")
+    console.print("     [dim](use the same Python/venv that runs webaudit)[/dim]")
+
 app = typer.Typer(
     name="webaudit",
     help="Web Audit v2 — external security hygiene for public websites",
@@ -78,7 +95,7 @@ def scan(
         bool,
         typer.Option(
             "--js",
-            help="Run Playwright JS render pass (requires pip install 'webaudit[js]')",
+            help=_JS_HELP,
         ),
     ] = False,
     api_probe: Annotated[
@@ -89,7 +106,17 @@ def scan(
         ),
     ] = False,
 ) -> None:
-    """Run a hygiene scan against a public URL."""
+    """Run a hygiene scan against a public URL.
+
+    --js uses Playwright and is NOT part of a plain ``pip install webaudit``.
+    One-time setup before ``webaudit scan URL --js``:
+
+    \b
+      1. pip install 'webaudit\\[js]'  (from this repo: pip install -e ".\\[js]")
+      2. python -m playwright install chromium chromium-headless-shell
+
+    Use the same Python/venv for step 2 as the ``webaudit`` command.
+    """
     try:
         settings = load_settings(
             config_path=config,
@@ -111,6 +138,10 @@ def scan(
     except ValueError as exc:
         console.print(f"[red]Option error:[/red] {exc}")
         raise typer.Exit(code=2) from exc
+
+    if js_pass and verbosity != Verbosity.QUIET:
+        _print_js_setup_hint(console)
+        console.print()
 
     progress = ScanProgress(console, verbosity)
 

@@ -13,20 +13,20 @@ Stage 2   Tier 1 collectors + v1 parity    ✓
 Stage 3   Scoring + analyzers + audit_run  ✓ (parity polish ongoing)
 Stage 4   Report templates + PDF           ✓
 Stage 5   Tier 2 + Tier 2b modules         ✓ complete (2.1.0b2)
-          · extensions (WP/Django/Laravel/Rails) — full homepage HTML via scan_html ✓
-          · DNS enrichment (A/MX/NS/ASN/WHOIS)
-          · owner combined report (default HTML)
-          · report polish (guide, footer, leak-protection labels, discovery grid,
-            extensions table, plugin chip fix, attribution hardening) ✓
-          · finding/TLS color alignment, bot-protection detection, dynamic focus pie,
-            timeline status colors, discovery scroll + metric chip fixes ✓
-          · baseline diff ✓
-Stage 6   Tier 3 modules + packaging
+          · extensions, DNS, owner report, baseline diff, JS/API/links ✓
+          · WordPress theme fingerprint, live path probe streaming ✓ (2.1.0b3)
+Stage 6   Tier 3 modules + packaging         ◐ in progress (2.1.0b3)
+          · Docker WP fixture + orchestrate.sh + GitHub Actions ✓
+          · GHCR publish (main / v.tools_main / v* tags) ✓
+          · pytest HTML QA reports + WP integration tests ✓
+          · CVE cache, SARIF, pipx/Homebrew — deferred
 ```
 
 **Tier 1 (2.0.0b1):** Feature-complete for v2.0 foundation. CDN-aware HSTS downgrade aligned with v1 in **2.1.0b1**.
 
-**Stage 5 (2.1.0b2):** Tier 2 depth + Tier 2b extensions + DNS enrichment + owner report + baseline diff. Deferred CVE cache → Stage 6 — see [CHANGELOG.md](../CHANGELOG.md) `[Unreleased]`.
+**Stage 5 (2.1.0b2):** Tier 2 depth + Tier 2b extensions + DNS enrichment + owner report + baseline diff.
+
+**Stage 6 (2.1.0b3+):** CI/Docker harness landed first — see [docker_ci.md](docker_ci.md). Product Tier 3 (CVE cache, SARIF, packaging) still open — [CHANGELOG.md](../CHANGELOG.md) `[Unreleased]`.
 
 Stages are **sequential**. Tiers are **feature bundles** that land across stages but are owned as logical groups.
 
@@ -105,7 +105,7 @@ webaudit[pdf]      → weasyprint
 - [x] DOM-based HTML inventory (BeautifulSoup)
 - [x] Five HTML templates wired
 - [x] PDF — browser print (default); optional WeasyPrint headless
-- [x] pytest on scoring, config, collectors, analyzers, render (~181 unit tests)
+- [x] pytest on scoring, config, collectors, analyzers, render (~201 unit tests + WP Docker integration)
 
 ---
 
@@ -118,6 +118,8 @@ webaudit[pdf]      → weasyprint
 | `config.profiles` | Detect framework → load `profiles/{fw}/extensions.yaml` | pyyaml, pydantic |
 | `collectors.extensions` | Unified dispatch: WP plugins, Django/Laravel packages, Rails gems | httpx, beautifulsoup4 |
 | `analyzers.extensions` | Registry compare (wp.org, PyPI, Packagist, RubyGems) | httpx, **packaging** |
+| `collectors.wp_themes` | WP active theme + style.css + child theme | httpx |
+| `analyzers.wp_themes` | wp.org theme compare, update-trap VERIFY, hardening advisory | httpx, **packaging** |
 | `analyzers.plugin_vuln` | CVE match from cache / WPScan | httpx, sqlite |
 | `storage.vuln_cache` | `(slug, version)` TTL cache | sqlite3 |
 
@@ -194,7 +196,8 @@ playwright>=1.42    # extra: webaudit[js]
 - [x] `--js` flag runs Playwright pass when installed
 - [x] Baseline diff in CLI (`webaudit diff`)
 - [x] GraphQL / OpenAPI findings when exposed
-- [ ] Integration tests with recorded httpx cassettes (**pytest-httpx** or **vcrpy**)
+- [x] WordPress Docker integration tests (`tests/integration/`, `./orchestrate.sh --job wp-integration`) — live HTTP to local fixture
+- [ ] httpx **cassette** tests for Tier 2 collectors (optional; unit tests use pytest-httpx mocks today)
 
 ---
 
@@ -238,8 +241,8 @@ nvdlib>=0.7          # optional, rate-limited
 | **2 — Collect** | remaining Tier 1 collectors | — | — |
 | **3 — Analyze/Score** | remaining analyzers, parity polish | — | — |
 | **4 — Render** | templates + PDF | — | — |
-| **5 — Extend** | polish | JS, API, baseline, **Tier 2b WP profiles**, **Tier 2c SEO surface** | — |
-| **6 — Ship wide** | pipx | — | SARIF, packaging |
+| **5 — Extend** | polish | JS, API, baseline, **Tier 2b WP profiles**, **Tier 2c SEO surface**, **WP themes** | — |
+| **6 — Ship wide** | pipx | WP Docker integration CI | SARIF, CVE cache, packaging, GHCR ✓ |
 
 ---
 
@@ -278,8 +281,8 @@ cli/            → wires stages; thin orchestration only
 | 3 | analyzer fixtures (HTML snippets, header sets) |
 | 3 | scoring math — golden files |
 | 4 | template snapshot tests (HTML structure) |
-| 5 | integration scan against `example.com` / local wiremock |
-| 6 | packaging smoke install in CI |
+| 5 | integration scan against local WP Docker fixture / wiremock |
+| 6 | packaging smoke install in CI — **Docker build + GHCR** ✓; pipx/Homebrew pending |
 
 ---
 

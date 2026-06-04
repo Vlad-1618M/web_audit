@@ -85,13 +85,13 @@ sequenceDiagram
   J->>U: HTML + PDF + TXT
 ```
 
-> **Current (2.1.0b2):** Full Tier 1 pipeline + Stage 5 complete — extensions (`scan_html`), SEO surface, DNS enrichment (A/MX/NS/ASN), owner report, baseline diff, Tier 2 JS/API/links, bot-protection detection, dynamic dashboard focus pie. Diagram shows the complete Tier 1 target architecture.
+> **Current (2.1.0b3):** Tier 1 + Stage 5 complete; **Stage 6 CI** (Docker WP fixture, `orchestrate.sh`, GHA, GHCR). Product: extensions, **WP themes**, SEO surface, DNS enrichment, owner report, baseline diff, JS/API/links, bot protection. Diagram shows Tier 1 target architecture.
 
-**Extensions step (2.1.0b1):** After HTML collection, `pipeline._step_extensions` fingerprints plugins/packages from `artifacts.inventory.html.scan_html` (full homepage). Framework fingerprint body is fallback only; `robots.txt` hints when WAF blocks homepage.
+**Extensions step (2.1.0b1+):** After HTML collection, `pipeline._step_extensions` fingerprints plugins/packages from `artifacts.inventory.html.scan_html` (full homepage). WordPress scans also fetch active theme `style.css` (child theme + version compare). Framework fingerprint body is fallback only; `robots.txt` hints when WAF blocks homepage.
 
 ---
 
-## Package structure (implemented — 2.1.0b2)
+## Package structure (implemented — 2.1.0b3)
 
 See [implementation_tracker.md](implementation_tracker.md) for the live module table. Summary:
 
@@ -102,16 +102,20 @@ v2_python_core/
 ├── webaudit/
 │   ├── cli/                    # scan, report, diff, completion
 │   ├── config/                 # settings.py + defaults.yaml
-│   ├── collectors/             # headers, dns (+ asn, net_tools), paths, tls, bot_challenge, …
+│   ├── collectors/             # headers, dns (+ asn, net_tools), paths, tls, bot_challenge, wp_themes, …
 │   ├── collectors/extensions/  # wordpress, django, laravel, rails, generic
-│   ├── analyzers/              # per-domain analyzers + extensions, seo_surface
+│   ├── analyzers/              # per-domain analyzers + extensions, wp_themes, seo_surface
 │   ├── profiles/               # shipped framework YAML
 │   ├── scoring/                # engine.py, diff.py
 │   ├── render/                 # html, txt, pdf + dns_display, focus_pie, finding_display, …
 │   ├── pipeline.py
 │   └── models/
 ├── templates/reports/          # Jinja HTML + CSS (six variants; owner default)
-├── tests/unit/                 # pytest (~181 tests)
+├── docker/                     # WP fixture + webaudit Pro Dockerfile
+├── orchestrate.sh              # local CI orchestrator
+├── scripts/pytest_reports.sh   # QA HTML report manager
+├── tests/unit/                 # pytest (~201 tests)
+├── tests/integration/          # WP Docker integration (live fixture)
 └── docs/
 ```
 

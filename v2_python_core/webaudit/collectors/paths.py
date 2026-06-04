@@ -8,6 +8,7 @@ How: Built-in lists from ``path_lists.py`` + ``paths.extra_paths``; capped by ``
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 from webaudit.collectors.path_lists import paths_for_framework
@@ -110,6 +111,8 @@ def collect_paths(
     timeout_seconds: int,
     probe_delay_ms: int = 0,
     client: Any | None = None,
+    on_probe_start: Callable[[int], None] | None = None,
+    on_probe: Callable[[PathProbeEntry, int, int], None] | None = None,
 ) -> PathsProbeResult:
     import httpx
 
@@ -127,8 +130,12 @@ def collect_paths(
     if own_client:
         client = httpx.Client(timeout=timeout_seconds)
 
+    total = len(probe_paths)
+    if on_probe_start and total:
+        on_probe_start(total)
+
     try:
-        for path in probe_paths:
+        for index, path in enumerate(probe_paths, start=1):
             url = path_to_url(target_url, path)
             raw_status: int | None = None
             final_status: int | None = None
@@ -142,14 +149,15 @@ def collect_paths(
             except httpx.HTTPError as exc:
                 result.errors.append(f"{path}: {exc}")
 
-            result.probes.append(
-                PathProbeEntry(
-                    path=path,
-                    raw_status=raw_status,
-                    final_status=final_status,
-                    note=note,
-                )
+            entry = PathProbeEntry(
+                path=path,
+                raw_status=raw_status,
+                final_status=final_status,
+                note=note,
             )
+            result.probes.append(entry)
+            if on_probe:
+                on_probe(entry, index, total)
             if probe_delay_ms > 0:
                 time.sleep(probe_delay_ms / 1000.0)
     finally:

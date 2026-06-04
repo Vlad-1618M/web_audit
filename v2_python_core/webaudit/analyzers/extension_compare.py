@@ -7,9 +7,31 @@ from typing import Any, Literal
 Registry = Literal["wporg", "pypi", "packagist", "rubygems"]
 
 _WPORG_API = "https://api.wordpress.org/plugins/info/1.0/{slug}.json"
+_WPORG_THEME_API = (
+    "https://api.wordpress.org/themes/info/1.1/"
+    "?action=theme_information&request[slug]={slug}&request[fields][version]=1"
+)
 _PYPI_API = "https://pypi.org/pypi/{package}/json"
 _PACKAGIST_API = "https://repo.packagist.org/p2/{package}.json"
 _RUBYGEMS_API = "https://rubygems.org/api/v1/gems/{gem}.json"
+
+
+def fetch_wporg_theme_version(
+    slug: str,
+    *,
+    client: Any,
+    user_agent: str,
+) -> str | None:
+    headers = {"User-Agent": user_agent}
+    try:
+        response = client.get(_WPORG_THEME_API.format(slug=slug), headers=headers)
+        if response.status_code != 200:
+            return None
+        data = response.json()
+        version = data.get("version")
+        return str(version) if version else None
+    except Exception:
+        return None
 
 
 def fetch_latest_version(

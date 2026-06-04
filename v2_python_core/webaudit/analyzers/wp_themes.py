@@ -54,14 +54,8 @@ def _admin_reachable(path_probes: list[dict[str, Any]] | None) -> bool:
 
 
 def analyze_wp_themes(
-    probe: WpThemesProbeResult,
-    profile: FrameworkProfile,
-    *,
-    user_agent: str,
-    timeout_seconds: int,
-    client: Any | None = None,
-    path_probes: list[dict[str, Any]] | None = None,
-) -> list[Finding]:
+    probe: WpThemesProbeResult, profile: FrameworkProfile, *, 
+    user_agent: str, timeout_seconds: int, client: Any | None = None, path_probes: list[dict[str, Any]] | None = None,) -> list[Finding]:
     if probe.error and not probe.active:
         return [
             Finding.from_check(
@@ -156,13 +150,18 @@ def analyze_wp_themes(
                     status="EDITOR_UNVERIFIABLE",
                     severity=Severity.MEDIUM,
                     detail=(
-                        "Cannot confirm DISALLOW_FILE_EDIT from outside; wp-admin or wp-login is reachable. "
-                        "Ask your host or developer to disable the theme/plugin file editor in production "
-                        "(define('DISALLOW_FILE_EDIT', true) in wp-config.php)"
+                        "Cannot confirm DISALLOW_FILE_EDIT or DISALLOW_FILE_MODS from outside; "
+                        "wp-admin or wp-login is reachable. Ask your host or developer to verify "
+                        "wp-config.php: define('DISALLOW_FILE_EDIT', true) disables the theme/plugin "
+                        "file editor; define('DISALLOW_FILE_MODS', true) also blocks dashboard "
+                        "plugin/theme installs and updates."
                     ),
                     class_=FindingClass.VERIFY,
                     scored=False,
-                    evidence={"admin_reachable": True},
+                    evidence={
+                        "admin_reachable": True,
+                        "wp_config_constants": ["DISALLOW_FILE_EDIT", "DISALLOW_FILE_MODS"],
+                    },
                 )
             )
     finally:
@@ -173,13 +172,7 @@ def analyze_wp_themes(
 
 
 def _analyze_theme_version(
-    theme: ObservedTheme,
-    profile: FrameworkProfile,
-    *,
-    user_agent: str,
-    client: Any | None,
-    label_prefix: str,
-) -> list[Finding]:
+    theme: ObservedTheme, profile: FrameworkProfile, *, user_agent: str, client: Any | None, label_prefix: str,) -> list[Finding]:
     slug = theme.slug
     entry = _theme_watchlist_entry(profile, slug)
     detected_raw = theme.version

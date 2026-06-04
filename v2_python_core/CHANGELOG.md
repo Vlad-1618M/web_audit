@@ -16,7 +16,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ### Added
 
-- **WordPress theme fingerprint** — active theme slug from HTML; `style.css` version + child theme (`Template:`) parse; wp.org version compare for free themes; premium watchlist + update-trap VERIFY for parent-only Avada/Divi-style installs; DISALLOW_FILE_EDIT advisory when wp-admin is reachable (`collectors/wp_themes.py`, `analyzers/wp_themes.py`, `render/theme_display.py`)
+- **WordPress theme fingerprint** — active theme slug from HTML; `style.css` version + child theme (`Template:`) parse; wp.org version compare for free themes; premium watchlist + update-trap VERIFY for parent-only Avada/Divi-style installs; DISALLOW_FILE_EDIT / DISALLOW_FILE_MODS wp-config advisory when wp-admin is reachable (`collectors/wp_themes.py`, `analyzers/wp_themes.py`, `render/theme_display.py`)
 - **Theme report section** — Technical tab panel beside Plugins/Extensions with version table and hardening advisory
 
 ---

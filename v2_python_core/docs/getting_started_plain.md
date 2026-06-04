@@ -329,7 +329,7 @@ Web Audit reads what is **publicly visible** (like a visitor’s browser loading
 | **Theme is behind latest** (ACTION) | The theme version looks older than the current free release on wordpress.org | “When was the theme last updated? Can we schedule an update and test?” |
 | **Premium or unverifiable** (VERIFY) | Common for paid themes (Avada, Divi, …) — the tool cannot compare to a public catalog | “What version are we on? Is our license active? Any known security advisories for this theme?” |
 | **Update trap risk** (VERIFY) | A popular premium theme is used **directly** with no child theme — agencies often **freeze updates** forever to avoid breaking custom edits | “Are theme updates disabled? Can we move customizations to a child theme and update the parent?” |
-| **Editor status unverifiable** (VERIFY) | WordPress can edit theme files from the dashboard; that is dangerous if an admin password is stolen. The scan **cannot** see your `wp-config.php`, but wp-login/wp-admin looks reachable | “Is `DISALLOW_FILE_EDIT` set in wp-config? Is the file editor turned off in production?” |
+| **Editor status unverifiable** (VERIFY) | WordPress can edit theme files or install plugins from the dashboard; that is dangerous if an admin password is stolen. The scan **cannot** see your `wp-config.php`, but wp-login/wp-admin looks reachable | “Are `DISALLOW_FILE_EDIT` and (for stricter sites) `DISALLOW_FILE_MODS` set in wp-config?” |
 | **No theme observed** | Homepage HTML did not expose WordPress theme paths — normal for decoupled front-ends (Next.js, etc.) or heavy caching | If the site **is** WordPress behind the scenes, ask whether the public site hides `/wp-content/themes/` |
 
 ### Why this matters for owners

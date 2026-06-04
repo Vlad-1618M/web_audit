@@ -91,6 +91,13 @@ def test_analyze_wp_themes_child_and_update_trap():
     statuses = {f.status for f in findings}
     assert "UPDATE_TRAP_RISK" in statuses
     assert "EDITOR_UNVERIFIABLE" in statuses
+    hardening = next(f for f in findings if f.item == "wp-config hardening")
+    assert "DISALLOW_FILE_EDIT" in hardening.detail
+    assert "DISALLOW_FILE_MODS" in hardening.detail
+    assert hardening.evidence.get("wp_config_constants") == [
+        "DISALLOW_FILE_EDIT",
+        "DISALLOW_FILE_MODS",
+    ]
 
 
 def test_analyze_wp_themes_stale_free_theme(httpx_mock):

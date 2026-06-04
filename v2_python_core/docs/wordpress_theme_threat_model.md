@@ -219,7 +219,7 @@ in wp-config.php). However, its *absence* can be inferred indirectly:
 
 - If the WordPress admin login page is reachable (default: /wp-login.php or /wp-admin)
   → flag that file editor is likely exposed unless hardening is confirmed
-- The check should be reported as: "Cannot confirm DISALLOW_FILE_EDIT is set.
+- The check should be reported as: "Cannot confirm DISALLOW_FILE_EDIT or DISALLOW_FILE_MODS is set.
   This is a known critical hardening constant. Manual verification required."
 
 ### Detection Algorithm

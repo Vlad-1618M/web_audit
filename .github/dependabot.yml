@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /v2_python_core
+    schedule:
+      interval: weekly
+    groups:
+      dev-deps:
+        patterns:
+          - pytest*
+          - ruff
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

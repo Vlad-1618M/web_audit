@@ -7,6 +7,7 @@ from enum import IntEnum
 from typing import Any
 
 from rich.console import Console
+from rich.markup import escape as markup_escape
 
 from webaudit.config.settings import Settings
 from webaudit.models.finding import Finding
@@ -99,12 +100,14 @@ def _finding_note(findings: list[Finding]) -> str:
 
 def _format_path_probe_verbose_line(probe: dict[str, Any]) -> str:
     """One verbose detail line — path in orange, note/status dimmed."""
-    path = str(probe.get("path") or "?")
+    path = markup_escape(str(probe.get("path") or "?"))
     note = str(probe.get("note") or "?")
     final_status = probe.get("final_status")
     if final_status is not None:
         note = f"{note} · HTTP {final_status}"
-    return f"[dark_orange]{path}[/dark_orange] [dim]{note}[/dim]"
+    note = markup_escape(note)
+    # Trailing space before [/tag] — paths like /.env must not end adjacent to [/ (Rich false close).
+    return f"[dark_orange]{path} [/dark_orange][dim]{note}[/dim]"
 
 
 def summarize_step(
@@ -364,21 +367,24 @@ class ScanProgress:
         label = self._paths_label
         if self.verbosity == Verbosity.VERBOSE:
             self.console.print(
-                f"      [dim]→[/dim] {_format_path_probe_verbose_line(probe)}"
+                f"      [dim]→[/dim] {_format_path_probe_verbose_line(probe)}",
+                highlight=False,
             )
             return
         self.console.print(
             f"  [cyan]▸[/cyan] [bold]{label:<12}[/bold] [dim]probing {index}/{total}…[/dim]",
             end="\r",
+            highlight=False,
         )
         note = str(probe.get("note") or "")
         if note in _PATH_NOTES_STREAM_NORMAL:
-            path = str(probe.get("path") or "?")
+            path = markup_escape(str(probe.get("path") or "?"))
             status = probe.get("final_status")
             status_bit = f" · HTTP {status}" if status is not None else ""
             self.console.print(
-                f"      [yellow]→[/yellow] exposed: [dark_orange]{path}[/dark_orange]"
-                f"[dim]{status_bit}[/dim]"
+                f"      [yellow]→[/yellow] exposed: [dark_orange]{path} [/dark_orange]"
+                f"[dim]{markup_escape(status_bit)}[/dim]",
+                highlight=False,
             )
 
     def step_done(

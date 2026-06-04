@@ -1,0 +1,14 @@
+.venv
+venv
+htmlcov
+.coverage
+.pytest_cache
+__pycache__
+audit_logs
+pen/
+mockups/
+tests/
+docker/wp-test/
+*.md
+.git
+.github

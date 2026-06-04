@@ -1,0 +1,69 @@
+name: Security
+
+on:
+  pull_request:
+    paths:
+      - "v2_python_core/**"
+      - ".github/workflows/**"
+  push:
+    branches:
+      - v.tools_main
+      - main
+    paths:
+      - "v2_python_core/**"
+      - ".github/workflows/**"
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  codeql:
+    name: CodeQL (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: python
+          config-file: .github/codeql/codeql-config.yml
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package for analysis
+        working-directory: v2_python_core
+        run: pip install -e .
+
+      - uses: github/codeql-action/analyze@v3
+
+  pip-audit:
+    name: pip-audit (dependencies)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Audit webaudit dependencies
+        working-directory: v2_python_core
+        run: |
+          pip install -e .
+          pip-audit --desc on
+
+  dependency-review:
+    name: Dependency review (PRs)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4

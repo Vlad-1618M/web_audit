@@ -1,0 +1,15 @@
+.venv/
+venv/
+htmlcov/
+.coverage
+.pytest_cache/
+__pycache__/
+audit_logs/
+pen/
+mockups/
+tests/
+*.egg-info/
+dist/
+.git/
+.github/
+.playwright-browsers/

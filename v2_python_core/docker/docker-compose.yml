@@ -1,0 +1,99 @@
+# Web Audit — local test stack (WordPress fixture + optional webaudit Pro image).
+#
+# Host URL:     http://localhost:${WP_PORT:-8080}
+# Docker network URL (from webaudit container): http://wordpress
+#
+# Usage:
+#   docker compose -f docker/docker-compose.yml up -d wp-db wordpress
+#   docker compose -f docker/docker-compose.yml run --rm wp-init
+#   ./orchestrate.sh --job wp-up --wp-profile good
+
+name: webaudit-test
+
+services:
+  wp-db:
+    image: mariadb:10.11
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    volumes:
+      - wp_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - webaudit-net
+
+  wordpress:
+    image: wordpress:6.7-apache
+    ports:
+      - "${WP_PORT:-8080}:80"
+    environment:
+      WORDPRESS_DB_HOST: wp-db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wp_html:/var/www/html
+    depends_on:
+      wp-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - webaudit-net
+
+  wp-init:
+    image: wordpress:cli-php8.2
+    user: "0:0"
+    environment:
+      WORDPRESS_DB_HOST: wp-db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      WEBAUDIT_WP_PROFILE: ${WEBAUDIT_WP_PROFILE:-${WP_PROFILE:-mid}}
+      WP_PROFILE: ${WEBAUDIT_WP_PROFILE:-${WP_PROFILE:-mid}}
+      WP_URL: http://localhost:${WP_PORT:-8080}
+    volumes:
+      - wp_html:/var/www/html
+      - ./wp-test/init-wordpress.sh:/scripts/init-wordpress.sh:ro
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "/scripts/init-wordpress.sh"]
+    networks:
+      - webaudit-net
+    restart: "no"
+
+  webaudit:
+    build:
+      context: ..
+      dockerfile: docker/webaudit/Dockerfile
+    image: ${WEBAUDIT_IMAGE:-webaudit:local}
+    profiles: ["pro"]
+    environment:
+      WEBAUDIT_OUTPUT_DIR: /work/audit_logs
+    volumes:
+      - ..:/src:ro
+      - webaudit_logs:/work/audit_logs
+    working_dir: /work
+    networks:
+      - webaudit-net
+    entrypoint: ["webaudit"]
+
+volumes:
+  wp_db_data:
+  wp_html:
+  webaudit_logs:
+
+networks:
+  webaudit-net:
+    name: webaudit-test-net

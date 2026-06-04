@@ -1,0 +1,7 @@
+paths-ignore:
+  - "**/*.md"
+  - "**/mockups/**"
+  - "**/pen/**"
+
+queries:
+  - uses: security-and-quality

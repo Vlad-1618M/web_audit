@@ -24,7 +24,7 @@ jobs:
         id: meta
         working-directory: v2_python_core
         run: |
-          version="$(grep '__version__' webaudit/__version__.py | sed 's/.*"\(.*\)".*/\1/')"
+          version="$(grep '^__version__ =' webaudit/__version__.py | sed -n '1s/.*"\(.*\)".*/\1/p')"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
       - name: Lowercase GHCR owner

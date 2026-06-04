@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+import io
+
+from rich.console import Console
+
 from webaudit.cli.scan_progress import (
+    ScanProgress,
     Verbosity,
     resolve_verbosity,
     step_enabled,
@@ -108,3 +113,64 @@ def test_summarize_policy_step_string_artifacts():
     assert "HSTS max-age=31536000" in summary
     assert "CSP yes" in summary
     assert details
+
+
+def test_paths_probe_streaming_verbose():
+    buf = io.StringIO()
+    progress = ScanProgress(Console(file=buf, force_terminal=True, width=120), Verbosity.VERBOSE)
+    progress.step_start("paths", "Sensitive path probes")
+    progress.paths_probe_start(2)
+    progress.paths_probe_done(
+        {"path": "/.env", "final_status": 404, "note": "NOT_FOUND"},
+        1,
+        2,
+    )
+    progress.step_done(
+        "_step_paths",
+        "paths",
+        [],
+        {"inventory": {"paths": {"probe_count": 2, "paths": []}}},
+    )
+    out = buf.getvalue()
+    assert "probing" not in out
+    assert "/.env" in out
+    assert "NOT_FOUND" in out
+    assert out.count("/.env") == 1
+
+
+def test_paths_probe_streaming_normal_counter_and_exposed():
+    buf = io.StringIO()
+    progress = ScanProgress(Console(file=buf, force_terminal=True, width=120), Verbosity.NORMAL)
+    progress.step_start("paths", "Sensitive path probes")
+    progress.paths_probe_start(2)
+    progress.paths_probe_done(
+        {"path": "/secret", "final_status": 404, "note": "NOT_FOUND"},
+        1,
+        2,
+    )
+    progress.paths_probe_done(
+        {"path": "/robots.txt", "final_status": 200, "note": "OPEN"},
+        2,
+        2,
+    )
+    progress.step_done(
+        "_step_paths",
+        "paths",
+        [],
+        {
+            "inventory": {
+                "paths": {
+                    "probe_count": 2,
+                    "paths": [
+                        {"path": "/secret", "note": "NOT_FOUND"},
+                        {"path": "/robots.txt", "note": "OPEN"},
+                    ],
+                }
+            }
+        },
+    )
+    out = buf.getvalue()
+    assert "probing 1/2" in out
+    assert "probing 2/2" in out
+    assert "exposed: /robots.txt" in out
+    assert "2 probes" in out

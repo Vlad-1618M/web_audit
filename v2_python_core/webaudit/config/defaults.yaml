@@ -123,6 +123,8 @@ scoring:
   hygiene_caps:
     PLUGIN: 30
     PLUGIN_CVE: 30
+    THEME: 25
+    THEME_CVE: 25
     PACKAGE: 15
     PACKAGE_CVE: 15
     GEM: 15

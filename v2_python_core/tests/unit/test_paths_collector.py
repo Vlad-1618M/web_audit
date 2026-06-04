@@ -52,3 +52,36 @@ def test_collect_paths_probes_with_mock_client():
     assert len(result.probes) == 1
     assert result.probes[0].path == "/.env"
     assert result.probes[0].note == "NOT_FOUND"
+
+
+def test_collect_paths_on_probe_callbacks():
+    class FakeResponse:
+        def __init__(self, status_code: int):
+            self.status_code = status_code
+
+    class FakeClient:
+        def get(self, url, headers, follow_redirects):
+            return FakeResponse(404)
+
+        def close(self):
+            pass
+
+    settings = PathsSettings(
+        sensitive_builtin=False,
+        extra_paths=["/a", "/b"],
+    )
+    started: list[int] = []
+    done: list[tuple[str, int, int]] = []
+
+    collect_paths(
+        "https://example.com",
+        framework="auto",
+        paths_settings=settings,
+        user_agent="test",
+        timeout_seconds=5,
+        client=FakeClient(),
+        on_probe_start=started.append,
+        on_probe=lambda entry, index, total: done.append((entry.path, index, total)),
+    )
+    assert started == [2]
+    assert done == [("/a", 1, 2), ("/b", 2, 2)]

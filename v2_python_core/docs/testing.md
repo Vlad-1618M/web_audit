@@ -71,6 +71,7 @@ tests/
 │   ├── test_analyzer_cookies.py
 │   ├── test_dns_parser.py
 │   ├── test_config_profiles.py      # Tier 2b — framework profile merge
+│   ├── test_wp_themes.py
 │   ├── test_wp_plugin_fingerprint.py
 │   ├── test_wp_plugin_stale.py
 │   ├── test_plugin_vuln_auth_class.py
@@ -282,7 +283,7 @@ Fast loop before push.
 | 2 | all Tier 1 collectors mocked |
 | 3 | scoring golden files 100% |
 | 4 | three templates render |
-| 5 | baseline diff + Tier 2b extensions + DNS enrichment + **Tier 2c SEO unscored** + Tier 2 depth (JS/API/links) + owner report UX tests (~181 unit tests) |
+| 5 | baseline diff + Tier 2b extensions + **WP theme fingerprint** + DNS enrichment + **Tier 2c SEO unscored** + Tier 2 depth (JS/API/links) + owner report UX tests (~193 unit tests) |
 | 6 | pip install + smoke scan in CI |
 
 ---

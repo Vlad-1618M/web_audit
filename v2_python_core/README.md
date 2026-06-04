@@ -1,6 +1,6 @@
 # Web Audit v2 — Python Core
 
-**Status:** **2.1.0b2 (Stage 5 beta complete)** — Tier 1 + Tier 2 depth (Playwright `--js`, GraphQL/OpenAPI `--api`, optional broken-link sampler), Tier 2b extensions, DNS enrichment, SEO surface, owner report, baseline diff. **Next:** Stage 6 (CVE cache, packaging) — see [CHANGELOG.md](CHANGELOG.md) `[Unreleased]`.
+**Status:** **2.1.0b2+ (Stage 6 in progress)** — Tier 1 + Tier 2 depth, Tier 2b extensions **+ WordPress theme fingerprint**, owner report. **Next:** CVE cache, packaging — see [CHANGELOG.md](CHANGELOG.md) `[Unreleased]`.
 
 This directory is the blueprint for **Web Audit v2**. It lives beside the public **v1 bash** tool (`web_audit.sh` at the repo root). I am **not replacing v1** — people use it today, and it stays frozen as the zero-install shell edition.
 

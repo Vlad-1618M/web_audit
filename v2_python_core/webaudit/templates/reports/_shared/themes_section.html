@@ -1,0 +1,73 @@
+{# WordPress theme fingerprint — version, child theme, hardening advisory #}
+{% if theme_section %}
+<section id="themes">
+  <h2>WordPress theme</h2>
+  <p class="discovery-intro">
+    Active theme slug from public HTML asset paths; version and child-theme status from
+    <code>style.css</code>. Free themes are compared against
+    {% if theme_section.compare_enabled %}
+    <a href="{{ theme_section.registry_home }}" target="_blank" rel="noopener">{{ theme_section.registry_label }}</a>.
+    {% else %}
+    wordpress.org when registry compare is enabled.
+    {% endif %}
+    Premium themes are flagged for manual review — same philosophy as plugins.
+  </p>
+
+  {% if theme_section.error %}
+  <p class="meta-inline">{{ theme_section.error }}</p>
+  {% elif theme_section.has_rows %}
+  <details class="fold-panel" open>
+    <summary class="fold-toggle">
+      <span class="fold-chevron" aria-hidden="true"></span>
+      <span class="fold-title">Detected theme(s)</span>
+      <span class="fold-count">{{ theme_section.detected_count }}</span>
+      <span class="fold-hint">Click to fold or unfold</span>
+    </summary>
+    <table>
+      <thead>
+        <tr>
+          <th>Role</th>
+          <th>Theme</th>
+          <th>Detected</th>
+          <th>Latest (registry)</th>
+          <th>Status</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in theme_section.rows %}
+        <tr>
+          <td>{{ row.role }}</td>
+          <td>
+            <code>{{ row.slug }}</code>
+            {% if row.name and row.name != row.slug %}<span class="meta-inline"> — {{ row.name }}</span>{% endif %}
+            {% if row.tier %} <span class="pill tier-{{ row.tier }}">{{ row.tier }}</span>{% endif %}
+          </td>
+          <td>{{ row.detected_version }}</td>
+          <td>{{ row.latest_version }}</td>
+          <td><span class="ext-status {{ row.status_tone }}">{{ row.status }}</span></td>
+          <td class="ext-detail">{{ row.detail or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </details>
+  {% elif theme_section.none_observed_detail %}
+  <p class="dns-summary neutral">{{ theme_section.none_observed_detail }}</p>
+  {% endif %}
+
+  {% if theme_section.child_detected %}
+  <p class="meta-inline theme-child-note">Child theme detected — parent can receive security updates while customizations stay in the child layer.</p>
+  {% endif %}
+
+  {% if theme_section.advisory %}
+  <div class="theme-advisory theme-advisory-{{ theme_section.advisory.tone }}">
+    <p class="meta-inline"><strong>Hardening advisory:</strong> {{ theme_section.advisory.detail }}</p>
+  </div>
+  {% endif %}
+
+  {% if theme_section.stale_count %}
+  <p class="meta-inline ext-stale-count">{{ theme_section.stale_count }} theme version(s) behind wordpress.org latest — see Action findings.</p>
+  {% endif %}
+</section>
+{% endif %}

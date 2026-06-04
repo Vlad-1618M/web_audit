@@ -105,7 +105,7 @@ webaudit[pdf]      → weasyprint
 - [x] DOM-based HTML inventory (BeautifulSoup)
 - [x] Five HTML templates wired
 - [x] PDF — browser print (default); optional WeasyPrint headless
-- [x] pytest on scoring, config, collectors, analyzers, render (~181 unit tests)
+- [x] pytest on scoring, config, collectors, analyzers, render (~193 unit tests)
 
 ---
 
@@ -118,6 +118,8 @@ webaudit[pdf]      → weasyprint
 | `config.profiles` | Detect framework → load `profiles/{fw}/extensions.yaml` | pyyaml, pydantic |
 | `collectors.extensions` | Unified dispatch: WP plugins, Django/Laravel packages, Rails gems | httpx, beautifulsoup4 |
 | `analyzers.extensions` | Registry compare (wp.org, PyPI, Packagist, RubyGems) | httpx, **packaging** |
+| `collectors.wp_themes` | WP active theme + style.css + child theme | httpx |
+| `analyzers.wp_themes` | wp.org theme compare, update-trap VERIFY, hardening advisory | httpx, **packaging** |
 | `analyzers.plugin_vuln` | CVE match from cache / WPScan | httpx, sqlite |
 | `storage.vuln_cache` | `(slug, version)` TTL cache | sqlite3 |
 

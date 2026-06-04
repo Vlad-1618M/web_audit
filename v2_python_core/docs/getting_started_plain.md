@@ -296,8 +296,9 @@ Your developer can turn that into an HTML report (default **owner** variant: Sec
 |---------------|-----------------|
 | **Security dashboard** | Hygiene + **Leak protection** scores, verdict, metric chips (Critical, Plugins, …) |
 | **Executive summary** | Plain-language timeline of what mattered |
-| **Technical details** | Full findings tables, DNS cards, site discovery URLs, **Plugins / Extensions** |
+| **Technical details** | Full findings tables, DNS cards, site discovery URLs, **Plugins / Extensions**, **WordPress theme** (WP sites) |
 | **Plugins / Extensions** | WordPress (or other stack) components seen in public HTML — **0 is normal** on sites where the homepage is not WordPress (e.g. Next.js front-end) |
+| **WordPress theme** | *(Technical tab, WordPress sites only)* — which visual theme the site uses, whether it looks up to date, and whether a safer “child theme” setup is in place — see below |
 | **Bottom guide** | “What this report is (and is not)” — compares Web Audit to ZAP, pentests, SEO tools |
 ---
 - Security dashboard preview
@@ -311,6 +312,37 @@ Re-render a saved scan without re-running checks:
 ```bash
 webaudit report audit_logs/<folder>/audit_run.json
 ```
+
+---
+
+## WordPress theme checks (plain English)
+
+If your site runs on **WordPress**, the **Technical details** tab includes a **WordPress theme** section. This is separate from **Plugins / Extensions** — plugins add features; the **theme** controls layout and styling (Avada, Divi, Astra, a custom agency theme, etc.).
+
+Web Audit reads what is **publicly visible** (like a visitor’s browser loading CSS). It does **not** log into wp-admin.
+
+### What you might see
+
+| Report message | Plain English | What to ask your developer |
+|----------------|---------------|----------------------------|
+| **Child theme detected** | Good practice — custom design changes sit in a “child” layer so the main theme can still receive security updates | Nothing urgent — confirm they plan to keep the **parent** theme updated |
+| **Theme is behind latest** (ACTION) | The theme version looks older than the current free release on wordpress.org | “When was the theme last updated? Can we schedule an update and test?” |
+| **Premium or unverifiable** (VERIFY) | Common for paid themes (Avada, Divi, …) — the tool cannot compare to a public catalog | “What version are we on? Is our license active? Any known security advisories for this theme?” |
+| **Update trap risk** (VERIFY) | A popular premium theme is used **directly** with no child theme — agencies often **freeze updates** forever to avoid breaking custom edits | “Are theme updates disabled? Can we move customizations to a child theme and update the parent?” |
+| **Editor status unverifiable** (VERIFY) | WordPress can edit theme files from the dashboard; that is dangerous if an admin password is stolen. The scan **cannot** see your `wp-config.php`, but wp-login/wp-admin looks reachable | “Is `DISALLOW_FILE_EDIT` set in wp-config? Is the file editor turned off in production?” |
+| **No theme observed** | Homepage HTML did not expose WordPress theme paths — normal for decoupled front-ends (Next.js, etc.) or heavy caching | If the site **is** WordPress behind the scenes, ask whether the public site hides `/wp-content/themes/` |
+
+### Why this matters for owners
+
+Many hacked WordPress sites had **up-to-date plugins** but a **years-old theme** or **frozen parent theme** that never received security patches. Plugin scanners are common; **theme maintenance** is an easy blind spot — especially on agency-built sites handed off without a update contract.
+
+### What this is **not**
+
+- Not proof that someone **can** edit your theme files right now (that requires admin access).
+- Not a list of every theme ever installed — only what this external scan could see on the public homepage.
+- Not a replacement for your host’s malware scan or a full penetration test.
+
+For technical background: [wordpress_theme_threat_model.md](wordpress_theme_threat_model.md).
 
 ---
 
@@ -346,7 +378,7 @@ If your developer wants a **second pass with a real browser** (Chromium via Play
 
 | Role | Typical action |
 |------|----------------|
-| **Site owner** | Ask for a scan; open the HTML report; read Verdict + Hygiene + Leak protection; use “What this report is (and is not)” at the bottom for context. |
+| **Site owner** | Ask for a scan; open the HTML report; read Verdict + Hygiene + Leak protection; on WordPress sites, skim **Technical → WordPress theme** and **Plugins**; use “What this report is (and is not)” at the bottom for context. |
 | **Developer / agency** | Run setup once, run scans in CI or locally, fix ACTION items in the report. |
 | **You (dev on this repo)** | Use `./dev-venv.sh` to create/remove the local toolbox; run `pytest` before changes. |
 

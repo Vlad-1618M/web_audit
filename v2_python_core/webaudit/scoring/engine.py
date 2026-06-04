@@ -12,7 +12,7 @@ from webaudit.config.settings import HygieneWeights, ScoringSettings
 from webaudit.models.finding import Finding, FindingClass
 from webaudit.models.run import AuditScores
 
-_PLUGIN_CATEGORIES = frozenset({"PLUGIN", "PLUGIN_CVE", "PACKAGE", "PACKAGE_CVE", "GEM", "GEM_CVE"})
+_PLUGIN_CATEGORIES = frozenset({"PLUGIN", "PLUGIN_CVE", "PACKAGE", "PACKAGE_CVE", "GEM", "GEM_CVE", "THEME", "THEME_CVE"})
 
 
 def _band(score: int) -> str:
@@ -41,7 +41,7 @@ def _plugin_deduction(
     if plugin_worst_wins:
         all_weights = [w for weights in plugin_by_category.values() for w in weights]
         total = max(all_weights) if all_weights else 0
-        cap_keys = ("PLUGIN", "PACKAGE", "GEM")
+        cap_keys = ("PLUGIN", "PACKAGE", "GEM", "THEME")
         cap = next((caps[key] for key in cap_keys if key in caps), None)
         if cap is not None:
             total = min(total, cap)

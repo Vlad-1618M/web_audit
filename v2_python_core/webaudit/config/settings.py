@@ -206,7 +206,9 @@ class HygieneWeights(BaseModel):
 
 class ScoringSettings(BaseModel):
     hygiene_weights: HygieneWeights = Field(default_factory=HygieneWeights)
-    hygiene_caps: dict[str, int] = Field(default_factory=lambda: {"PLUGIN": 30, "PLUGIN_CVE": 30})
+    hygiene_caps: dict[str, int] = Field(
+        default_factory=lambda: {"PLUGIN": 30, "PLUGIN_CVE": 30, "THEME": 25, "THEME_CVE": 25}
+    )
     plugin_worst_wins: bool = True
     seo_surface_affects_scores: bool = False
 

@@ -283,7 +283,17 @@ def summarize_step(
         count = art.get("extension_count", 0)
         unit = art.get("unit", "extension")
         fw = art.get("framework", "?")
-        summary = f"{fw} · {count} {unit}(s) · {note.replace('[yellow]', '').replace('[/yellow]', '')}"
+        themes = art.get("themes") or {}
+        active = themes.get("active") or {}
+        theme_bit = ""
+        if active.get("slug"):
+            theme_bit = f" · theme {active.get('slug')}"
+            if active.get("is_child_theme"):
+                theme_bit += " (child)"
+        summary = (
+            f"{fw} · {count} {unit}(s){theme_bit} · "
+            f"{note.replace('[yellow]', '').replace('[/yellow]', '')}"
+        )
         for item in (art.get("extensions") or [])[:5]:
             if isinstance(item, dict):
                 name = item.get("name", "?")
@@ -309,12 +319,17 @@ def summarize_step(
     return summary, details
 
 
+_PATH_NOTES_STREAM_NORMAL = frozenset({"OPEN", "LEAKING"})
+
+
 class ScanProgress:
     """Rich console progress for pipeline steps."""
 
     def __init__(self, console: Console, verbosity: Verbosity) -> None:
         self.console = console
         self.verbosity = verbosity
+        self._paths_label = "paths"
+        self._paths_streamed = False
 
     def scan_start(self, target_url: str) -> None:
         if self.verbosity == Verbosity.QUIET:
@@ -328,10 +343,43 @@ class ScanProgress:
     def step_start(self, label: str, description: str) -> None:
         if self.verbosity == Verbosity.QUIET:
             return
+        if label == "paths":
+            self._paths_label = label
+            self._paths_streamed = False
         if self.verbosity == Verbosity.VERBOSE:
             self.console.print(f"  [cyan]▸[/cyan] [bold]{label:<12}[/bold] [dim]{description}[/dim]")
         else:
             self.console.print(f"  [cyan]▸[/cyan] [bold]{label:<12}[/bold] [dim]{description}…[/dim]")
+
+    def paths_probe_start(self, total: int) -> None:
+        """Called once before path probes; enables live counter / streaming lines."""
+        if self.verbosity == Verbosity.QUIET or total <= 0:
+            return
+        self._paths_streamed = True
+
+    def paths_probe_done(self, probe: dict[str, Any], index: int, total: int) -> None:
+        """Stream each path probe as it completes (counter in normal, full list in verbose)."""
+        if self.verbosity == Verbosity.QUIET:
+            return
+        label = self._paths_label
+        if self.verbosity == Verbosity.VERBOSE:
+            self.console.print(
+                f"      [dim]→[/dim] {_format_path_probe_verbose_line(probe)}"
+            )
+            return
+        self.console.print(
+            f"  [cyan]▸[/cyan] [bold]{label:<12}[/bold] [dim]probing {index}/{total}…[/dim]",
+            end="\r",
+        )
+        note = str(probe.get("note") or "")
+        if note in _PATH_NOTES_STREAM_NORMAL:
+            path = str(probe.get("path") or "?")
+            status = probe.get("final_status")
+            status_bit = f" · HTTP {status}" if status is not None else ""
+            self.console.print(
+                f"      [yellow]→[/yellow] exposed: [dark_orange]{path}[/dark_orange]"
+                f"[dim]{status_bit}[/dim]"
+            )
 
     def step_done(
         self,
@@ -351,6 +399,8 @@ class ScanProgress:
         self.console.print(f"  [green]✔[/green] [bold]{label:<12}[/bold] {summary}")
         if self.verbosity == Verbosity.VERBOSE:
             for line in details:
+                if step_name == "_step_paths" and self._paths_streamed and "[dark_orange]" in line:
+                    continue
                 self.console.print(f"      [dim]→[/dim] {line}")
 
     def scoring(self, scores: AuditScores) -> None:

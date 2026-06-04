@@ -2909,6 +2909,22 @@ section.block h2 {
   margin-top: 0.75rem;
 }
 
+.theme-advisory {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.theme-advisory-warn {
+  border-color: rgba(255, 193, 77, 0.35);
+}
+
+.theme-child-note {
+  margin-top: 0.5rem;
+}
+
 .technical-toolbar {
   margin-bottom: 1rem;
 }

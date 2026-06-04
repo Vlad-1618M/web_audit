@@ -111,7 +111,7 @@ Register new work in `webaudit/pipeline.py` (preferred) or append in `orchestrat
 - Use `Finding.from_check()` for v1 parity auto-downgrade  
 - Categories must match [scoring.md](scoring.md) (`HEADERS`, `DNS`, `PATHS`, `TLS`, `POLICY`, …)  
 - Tier 2c `SEO_SURFACE` — never ACTION/scored by default  
-- Tier 2b `PLUGIN*` — see [plugin_vulnerability_research.md](plugin_vulnerability_research.md)
+- Tier 2b `PLUGIN*` / `THEME*` — see [plugin_vulnerability_research.md](plugin_vulnerability_research.md) · [wordpress_theme_threat_model.md](wordpress_theme_threat_model.md)
 
 **Artifact keys** (reserved in `AuditArtifacts` — do not repurpose):
 
@@ -124,6 +124,7 @@ Register new work in `webaudit/pipeline.py` (preferred) or append in `orchestrat
 | `inventory` | 2–3 | live (paths) |
 | `plugins` | 5 / 2b | live (WP mirror of extensions) |
 | `extensions` | 5 / 2b | live |
+| `extensions.themes` (WP) | 6 / 2b | live — style.css, child theme, wp.org compare |
 | `seo_surface` | 5 / 2c | live |
 
 ---
@@ -214,4 +215,4 @@ Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
 
 ---
 
-*Last updated: Stage 5 beta closed — release **2.1.0b2** (2026-06).*
+*Last updated: WordPress theme fingerprint — style.css, child theme, update-trap VERIFY (2026-06).*

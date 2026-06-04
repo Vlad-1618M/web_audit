@@ -81,6 +81,8 @@ scoring:
   hygiene_caps:
     PLUGIN: 30
     PLUGIN_CVE: 30
+    THEME: 25
+    THEME_CVE: 25
     PACKAGE: 30      # Django / Laravel
     GEM: 30          # Rails
   plugin_worst_wins: true   # optional — use highest-severity extension finding only
@@ -90,7 +92,9 @@ scoring:
 
 ## Plugin & extension findings (Tier 2b)
 
-Categories: `PLUGIN*` (WordPress), `PACKAGE*` (Django/Laravel), `GEM*` (Rails), plus shared `*_VERIFY` / `*_INFO` variants.
+Categories: `PLUGIN*` (WordPress plugins), `THEME*` (WordPress themes), `PACKAGE*` (Django/Laravel), `GEM*` (Rails), plus shared `*_VERIFY` / `*_INFO` variants.
+
+**WordPress themes (Tier 2b+):** Stale free themes on wordpress.org → ACTION (`THEME` / `STALE`); premium parent themes → VERIFY; child theme → INFO; update-trap on watchlist parents without child theme → VERIFY. See [wordpress_theme_threat_model.md](wordpress_theme_threat_model.md).
 
 | Finding | Class | Scored | Hygiene | Exposure |
 |---------|-------|--------|---------|----------|

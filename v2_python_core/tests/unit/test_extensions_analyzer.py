@@ -1,4 +1,6 @@
 """Tests for unified extension analyzer."""
+from urllib.parse import urlparse
+
 from webaudit.analyzers.extensions import analyze_extensions
 from webaudit.collectors.extensions.models import ExtensionSignal, ExtensionsProbeResult, ObservedExtension
 from webaudit.models.finding import FindingClass
@@ -19,9 +21,11 @@ class _FakeClient:
         self.versions = versions
 
     def get(self, url, headers=None):
-        if 'pypi.org/pypi/django' in url:
+        host = urlparse(url).hostname
+        path = urlparse(url).path
+        if host == 'pypi.org' and path.startswith('/pypi/django'):
             return _FakeResponse(200, {'info': {'version': self.versions.get('django', '5.0')}})
-        if 'packagist.org' in url and 'laravel/framework' in url:
+        if host == 'repo.packagist.org' and path == '/p2/laravel/framework.json':
             return _FakeResponse(200, {'packages': {'laravel/framework': [{'version': self.versions.get('laravel/framework', '11.0')}]}})
         return _FakeResponse(404)
 

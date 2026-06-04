@@ -21,7 +21,7 @@ def test_validate_hostname_mismatch():
     """Ensures Validate Hostname Mismatch."""
     ok, note = validate_hostname('shop.example.com', subject='CN=example.com', san=['example.com'])
     assert ok is False
-    assert 'shop.example.com' in note
+    assert note == 'Certificate names (example.com) do not include shop.example.com'
 
 def test_build_cert_issues_expiring_and_tls():
     """Ensures Build Cert Issues Expiring And TLS."""

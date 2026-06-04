@@ -2,6 +2,7 @@
 from webaudit.analyzers.extension_compare import registry_package_url, registry_meta
 from webaudit.models.finding import Finding, Severity
 from webaudit.render.extension_display import build_extension_section
+from tests.url_helpers import assert_registry_host
 
 def test_registry_package_urls():
     """Ensures Registry Package Urls."""
@@ -14,7 +15,7 @@ def test_registry_meta_wporg():
     """Ensures Registry Meta Wporg."""
     meta = registry_meta('wporg')
     assert meta is not None
-    assert 'WordPress.org' in meta['label']
+    assert meta['label'] == 'WordPress.org Plugin Directory'
 
 def test_build_extension_section_django():
     """Ensures Build Extension Section Django."""
@@ -25,4 +26,4 @@ def test_build_extension_section_django():
     assert section['registry_label'] == 'PyPI (Python Package Index)'
     assert section['compare_enabled'] is True
     assert section['rows'][0]['latest_version'] == '5.2.0'
-    assert 'pypi.org' in section['rows'][0]['registry_url']
+    assert_registry_host(section['rows'][0]['registry_url'], 'pypi.org')

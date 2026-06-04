@@ -29,7 +29,10 @@ def test_report_footer_branding():
     footer = build_report_footer(scanned_at='2026-06-02T14:43:46+00:00')
     assert footer['brand_app_label'] == 'muzar.io'
     assert footer['brand_product'] == 'Web Security Audit Pro'
-    assert 'muzar.io' in footer['brand_line']
+    assert footer['brand_line'] == (
+        f"Created by {footer['brand_app_label']} — {footer['brand_product']} "
+        f"v{footer['webaudit_version']} — {footer['report_timestamp']}"
+    )
     assert footer['report_timestamp']
     assert footer['webaudit_version']
     assert footer['audit_host']

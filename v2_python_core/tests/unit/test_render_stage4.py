@@ -1,7 +1,6 @@
 """Tests for all report template variants, TXT export, and audit_run loading."""
 from __future__ import annotations
 import json
-from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 from webaudit.cli.main import app
@@ -12,6 +11,7 @@ from webaudit.render.html import render_html, write_html_report
 from webaudit.render.reports import write_run_reports
 from webaudit.render.txt import render_txt, write_txt_report
 from webaudit.storage.runs import load_audit_run, write_audit_run
+from tests.url_helpers import assert_html_references_url
 
 def _sample_run() -> AuditRun:
     return AuditRun(meta=AuditMeta(target_url='https://example.com', started_at='2026-05-29T12:00:00+00:00', finished_at='2026-05-29T12:00:05+00:00', webaudit_version='2.0.0a1', framework='django'), scores=AuditScores(hygiene=78, exposure=100, verdict='NEEDS_ATTENTION'), findings=[Finding.from_check(category='HEADERS', item='Content-Security-Policy', status='MISSING', severity=Severity.HIGH), Finding.from_check(category='DNS', item='DMARC', status='MISSING', severity=Severity.MEDIUM)], artifacts=AuditArtifacts(dns={'records': {'spf': 'v=spf1 -all', 'dmarc': None}}, tls={'certificate': {'days_left': 90}, 'versions': []}, inventory={'paths': {'probe_count': 12}, 'html': {'pages_scanned': 1}}))
@@ -19,8 +19,9 @@ def _sample_run() -> AuditRun:
 @pytest.mark.parametrize('variant', ['owner', 'technical', 'executive', 'minimal', 'dashboard', 'digest'])
 def test_render_all_html_variants(variant: str):
     """Ensures Render All HTML Variants."""
-    html = render_html(_sample_run(), variant=variant)
-    assert 'https://example.com' in html
+    run = _sample_run()
+    html = render_html(run, variant=variant)
+    assert_html_references_url(html, run.meta.target_url)
     assert 'report.css' in html
 
 def test_render_txt_contains_scores_and_findings():

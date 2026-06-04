@@ -10,6 +10,7 @@ def test_load_wordpress_profile():
     assert profile.fingerprint_unit == 'plugin'
     assert profile.scoring.hygiene_cap == 30
     assert any((entry.slug == 'elementor' for entry in profile.watchlist))
+    assert any((entry.slug == 'elementor-pro' for entry in profile.watchlist))
 
 def test_load_django_profile():
     """Ensures Load Django Profile."""

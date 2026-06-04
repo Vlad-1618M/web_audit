@@ -29,3 +29,26 @@ def test_collect_wp_plugins_observed_only(monkeypatch):
     assert len(result.plugins) == 1
     assert result.plugins[0].slug == 'akismet'
     assert result.plugins[0].version_html == '5.3'
+
+
+def test_collect_wp_plugins_alias_keeps_path_slug_for_readme(monkeypatch):
+    """Yoast alias normalizes slug but readme fetch uses the HTML path slug."""
+    from webaudit.collectors import wp_plugins as mod
+    profile = FrameworkProfile(
+        framework='wordpress',
+        probe=ProfileProbeSettings(mode='observed_only', readme_fetch='observed_only'),
+        aliases={'wordpress-seo': 'yoast-seo'},
+    )
+    html = '<script src="/wp-content/plugins/wordpress-seo/js/admin.js?ver=22.1"></script>'
+    fetched: list[str] = []
+
+    def _track_readme(_base, slug, **_kwargs):
+        fetched.append(slug)
+        return '22.1'
+    monkeypatch.setattr(mod, '_fetch_readme_version', _track_readme)
+    result = mod.collect_wp_plugins('https://example.com', html, profile, user_agent='test', timeout_seconds=5, client=object())
+    assert len(result.plugins) == 1
+    assert result.plugins[0].slug == 'yoast-seo'
+    assert result.plugins[0].path_slug == 'wordpress-seo'
+    assert fetched == ['wordpress-seo']
+    assert result.plugins[0].version_readme == '22.1'

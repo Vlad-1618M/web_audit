@@ -45,6 +45,8 @@ _STATUS_TONE = {
     "CURRENT": "good",
     "STALE": "bad",
     "UNKNOWN": "warn",
+    "UNKNOWN_SLUG": "warn",
+    "VERSION_UNVERIFIED": "warn",
     "UNVERIFIABLE": "neutral",
     "NO_VERSION": "warn",
     "OBSERVED": "neutral",
@@ -150,6 +152,13 @@ def build_extension_section(
             "but plugin asset paths are not exposed in the homepage HTML this scan could read."
         )
 
+    passive_scan_note = ""
+    if framework == "wordpress":
+        passive_scan_note = (
+            "Passive scan: only plugins that enqueue public CSS/JS on the scanned page appear here. "
+            "wp-admin may list many more installed plugins with no public asset URLs on this URL."
+        )
+
     return {
         "framework": framework,
         "framework_label": _FRAMEWORK_LABELS.get(framework, framework.title()),
@@ -171,4 +180,5 @@ def build_extension_section(
         "error": str(ext_art.get("error") or ""),
         "none_observed_detail": none_observed.detail if none_observed else "",
         "frontend_note": frontend_note,
+        "passive_scan_note": passive_scan_note,
     }

@@ -5,4 +5,5 @@ Where: Imported by ``webaudit/__init__.py`` and ``webaudit/orchestrator.py``.
 How: Bump here on release; do not hard-code version elsewhere.
 """
 
-__version__ = "2.1.0b3"
+# __version__ = "2.1.0b3"
+__version__ = "2.1.0b4"

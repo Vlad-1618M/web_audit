@@ -17,6 +17,9 @@
     {% if extension_section.compare_enabled %} · registry lookups: {{ extension_section.compared_count }}{% endif %}
     {% if extension_section.stale_count %} · <span class="ext-stale-count">{{ extension_section.stale_count }} behind latest</span>{% endif %}
   </p>
+  {% if extension_section.passive_scan_note %}
+  <p class="meta-inline">{{ extension_section.passive_scan_note }}</p>
+  {% endif %}
 
   {% if extension_section.error %}
   <p class="meta-inline">{{ extension_section.error }}</p>

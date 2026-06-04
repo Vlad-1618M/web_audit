@@ -87,7 +87,13 @@ misc:
 collectors:
   extensions:
     enabled: true            # Tier 2b — multi-framework (2.1.0a1)
-    vuln_cache_path: ~/.local/share/webaudit/vuln_cache.db
+  vuln:
+    enabled: true            # Tier 3 — WordPress PLUGIN_CVE / THEME_CVE (shipped snapshot)
+    source: cache            # cache | wpscan | wporg_only (wpscan = snapshot today)
+    cache_enabled: true
+    cache_path: ""           # default ~/.local/share/webaudit/vuln_cache.db
+    cache_ttl_days: 14
+    snapshot_path: ""        # default webaudit/data/vuln_snapshot.json
   dns:
     enabled: true
     check_spf: true
@@ -152,7 +158,7 @@ report:
 
 output:
   directory: ./audit_logs    # or next to config
-  formats: [html, json, txt, pdf]
+  formats: [html, json, txt, pdf, sarif]   # sarif → audit_run.sarif.json
   open_browser: false
   pdf:
     enabled: true
@@ -223,11 +229,96 @@ extensions:
 webaudit scan https://muzar.io \
   --site-config site_configs/muzar.io.yaml \
   --report-variant executive \
+  --sarif \
   --no-pdf \
   --fail-under-hygiene 80
 ```
 
+| CLI flag | Config key | Notes |
+|----------|------------|-------|
+| `--sarif` | appends `sarif` to `output.formats` | Writes `audit_run.sarif.json` (SARIF 2.1.0) |
+| `--json` | stdout only | Does not replace on-disk `audit_run.json` |
+| `--js` | `collectors.js.enabled: true` | Playwright pass |
+| `--api` | `collectors.api.enabled: true` | GraphQL / OpenAPI probes |
+
 Flag → config key mapping documented in `webaudit scan --help`.
+
+---
+
+## Plugin/theme CVE cache (Tier 3)
+
+**WordPress only.** After extensions/themes are fingerprinted, `_step_vuln` matches observed plugin/theme **versions** against a **shipped JSON snapshot** (`webaudit/data/vuln_snapshot.json`). Results appear as `PLUGIN_CVE` / `THEME_CVE` findings in `audit_run.json` and HTML reports (findings tables).
+
+**Passive limit:** CVE matching requires a parseable version from public HTML/readme — same constraint as plugin fingerprinting. No wp-admin inventory.
+
+### Config (`defaults.yaml`)
+
+```yaml
+collectors:
+  vuln:
+    enabled: true
+    source: cache          # cache | wpscan | wporg_only
+    cache_enabled: true
+    cache_path: ""         # ~/.local/share/webaudit/vuln_cache.db when empty
+    cache_ttl_days: 14
+    snapshot_path: ""      # bundled snapshot when empty
+```
+
+WordPress profile override (`profiles/wordpress/extensions.yaml`):
+
+```yaml
+vuln:
+  enabled: true
+  source: cache
+  cache_ttl_days: 14
+  auth_required_default_class: VERIFY
+  exposure_on_unauth_cve_only: true
+```
+
+### Auth-aware classes (see [scoring.md](scoring.md))
+
+| CVE auth requirement | Finding class | Scored on Hygiene? | Exposure impact |
+|----------------------|---------------|--------------------|-----------------|
+| None / unauthenticated | ACTION | Yes | Critical unauth CVE: −25 Exposure |
+| Contributor / Subscriber | VERIFY | No | No |
+| Admin | INFO | No | No |
+
+### Live WPScan API
+
+`source: wpscan` is reserved for a future live API integration. **Today** all sources use the offline shipped snapshot (no network call, no API key).
+
+Research basis and fixture table: [plugin_vulnerability_research.md](plugin_vulnerability_research.md) · theme CVEs: [wordpress_theme_threat_model.md](wordpress_theme_threat_model.md).
+
+---
+
+## SARIF export (GitHub Code Scanning)
+
+SARIF **2.1.0** output for CI pipelines and GitHub Advanced Security code scanning integration.
+
+**Enable either way:**
+
+```bash
+webaudit scan https://example.com --sarif --open none
+```
+
+```yaml
+output:
+  formats: [json, html, sarif]
+```
+
+**Output file:** `audit_logs/<timestamp>_<host>/audit_run.sarif.json`
+
+**Contents:** Scored ACTION findings (headers, paths, TLS, `PLUGIN_CVE`, etc.) with rule IDs like `webaudit/plugin_cve/match`. VERIFY/INFO findings are omitted by default. Run metadata includes target URL, hygiene, exposure, verdict.
+
+**Docker:** `./scripts/webaudit-docker.sh scan URL --sarif -v --open none` — flag passes through to the container; SARIF file is written into the mounted `audit_logs` volume.
+
+Implementation: `webaudit/export/sarif.py`.
+
+**Default product path:** HTML + `audit_run.json` for owner audits. SARIF is **opt-in** (`--sarif`). A sample GitHub Actions upload workflow is **TODO revisit later** — useful when scans run in CI on a schedule or when authenticated inventory makes SARIF more valuable for SecOps. See [implementation_tracker.md](implementation_tracker.md) § SARIF + CI / auth-aware scale.
+
+---
+
+**Planned (TODO — not implemented):** `--framework wordpress|django|…` scan flag and `webaudit config init --framework …` to emit a prebuilt site YAML (watchlist, paths, collectors) for editing. See [implementation_tracker.md](implementation_tracker.md) § Backlog / brainstorm. Without auth, prebuilt configs force the right *pipeline*, not full wp-admin plugin inventory.
 
 ---
 

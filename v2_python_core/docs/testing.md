@@ -151,7 +151,10 @@ tests/
 │   ├── test_wp_themes.py
 │   ├── test_wp_plugin_fingerprint.py
 │   ├── test_wp_plugin_stale.py
-│   ├── test_plugin_vuln_auth_class.py
+│   ├── test_plugin_vuln_analyzer.py   # Tier 3 — CVE auth class + snapshot match
+│   ├── test_vuln_snapshot.py
+│   ├── test_vuln_cache.py
+│   ├── test_sarif_export.py
 │   └── test_seo_surface_unscored.py   # Tier 2c
 ├── integration/
 │   ├── test_scan_wiremock.py
@@ -225,7 +228,8 @@ Fixtures = real-world snippets (anonymized from muzar.io runs):
 - readme.txt `Stable tag:` parse
 - wp.org API mocked — stale vs current
 - Premium slug → VERIFY not ACTION
-- CVE fixtures from [plugin_vulnerability_research.md](plugin_vulnerability_research.md): unauth XSS → ACTION; Contributor XSS → VERIFY
+- CVE fixtures: shipped `webaudit/data/vuln_snapshot.json` + [plugin_vulnerability_research.md](plugin_vulnerability_research.md) §4; tests in `test_plugin_vuln_analyzer.py`, `test_vuln_snapshot.py`, `test_scoring_cve_exposure.py`
+- SARIF: `test_sarif_export.py`
 
 No network. No live WPScan in unit tests.
 

@@ -168,6 +168,17 @@ class ApiCollectorSettings(BaseModel):
     )
 
 
+class VulnCollectorSettings(BaseModel):
+    """Tier 3 — plugin/theme CVE matching from shipped snapshot + sqlite cache."""
+
+    enabled: bool = True
+    source: Literal["cache", "wpscan", "wporg_only"] = "cache"
+    cache_enabled: bool = True
+    cache_path: str = ""
+    cache_ttl_days: int = Field(default=14, ge=1, le=90)
+    snapshot_path: str = ""
+
+
 class CollectorsSettings(BaseModel):
     dns: DnsCollectorSettings = Field(default_factory=DnsCollectorSettings)
     tls: TlsCollectorSettings = Field(default_factory=TlsCollectorSettings)
@@ -182,6 +193,7 @@ class CollectorsSettings(BaseModel):
     seo_surface: SeoSurfaceSettings = Field(default_factory=SeoSurfaceSettings)
     js: JsCollectorSettings = Field(default_factory=JsCollectorSettings)
     api: ApiCollectorSettings = Field(default_factory=ApiCollectorSettings)
+    vuln: VulnCollectorSettings = Field(default_factory=VulnCollectorSettings)
 
     @model_validator(mode="before")
     @classmethod

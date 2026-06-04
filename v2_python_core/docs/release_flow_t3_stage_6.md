@@ -107,9 +107,11 @@ cd v2_python_core
 
 See `CHANGELOG.md` `[Unreleased]`:
 
-- Plugin/theme CVE cache (WPScan)
+- Live **WPScan API** (`vuln.source: wpscan` uses offline snapshot today)
 - httpx **cassettes** (optional; WP integration covers live fixture path)
-- SARIF, INI→YAML, Homebrew, i18n
+- INI→YAML, Homebrew, i18n
+
+**Shipped in `[Unreleased]`:** plugin/theme CVE cache (snapshot + sqlite), SARIF export (`--sarif`).
 
 ---
 

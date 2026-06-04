@@ -35,7 +35,7 @@ Reference: repo root `web_audit.sh` (read-only). v2 code lives in `v2_python_cor
 | HSTS missing at CDN edge | VERIFY when CDN detected (unscored) | VERIFY when CDN detected | ✓ parity (2.1.0b1) |
 | WAF / bot protection (captcha interstitial) | n/a | VERIFY when homepage blocked; framework hint from `robots.txt` | v2-only (2.1.0b2) |
 | PDF export | Browser `window.print()` only | Browser print (default) + optional WeasyPrint | By design |
-| Plugin/CVE probes | Hardcoded readme.txt list for high-risk slugs | Observed-only + framework profiles; no blind readme GET | Tier 2b ✓; CVE cache deferred |
+| Plugin/CVE probes | Hardcoded readme.txt list for high-risk slugs | Observed-only + profiles; CVE via shipped snapshot (`PLUGIN_CVE` / `THEME_CVE`) | Tier 2b ✓; live WPScan API deferred |
 | Plugin compare scope | WordPress readme + WPScan hints | WP + Django/Laravel/Rails registry compare | v2-only extension |
 | INI site config | `site.conf` | YAML (`webaudit.yaml`, `--site-config`) | Tier 3 migrator |
 | Output layout | User-chosen dir in v1 | `audit_logs/<stamp>_<host>/` | Documented |
@@ -53,6 +53,8 @@ Reference: repo root `web_audit.sh` (read-only). v2 code lives in `v2_python_cor
 - Owner guide section: how to read the report, tool comparison, dev/QA suggestions
 - Metric chips, plain-English DNS cards, leak-protection **/100** score labels in UI
 - Framework extension intelligence (WordPress plugins, Django/Laravel packages, Rails gems)
+- WordPress **PLUGIN_CVE / THEME_CVE** matching (shipped snapshot; WordPress + version required)
+- **SARIF export** (`--sarif` / `audit_run.sarif.json`) for CI
 - SEO surface analyzer (INFO/VERIFY only)
 - `webaudit diff` baseline comparison
 - Scan progress: default step logs, `-v` / `-q`

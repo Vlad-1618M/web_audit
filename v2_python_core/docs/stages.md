@@ -15,18 +15,20 @@ Stage 4   Report templates + PDF           ✓
 Stage 5   Tier 2 + Tier 2b modules         ✓ complete (2.1.0b2)
           · extensions, DNS, owner report, baseline diff, JS/API/links ✓
           · WordPress theme fingerprint, live path probe streaming ✓ (2.1.0b3)
-Stage 6   Tier 3 modules + packaging         ◐ in progress (2.1.0b3)
+Stage 6   Tier 3 modules + packaging         ◐ in progress (2.1.0b3+)
           · Docker WP fixture + orchestrate.sh + GitHub Actions ✓
           · GHCR publish (main / v.tools_main / v* tags) ✓
           · pytest HTML QA reports + WP integration tests ✓
-          · CVE cache, SARIF, pipx/Homebrew — deferred
+          · Plugin/theme CVE cache (shipped snapshot + sqlite) ✓
+          · SARIF export (`--sarif` / `output.formats: sarif`) ✓
+          · Live WPScan API, pipx/Homebrew — deferred
 ```
 
 **Tier 1 (2.0.0b1):** Feature-complete for v2.0 foundation. CDN-aware HSTS downgrade aligned with v1 in **2.1.0b1**.
 
 **Stage 5 (2.1.0b2):** Tier 2 depth + Tier 2b extensions + DNS enrichment + owner report + baseline diff.
 
-**Stage 6 (2.1.0b3+):** CI/Docker harness landed first — see [docker_ci.md](docker_ci.md). Product Tier 3 (CVE cache, SARIF, packaging) still open — [CHANGELOG.md](../CHANGELOG.md) `[Unreleased]`.
+**Stage 6 (2.1.0b3+):** CI/Docker harness landed first — see [docker_ci.md](docker_ci.md). **CVE cache + SARIF** shipped in `[Unreleased]` — see [config.md](config.md). Remaining Tier 3: live WPScan API, pipx/Homebrew — [CHANGELOG.md](../CHANGELOG.md).
 
 Stages are **sequential**. Tiers are **feature bundles** that land across stages but are owned as logical groups.
 
@@ -142,9 +144,9 @@ packaging>=24.0
 - [x] Free plugins compared to wordpress.org API
 - [x] Premium slugs → VERIFY findings, not false “stale”
 - [x] Report chip + empty state honest when zero plugins observed (decoupled frontends)
-- [ ] Auth-required CVEs default to VERIFY class (deferred — `plugin_vuln` module)
+- [x] Auth-required CVEs default to VERIFY class (`analyzers/plugin_vuln.py` — contributor/subscriber/admin)
 - [x] `hygiene_caps.PLUGIN: 30` enforced in scoring tests
-- [ ] CVE fixtures from research doc drive pytest golden files
+- [x] CVE fixtures from research doc in shipped `webaudit/data/vuln_snapshot.json` + pytest (`test_plugin_vuln_analyzer.py`, `test_vuln_snapshot.py`)
 
 ---
 
@@ -225,7 +227,8 @@ nvdlib>=0.7          # optional, rate-limited
 
 **Tier 3 exit criteria:**
 
-- [ ] SARIF export tested against GitHub
+- [x] Shipped CVE snapshot + sqlite cache for WordPress plugins/themes (offline; live WPScan API deferred)
+- [x] SARIF export (`audit_run.sarif.json`, `--sarif` CLI flag) — **upload workflow deferred; see implementation_tracker § SARIF + CI**
 - [ ] INI → YAML migrator for existing `site_configs/*.conf`
 - [ ] Homebrew formula in repo
 - [ ] Executive one-pager localized strings stub (i18n-ready)
@@ -242,7 +245,7 @@ nvdlib>=0.7          # optional, rate-limited
 | **3 — Analyze/Score** | remaining analyzers, parity polish | — | — |
 | **4 — Render** | templates + PDF | — | — |
 | **5 — Extend** | polish | JS, API, baseline, **Tier 2b WP profiles**, **Tier 2c SEO surface**, **WP themes** | — |
-| **6 — Ship wide** | pipx | WP Docker integration CI | SARIF, CVE cache, packaging, GHCR ✓ |
+| **6 — Ship wide** | pipx | WP Docker integration CI | SARIF ✓, CVE cache ✓, packaging, GHCR ✓ |
 
 ---
 

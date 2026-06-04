@@ -29,6 +29,7 @@ STEP_LABELS: dict[str, tuple[str, str]] = {
     "_step_links": ("links", "Broken internal link sample"),
     "_step_api": ("api", "GraphQL / OpenAPI discovery"),
     "_step_extensions": ("extensions", "Framework extensions / packages"),
+    "_step_vuln": ("vuln", "Plugin/theme CVE cache lookup"),
     "_step_seo_surface": ("seo_surface", "Discoverability (INFO only)"),
 }
 
@@ -84,6 +85,8 @@ def step_enabled(step_name: str, settings: Settings) -> bool:
             return settings.collectors.api.enabled
         case "_step_extensions":
             return settings.collectors.extensions.enabled
+        case "_step_vuln":
+            return settings.collectors.vuln.enabled
         case "_step_seo_surface":
             return settings.collectors.seo_surface.enabled
     return True

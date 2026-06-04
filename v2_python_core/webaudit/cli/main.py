@@ -18,7 +18,7 @@ from rich.console import Console
 from webaudit.config.settings import load_settings
 from webaudit.cli.completion_cmd import completion_app, rewrite_legacy_completion_argv
 from webaudit.cli.diff_cmd import diff_command
-from webaudit.cli.output_ui import handle_open_outputs, print_scan_summary
+from webaudit.cli.output_ui import handle_open_outputs, print_scan_summary, write_last_run_marker
 from webaudit.cli.report_cmd import report_command
 from webaudit.cli.scan_progress import ScanProgress, Verbosity, resolve_verbosity
 from webaudit.orchestrator import audit_run_to_json, run_audit
@@ -105,6 +105,13 @@ def scan(
             help="Probe GraphQL introspection and OpenAPI/Swagger paths",
         ),
     ] = False,
+    sarif: Annotated[
+        bool,
+        typer.Option(
+            "--sarif",
+            help="Write audit_run.sarif.json for GitHub Code Scanning (adds sarif to output formats)",
+        ),
+    ] = False,
 ) -> None:
     """Run a hygiene scan against a public URL.
 
@@ -129,6 +136,9 @@ def scan(
             settings.collectors.js.enabled = True
         if api_probe:
             settings.collectors.api.enabled = True
+        if sarif:
+            if "sarif" not in settings.output.formats:
+                settings.output.formats.append("sarif")
     except (ValueError, OSError) as exc:
         console.print(f"[red]Config error:[/red] {exc}")
         raise typer.Exit(code=2) from exc
@@ -158,6 +168,7 @@ def scan(
     if verbosity != Verbosity.QUIET:
         console.print()
     print_scan_summary(run, console=console, target_url=settings.target.url)
+    write_last_run_marker(run.reports)
     handle_open_outputs(run.reports, mode=open_outputs or "ask", console=console)
 
 

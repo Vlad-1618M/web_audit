@@ -27,3 +27,21 @@ def test_build_extension_section_django():
     assert section['compare_enabled'] is True
     assert section['rows'][0]['latest_version'] == '5.2.0'
     assert_registry_host(section['rows'][0]['registry_url'], 'pypi.org')
+
+
+def test_build_extension_section_wordpress_passive_note():
+    """WordPress reports explain passive asset-only plugin detection."""
+    section = build_extension_section(
+        {
+            'extensions': {
+                'framework': 'wordpress',
+                'unit': 'plugin',
+                'extensions': [{'name': 'breeze', 'version': '2.0', 'source': 'html', 'unit': 'plugin'}],
+            }
+        },
+        [],
+        framework='wordpress',
+    )
+    assert section is not None
+    assert 'Passive scan' in section['passive_scan_note']
+    assert section['framework'] == 'wordpress'

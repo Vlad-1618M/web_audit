@@ -46,3 +46,55 @@ def test_premium_plugin_is_verify_not_scored():
     assert findings[0].category == 'PLUGIN_VERIFY'
     assert findings[0].class_ == FindingClass.VERIFY
     assert findings[0].scored is False
+
+
+def test_pro_suffix_inferred_premium_without_watchlist():
+    """-pro slugs are treated as premium even when not on the watchlist."""
+    profile = FrameworkProfile(framework='wordpress', compare=ProfileCompareSettings(wporg_api=True))
+    probe = WpPluginsProbeResult(
+        target_url='https://example.com',
+        plugins=[ObservedPlugin(slug='elementor-pro', path_slug='elementor-pro', version_html='4.1.0')],
+    )
+    findings = analyze_wp_plugins(probe, profile, user_agent='test', timeout_seconds=5, client=_FakeClient({}))
+    assert len(findings) == 1
+    assert findings[0].status == 'PREMIUM_OR_UNVERIFIABLE'
+    assert findings[0].scored is False
+
+
+def test_elementor_asset_version_noise_not_marked_current():
+    """Asset ?ver= build ids must not beat wp.org semver as CURRENT."""
+    profile = FrameworkProfile(
+        framework='wordpress',
+        compare=ProfileCompareSettings(wporg_api=True),
+        watchlist=[WatchlistEntry(slug='elementor', tier='critical')],
+    )
+    probe = WpPluginsProbeResult(
+        target_url='https://example.com',
+        plugins=[ObservedPlugin(slug='elementor', path_slug='elementor', version_html='8.4.5')],
+    )
+    client = _FakeClient({'elementor': '4.1.1'})
+    findings = analyze_wp_plugins(probe, profile, user_agent='test', timeout_seconds=5, client=client)
+    assert len(findings) == 1
+    assert findings[0].status == 'VERSION_UNVERIFIED'
+    assert findings[0].scored is False
+
+
+def test_readme_version_preferred_over_asset_noise():
+    """readme Stable tag wins when HTML ?ver= is unreliable."""
+    profile = FrameworkProfile(framework='wordpress', compare=ProfileCompareSettings(wporg_api=True))
+    probe = WpPluginsProbeResult(
+        target_url='https://example.com',
+        plugins=[
+            ObservedPlugin(
+                slug='elementor',
+                path_slug='elementor',
+                version_html='8.4.5',
+                version_readme='4.1.1',
+                source='html+readme',
+            )
+        ],
+    )
+    client = _FakeClient({'elementor': '4.1.1'})
+    findings = analyze_wp_plugins(probe, profile, user_agent='test', timeout_seconds=5, client=client)
+    assert len(findings) == 1
+    assert findings[0].status == 'CURRENT'

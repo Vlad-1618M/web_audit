@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "webaudit"
-version = "2.1.0b2"
+version = "2.1.0b4"
 description = "Web Audit v2 — external security hygiene for public websites"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -51,6 +51,7 @@ packages = ["webaudit"]
 "webaudit/profiles/laravel/extensions.yaml" = "webaudit/profiles/laravel/extensions.yaml"
 "webaudit/profiles/rails/extensions.yaml" = "webaudit/profiles/rails/extensions.yaml"
 "webaudit/profiles/generic/extensions.yaml" = "webaudit/profiles/generic/extensions.yaml"
+"webaudit/data/vuln_snapshot.json" = "webaudit/data/vuln_snapshot.json"
 "webaudit/templates/reports/technical/report.html" = "webaudit/templates/reports/technical/report.html"
 "webaudit/templates/reports/technical/report.css" = "webaudit/templates/reports/technical/report.css"
 "webaudit/templates/reports/executive/report.html" = "webaudit/templates/reports/executive/report.html"

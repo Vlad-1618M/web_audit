@@ -63,6 +63,12 @@ def write_run_reports(
             except PdfExportError as exc:
                 warnings.append(str(exc))
 
+    if "sarif" in wanted:
+        from webaudit.export.sarif import write_sarif_report
+
+        write_sarif_report(run, run_dir)
+        reports["sarif"] = "audit_run.sarif.json"
+
     if "html" not in wanted and "html" in reports:
         del reports["html"]
 

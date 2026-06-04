@@ -149,15 +149,17 @@ Full check list: [seo_surface.md](seo_surface.md).
 | Event | Deduction |
 |-------|-----------|
 | Each sensitive path with qualifying status | **−25** |
+| Each unauthenticated **CRITICAL** `PLUGIN_CVE` / `THEME_CVE` (ACTION, scored) | **−25** |
 
 ```text
-exposure = max(0, 100 - 25 * leak_count)
+exposure = max(0, 100 - 25 * leak_count - 25 * unauth_critical_cve_count)
 ```
 
 **Sensitive path list:** inherited from v1 `is_sensitive_path()` logic — `.env`, `.git/HEAD`, `wp-config.php`, `settings.py`, dumps, etc. Defined in config `paths.sensitive_builtin` + overrides.
 
 **Does NOT reduce Exposure:**
 
+- Contributor/subscriber/admin CVE matches (VERIFY/INFO) — no Exposure deduction
 - `expected_open` routes in site config
 - Built-in login surfaces (`/wp-login.php`, `/admin/login/`, …)
 - robots.txt, sitemap (public SEO)

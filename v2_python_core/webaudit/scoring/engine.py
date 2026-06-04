@@ -9,7 +9,7 @@ How: Only ACTION + scored findings deduct Hygiene; PATHS leaks deduct Exposure; 
 from __future__ import annotations
 
 from webaudit.config.settings import HygieneWeights, ScoringSettings
-from webaudit.models.finding import Finding, FindingClass
+from webaudit.models.finding import Finding, FindingClass, Severity
 from webaudit.models.run import AuditScores
 
 _PLUGIN_CATEGORIES = frozenset({"PLUGIN", "PLUGIN_CVE", "PACKAGE", "PACKAGE_CVE", "GEM", "GEM_CVE", "THEME", "THEME_CVE"})
@@ -116,7 +116,16 @@ def compute_exposure(findings: list[Finding]) -> int:
         and f.scored
         and f.status in {"OPEN", "LEAKING"}
     )
-    return max(0, 100 - 25 * leak_count)
+    unauth_cve_count = sum(
+        1
+        for f in findings
+        if f.category in {"PLUGIN_CVE", "THEME_CVE"}
+        and f.class_ == FindingClass.ACTION
+        and f.scored
+        and f.severity == Severity.CRITICAL
+        and str(f.evidence.get("auth_required") or "").lower() in {"none", "unauthenticated", "no", "false"}
+    )
+    return max(0, 100 - 25 * leak_count - 25 * unauth_cve_count)
 
 
 def compute_verdict(hygiene: int, exposure: int, findings: list[Finding]) -> str:

@@ -20,7 +20,20 @@ This repository ships **two editions**. They share the same philosophy (passive,
 
 **If you opened the [GHCR package `webaudit`](https://github.com/users/Vlad-1618M/packages/container/webaudit)** or ran `docker pull ghcr.io/vlad-1618m/webaudit`, you want **v2**, not the bash script below.
 
-The container is **Web Audit Pro** (Python `webaudit` CLI). Image reference must be **lowercase**:
+The container is **Web Audit Pro** (Python `webaudit` CLI). Image reference must be **lowercase**.
+
+**Recommended — host wrapper** (mounts reports, opens browser on your Mac/Linux):
+
+```bash
+git clone git@github.com:Vlad-1618M/web_audit.git
+cd web_audit/v2_python_core
+./scripts/webaudit-docker.sh scan https://example.com
+
+# Rich scan + open HTML on host when done
+./scripts/webaudit-docker.sh --output-dir documents scan https://example.com -v --api --open html
+```
+
+**Manual `docker run`** (CI / automation — use `--open none`, open files yourself):
 
 ```bash
 docker pull ghcr.io/vlad-1618m/webaudit:latest
@@ -29,8 +42,10 @@ mkdir -p audit_logs
 docker run --rm \
   -v "$(pwd)/audit_logs:/work/audit_logs" \
   ghcr.io/vlad-1618m/webaudit:latest \
-  scan https://example.com --open none
+  scan -v --api --open none https://example.com
 ```
+
+Browsers cannot run inside the container; `--open html` only works via the wrapper or on the host after the scan.
 
 Open `audit_logs/*/report.html` in your browser. Multi-arch: `linux/amd64` + `linux/arm64` (Intel Mac, Apple Silicon, Linux).
 

@@ -28,6 +28,10 @@ class ObservedPlugin:
     version_html: str | None = None
     version_readme: str | None = None
     source: str = "html"
+    path_slug: str | None = None
+
+    def readme_slug(self) -> str:
+        return self.path_slug or self.slug
 
     def best_version(self) -> str | None:
         return self.version_readme or self.version_html
@@ -35,6 +39,7 @@ class ObservedPlugin:
     def to_dict(self) -> dict[str, Any]:
         return {
             "slug": self.slug,
+            "path_slug": self.readme_slug(),
             "version_html": self.version_html,
             "version_readme": self.version_readme,
             "version": self.best_version(),
@@ -141,10 +146,15 @@ def collect_wp_plugins(
         return result
 
     observed = extract_plugins_from_html(html)
-    for slug, version in sorted(observed.items()):
-        normalized = profile.normalize_slug(slug)
+    for path_slug, version in sorted(observed.items()):
+        slug = profile.normalize_slug(path_slug)
         result.plugins.append(
-            ObservedPlugin(slug=normalized, version_html=version, source="html")
+            ObservedPlugin(
+                slug=slug,
+                path_slug=path_slug,
+                version_html=version,
+                source="html",
+            )
         )
 
     if profile.probe.readme_fetch != "observed_only" or not result.plugins:
@@ -158,7 +168,7 @@ def collect_wp_plugins(
         for plugin in result.plugins:
             readme_ver = _fetch_readme_version(
                 target_url,
-                plugin.slug,
+                plugin.readme_slug(),
                 user_agent=user_agent,
                 timeout_seconds=timeout_seconds,
                 client=client,

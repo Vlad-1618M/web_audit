@@ -66,6 +66,7 @@ def run_audit(settings: Settings, *, progress: ScanProgress | None = None) -> Au
         inventory=pipeline.artifacts.get("inventory", {}),
         plugins=pipeline.artifacts.get("plugins", {}),
         extensions=pipeline.artifacts.get("extensions", {}),
+        vuln=pipeline.artifacts.get("vuln", {}),
         seo_surface=pipeline.artifacts.get("seo_surface", {}),
     )
 

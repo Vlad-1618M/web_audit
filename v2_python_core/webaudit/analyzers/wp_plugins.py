@@ -18,6 +18,36 @@ from webaudit.profiles.loader import FrameworkProfile, WatchlistEntry
 
 _WPORG_API = "https://api.wordpress.org/plugins/info/1.0/{slug}.json"
 
+# Slugs where ?ver= on assets is often an internal build number, not plugin semver.
+_ASSET_VER_UNRELIABLE = frozenset({"elementor", "elementor-pro"})
+
+
+def _infer_premium_slug(slug: str, entry: WatchlistEntry | None) -> bool:
+    if entry and entry.premium:
+        return True
+    if entry and not entry.compare_latest:
+        return True
+    lowered = slug.lower()
+    if lowered.endswith("-pro") or lowered.endswith("-premium"):
+        return True
+    if "premium" in lowered or lowered.endswith("-pro-lite"):
+        return True
+    return lowered in {
+        "object-cache-pro",
+        "wp-rocket",
+        "gravityforms",
+        "advanced-custom-fields-pro",
+    }
+
+
+def _version_looks_like_asset_noise(detected: Version, latest: Version) -> bool:
+    """HTML ?ver= can exceed wp.org semver (e.g. Elementor asset build ids)."""
+    if detected.major >= latest.major + 2:
+        return True
+    if detected.major == latest.major + 1 and detected.minor > latest.minor + 2:
+        return True
+    return False
+
 
 def _severity_for_gap(detected: Version, latest: Version) -> Severity:
     if detected.major < latest.major:
@@ -66,9 +96,7 @@ def _watchlist_entry(profile: FrameworkProfile, slug: str) -> WatchlistEntry | N
 
 
 def _is_premium(entry: WatchlistEntry | None, slug: str, latest: str | None) -> bool:
-    if entry and entry.premium:
-        return True
-    if entry and not entry.compare_latest:
+    if _infer_premium_slug(slug, entry):
         return True
     return latest is None and entry is not None and entry.tier in {"high", "critical"}
 
@@ -144,9 +172,17 @@ def _analyze_one_plugin(
     detected = _parse_version(detected_raw)
 
     latest_raw: str | None = None
+    wporg_slug = plugin.readme_slug()
     if profile.compare.wporg_api and client is not None:
         if not entry or entry.compare_latest:
-            latest_raw = fetch_wporg_latest_version(slug, client=client, user_agent=user_agent)
+            if not _infer_premium_slug(slug, entry):
+                latest_raw = fetch_wporg_latest_version(
+                    wporg_slug, client=client, user_agent=user_agent
+                )
+                if latest_raw is None and wporg_slug != slug:
+                    latest_raw = fetch_wporg_latest_version(
+                        slug, client=client, user_agent=user_agent
+                    )
 
     if _is_premium(entry, slug, latest_raw):
         return [
@@ -158,7 +194,7 @@ def _analyze_one_plugin(
                 detail=(
                     f"Detected {slug}"
                     + (f" v{detected_raw}" if detected_raw else "")
-                    + " — cannot verify latest via wordpress.org (premium or custom)"
+                    + " — premium or vendor-hosted; verify updates in wp-admin or the vendor portal"
                 ),
                 class_=FindingClass.VERIFY,
                 scored=False,
@@ -176,7 +212,7 @@ def _analyze_one_plugin(
                 detail=(
                     f"Detected {slug}"
                     + (f" v{detected_raw}" if detected_raw else "")
-                    + " — not found on wordpress.org; verify maintenance manually"
+                    + " — not on wordpress.org (may be custom or admin-only); verify manually"
                 ),
                 class_=FindingClass.VERIFY,
                 scored=False,
@@ -185,6 +221,33 @@ def _analyze_one_plugin(
         ]
 
     latest = _parse_version(latest_raw)
+    if detected and latest and _version_looks_like_asset_noise(detected, latest):
+        if plugin.version_readme:
+            detected_raw = plugin.version_readme
+            detected = _parse_version(detected_raw)
+        elif slug in _ASSET_VER_UNRELIABLE or plugin.version_html:
+            return [
+                Finding.from_check(
+                    category="PLUGIN_VERIFY",
+                    item=slug,
+                    status="VERSION_UNVERIFIED",
+                    severity=Severity.INFO,
+                    detail=(
+                        f"Detected {slug} from public assets"
+                        + (f" (?ver={plugin.version_html})" if plugin.version_html else "")
+                        + f" — does not match wordpress.org semver ({latest_raw}); "
+                        "readme.txt blocked or asset build id — confirm version in wp-admin"
+                    ),
+                    class_=FindingClass.VERIFY,
+                    scored=False,
+                    evidence={
+                        "slug": slug,
+                        "version": plugin.version_html,
+                        "latest_wporg": latest_raw,
+                        "version_readme": plugin.version_readme,
+                    },
+                )
+            ]
     if not detected:
         return [
             Finding.from_check(

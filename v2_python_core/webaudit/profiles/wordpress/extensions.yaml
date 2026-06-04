@@ -12,6 +12,13 @@ probe:
 compare:
   wporg_api: true
 
+vuln:
+  enabled: true
+  source: cache
+  cache_ttl_days: 14
+  auth_required_default_class: VERIFY
+  exposure_on_unauth_cve_only: true
+
 scoring:
   hygiene_cap: 30
 
@@ -19,6 +26,10 @@ watchlist:
   - slug: elementor
     tier: critical
     premium: false
+  - slug: elementor-pro
+    tier: critical
+    premium: true
+    compare_latest: false
   - slug: woocommerce
     tier: high
     premium: false
@@ -34,10 +45,28 @@ watchlist:
   - slug: yoast-seo
     tier: medium
     premium: false
+  - slug: seo-by-rank-math
+    tier: medium
+    premium: false
   - slug: wp-rocket
     tier: high
     premium: true
     compare_latest: false
+  - slug: ultimate-elementor
+    tier: high
+    premium: true
+    compare_latest: false
+  - slug: unlimited-elements
+    tier: high
+    premium: true
+    compare_latest: false
+  - slug: object-cache-pro
+    tier: high
+    premium: true
+    compare_latest: false
+  - slug: portfolio-elementor
+    tier: medium
+    premium: false
 
 aliases:
   wordpress-seo: yoast-seo

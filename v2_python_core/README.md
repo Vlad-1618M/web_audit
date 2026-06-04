@@ -1,6 +1,6 @@
 # Web Audit v2 — Python Core
 
-**Status:** **2.1.0b3 (Stage 6 CI/Docker + Stage 5 themes)** — Tier 1 + Tier 2 depth, WP themes, **Docker CI / orchestrate.sh / GHCR**. **Next:** CVE cache, SARIF, packaging — see [CHANGELOG.md](CHANGELOG.md).
+**Status:** **2.1.0b3+ (Stage 6)** — Tier 1 + Tier 2 depth, WP themes, **Docker CI / GHCR**, **plugin/theme CVE cache**, **SARIF export**. **Next:** live WPScan API, pipx/Homebrew — see [CHANGELOG.md](CHANGELOG.md) `[Unreleased]`.
 
 > **GHCR / Docker visitors:** Package [`ghcr.io/vlad-1618m/webaudit`](https://github.com/users/Vlad-1618M/packages/container/webaudit) runs **this v2 edition**. Pull and scan — see [Docker quick start](#docker--ghcr-public-usage) below.  
 > **v1 bash script (no Docker):** [Root README — Audit Lite](../README.md#v1-audit-lite--bash-quick-start).
@@ -64,14 +64,28 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 
 Published image: **`ghcr.io/vlad-1618m/webaudit`** (multi-arch: Intel + Apple Silicon + Linux). Full guide: [docs/docker_ci.md](docs/docker_ci.md).
 
+**Use the host wrapper** so reports land on your machine and `--open html` works in your browser:
+
+```bash
+cd v2_python_core
+./scripts/webaudit-docker.sh scan https://example.com
+
+./scripts/webaudit-docker.sh --output-dir documents scan https://example.com -v --open html
+```
+
+| `--output-dir` | Host folder |
+|----------------|-------------|
+| `cwd` (default) | `./audit_logs` |
+| `home` | `~/WebAudit/audit_logs` |
+| `desktop` | `~/Desktop/WebAudit` |
+| `documents` | `~/Documents/WebAudit` |
+
+Raw `docker run` (automation / no browser):
+
 ```bash
 docker pull ghcr.io/vlad-1618m/webaudit:latest
-
-mkdir -p audit_logs
-docker run --rm \
-  -v "$(pwd)/audit_logs:/work/audit_logs" \
-  ghcr.io/vlad-1618m/webaudit:latest \
-  scan https://example.com --open none
+docker run --rm -v "$(pwd)/audit_logs:/work/audit_logs" \
+  ghcr.io/vlad-1618m/webaudit:latest scan -v --open none https://example.com
 ```
 
 The [GitHub Packages page](https://github.com/users/Vlad-1618M/packages/container/webaudit) shows the **repo root README** (v1 + v2 hub). This file is the **v2-specific** documentation.
@@ -92,7 +106,7 @@ The [GitHub Packages page](https://github.com/users/Vlad-1618M/packages/containe
 | [docs/testing.md](docs/testing.md) | pytest strategy, fixtures, CI gates |
 | [docs/docker_ci.md](docs/docker_ci.md) | **Docker WP fixture**, `orchestrate.sh`, CI, webaudit Pro image |
 | [docs/release_flow_t3_stage_6.md](docs/release_flow_t3_stage_6.md) | **Release notes** — tag/push/GHCR flow for 2.1.0b3 (working doc) |
-| [docs/config.md](docs/config.md) | YAML config system — global + per-site + framework profiles |
+| [docs/config.md](docs/config.md) | YAML config — global + per-site + **CVE cache** + **SARIF** (`--sarif`) |
 | [docs/framework_profiles.md](docs/framework_profiles.md) | Detect → load profile; WordPress/Django/Laravel |
 | [docs/plugin_vulnerability_research.md](docs/plugin_vulnerability_research.md) | WP plugin CVE research + v2 criteria refinements |
 | [docs/seo_surface.md](docs/seo_surface.md) | Tier 2c discoverability — INFO/VERIFY only, not scored |
@@ -134,10 +148,10 @@ pytest
 ./orchestrate.sh --job wp-integration --wp-profile good
 
 # Or pull published image (after push to GHCR)
-docker run --rm ghcr.io/vlad-1618m/webaudit:latest scan https://example.com --open none
+./scripts/webaudit-docker.sh scan https://example.com --open html
 ```
 
-Scan output lands in `./audit_logs/<timestamp>_<host>/audit_run.json`.
+Scan output lands in `./audit_logs/<timestamp>_<host>/` — `audit_run.json`, HTML report, and optionally `audit_run.sarif.json` when `--sarif` or `output.formats` includes `sarif`.
 
 ### Optional extras (Tier 2 depth)
 
@@ -147,6 +161,8 @@ Core install is enough for headers, DNS, TLS, paths, extensions, and HTML report
 |-------|---------|-----------|--------------|
 | **`[js]`** | `pip install -e ".[js]"` (or `.[dev,js]`) | `--js` | Playwright post-render pass — DOM links/scripts after JavaScript runs |
 | **`[api]`** | included in base install | `--api` | GraphQL introspection + OpenAPI/Swagger probe (no extra pip package) |
+| **CVE cache** | included in base install (WordPress) | *(on by default)* | `PLUGIN_CVE` / `THEME_CVE` findings from shipped snapshot + sqlite cache — see [config.md](docs/config.md#plugintheme-cve-cache-tier-3) |
+| **SARIF** | included in base install | `--sarif` | `audit_run.sarif.json` for GitHub Code Scanning — see [config.md](docs/config.md#sarif-export-github-code-scanning) |
 
 **Playwright browsers** (~100 MB) are downloaded separately — use the **same Python/venv** that runs `webaudit`:
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import platform
 import subprocess
 import sys
@@ -33,6 +34,27 @@ def normalize_open_mode(raw: str | None, *, is_tty: bool) -> str:
     if raw is None:
         return "ask" if is_tty else "none"
     return _OPEN_ALIASES.get(raw.strip().lower(), raw.strip().lower())
+
+
+def running_in_docker() -> bool:
+    if os.environ.get("WEBAUDIT_IN_DOCKER") == "1":
+        return True
+    return Path("/.dockerenv").exists()
+
+
+def host_output_hint(run_dir: Path) -> str | None:
+    host_base = os.environ.get("WEBAUDIT_HOST_OUTPUT_DIR", "").strip()
+    if not host_base:
+        return None
+    return str(Path(host_base) / run_dir.name)
+
+
+def write_last_run_marker(reports: dict[str, str]) -> None:
+    marker = os.environ.get("WEBAUDIT_LAST_RUN_FILE", "").strip()
+    if not marker or not reports:
+        return
+    run_dir = Path(next(iter(reports.values()))).parent
+    Path(marker).write_text(f"{run_dir}\n", encoding="utf-8")
 
 
 def resolve_open_keys(mode: str, reports: dict[str, str]) -> list[str]:
@@ -114,6 +136,23 @@ def handle_open_outputs(
     if is_tty is None:
         is_tty = sys.stdin.isatty()
     normalized = normalize_open_mode(mode, is_tty=is_tty)
+    if running_in_docker():
+        if normalized not in {"", "none"} and reports:
+            run_dir = Path(next(iter(reports.values()))).parent
+            host_hint = host_output_hint(run_dir)
+            console.print(
+                "[yellow]Note:[/yellow] Running inside Docker — cannot open a browser in the container."
+            )
+            if host_hint:
+                console.print(
+                    f"[dim]Open on your machine:[/dim] {host_hint}/report.html"
+                )
+            else:
+                console.print(
+                    "[dim]Mount a host folder (see scripts/webaudit-docker.sh) "
+                    "or use --open none and open report.html locally.[/dim]"
+                )
+        return
     if normalized == "ask":
         if not is_tty:
             return
@@ -146,7 +185,11 @@ def print_scan_summary(run: AuditRun, *, console: Console, target_url: str) -> N
     if not run.reports:
         return
     run_dir = Path(next(iter(run.reports.values()))).parent
-    console.print(f"  [dim]{run_dir}/[/dim]")
+    host_hint = host_output_hint(run_dir)
+    if host_hint:
+        console.print(f"  [dim]{host_hint}/[/dim]")
+    else:
+        console.print(f"  [dim]{run_dir}/[/dim]")
     for key, label in (
         ("html", "report.html"),
         ("txt", "report.txt"),

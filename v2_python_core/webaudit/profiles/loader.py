@@ -27,6 +27,14 @@ class ProfileScoringSettings(BaseModel):
     hygiene_cap: int = Field(default=30, ge=0, le=100)
 
 
+class ProfileVulnSettings(BaseModel):
+    enabled: bool = True
+    source: str = "cache"
+    cache_ttl_days: int = Field(default=14, ge=1, le=90)
+    auth_required_default_class: str = "VERIFY"
+    exposure_on_unauth_cve_only: bool = True
+
+
 class WatchlistEntry(BaseModel):
     slug: str = ""
     package: str = ""
@@ -54,6 +62,7 @@ class FrameworkProfile(BaseModel):
     probe: ProfileProbeSettings = Field(default_factory=ProfileProbeSettings)
     compare: ProfileCompareSettings = Field(default_factory=ProfileCompareSettings)
     scoring: ProfileScoringSettings = Field(default_factory=ProfileScoringSettings)
+    vuln: ProfileVulnSettings | None = None
     watchlist: list[WatchlistEntry] = Field(default_factory=list)
     theme_watchlist: list[WatchlistEntry] = Field(default_factory=list)
     aliases: dict[str, str] = Field(default_factory=dict)

@@ -8,12 +8,36 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ## [Unreleased]
 
-### Deferred (Stage 6 / Tier 3 — product modules)
+### Added
 
-- Theme CVE match via WPScan cache
-- Plugin CVE cache / WPScan (`analyzers.plugin_vuln`)
-- httpx cassette integration tests (pytest-httpx / vcrpy) for Tier 2 collectors — *WP Docker integration tests exist; cassettes remain optional*
-- SARIF export, INI → YAML migrator, Homebrew formula, i18n stub
+- **Plugin/theme CVE cache** — shipped `data/vuln_snapshot.json`, sqlite TTL cache (`~/.local/share/webaudit/vuln_cache.db`), `analyzers/plugin_vuln.py` pipeline step; auth-aware `PLUGIN_CVE` / `THEME_CVE` findings (unauth → ACTION; contributor+ → VERIFY)
+- **SARIF export** — `audit_run.sarif.json` via `output.formats: [sarif]` or `webaudit scan URL --sarif` (GitHub Code Scanning 2.1.0)
+- Unauthenticated critical CVE findings reduce **Exposure** (−25 each)
+
+### Deferred (Stage 6 / Tier 3 — remaining)
+
+- Live WPScan API integration (`vuln.source: wpscan` uses offline snapshot today)
+- httpx cassette integration tests
+- INI → YAML migrator, Homebrew formula, i18n stub
+
+### TODO — revisit later (not scheduled)
+
+**SARIF + CI at scale:** Export is shipped (`--sarif` → `audit_run.sarif.json`) but **no sample upload workflow** yet. Revisit when:
+- Scans run in CI on a schedule (not manual HTML-only audits)
+- Findings should appear in GitHub **Security** tab (`upload-sarif` action) without committing artifacts to git
+- Product adds **authenticated** scans (wp-admin / app login) — richer inventory + SARIF becomes more useful for dev/SecOps consumers vs owner HTML reports
+
+Until then: default workflow stays `audit_run.json` + `report.html`; `--sarif` remains opt-in for early adopters.
+
+**Related backlog:** framework CLI + prebuilt configs (below), live WPScan, `--framework` flag.
+
+### Brainstorm — framework-specific CLI + prebuilt configs (TODO)
+
+- **`--framework wordpress|django|laravel|rails|php|auto`** on `webaudit scan` — today only `target.framework` in YAML works; no CLI override yet.
+- **`webaudit config init --framework wordpress`** (or `--site-config-out`) — scaffold a per-site YAML from shipped profile + defaults: watchlist, path extras, extension probe mode, report variant, etc.
+- Pre-fill everything we already know from `profiles/{framework}/extensions.yaml` and mockups; user edits the file for site-specific paths, `extra_watch`, `expected`, rate-limit POST targets.
+- **Honest scope note:** without auth, a “full” WordPress config still cannot enumerate wp-admin plugin lists — prebuilt config mainly forces the right pipeline (plugins/themes/paths) and documents intent, not deep inventory.
+- Related: promote framework from full `scan_html` when `wp-content/plugins/` appears but 8 KB fingerprint missed (passive detect polish).
 
 ---
 

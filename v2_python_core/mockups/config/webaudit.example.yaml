@@ -33,7 +33,12 @@ misc:
 collectors:
   extensions:
     enabled: true
-    vuln_cache_path: ~/.local/share/webaudit/vuln_cache.db
+  vuln:
+    enabled: true
+    source: cache
+    cache_enabled: true
+    cache_path: ~/.local/share/webaudit/vuln_cache.db
+    cache_ttl_days: 14
   dns:
     enabled: true
     check_spf: true
@@ -91,6 +96,7 @@ output:
     - json
     - txt
     - pdf
+    # - sarif   # optional — or use: webaudit scan URL --sarif
   open_browser: false
   pdf:
     enabled: true

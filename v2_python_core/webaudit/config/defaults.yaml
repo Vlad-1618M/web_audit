@@ -113,6 +113,11 @@ collectors:
       - "/swagger"
       - "/swagger-ui/"
       - "/redoc/"
+  vuln:
+    enabled: true
+    source: cache
+    cache_enabled: true
+    cache_ttl_days: 14
 
 scoring:
   hygiene_weights:

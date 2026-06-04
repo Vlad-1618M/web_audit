@@ -85,7 +85,9 @@ sequenceDiagram
   J->>U: HTML + PDF + TXT
 ```
 
-> **Current (2.1.0b3):** Tier 1 + Stage 5 complete; **Stage 6 CI** (Docker WP fixture, `orchestrate.sh`, GHA, GHCR). Product: extensions, **WP themes**, SEO surface, DNS enrichment, owner report, baseline diff, JS/API/links, bot protection. Diagram shows Tier 1 target architecture.
+> **Current (2.1.0b3+):** Tier 1 + Stage 5 complete; **Stage 6 CI** (Docker, GHA, GHCR). Product: extensions, **WP themes**, **CVE cache**, **SARIF export**, SEO surface, DNS enrichment, owner report, baseline diff, JS/API/links, bot protection. Diagram shows Tier 1 target architecture.
+
+**Vuln step (Tier 3):** After `_step_extensions`, `_step_vuln` matches WordPress plugin/theme versions against `data/vuln_snapshot.json` (sqlite cache optional). See [config.md](config.md#plugintheme-cve-cache-tier-3).
 
 **Extensions step (2.1.0b1+):** After HTML collection, `pipeline._step_extensions` fingerprints plugins/packages from `artifacts.inventory.html.scan_html` (full homepage). WordPress scans also fetch active theme `style.css` (child theme + version compare). Framework fingerprint body is fallback only; `robots.txt` hints when WAF blocks homepage.
 
@@ -160,11 +162,13 @@ webaudit/
 │   ├── html_dom.py
 │   ├── framework.py
 │   ├── extensions.py        # Tier 2b — registry compare
-│   ├── plugin_vuln.py       # Tier 2b/3 — CVE cache
+│   ├── plugin_vuln.py       # Tier 3 — CVE snapshot + cache
 │   ├── seo_surface.py       # Tier 2c — INFO/VERIFY only
 │   ├── cors.py
 │   ├── graphql.py           # Tier 2
 │   └── diff.py              # Tier 2
+├── export/
+│   └── sarif.py             # Tier 3 — GitHub Code Scanning SARIF 2.1.0
 ├── scoring/
 │   ├── hygiene.py
 │   ├── exposure.py
@@ -172,7 +176,8 @@ webaudit/
 ├── storage/
 │   ├── runs.py              # audit_logs layout
 │   ├── baseline.py          # sqlite Tier 2
-│   └── vuln_cache.py        # Tier 2b — WPScan/wp.org cache
+│   ├── vuln_snapshot.py     # Tier 3 — shipped JSON CVE data
+│   └── vuln_cache.py        # Tier 3 — sqlite TTL cache
 └── render/
     ├── jinja_env.py         # template search path only
     ├── html.py

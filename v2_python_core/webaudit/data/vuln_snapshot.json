@@ -1,0 +1,177 @@
+{
+  "schema_version": "1.0",
+  "updated": "2026-05-29",
+  "source": "webaudit-shipped-fixture",
+  "plugins": [
+    {
+      "slug": "elementor",
+      "cve_id": "CVE-2024-10453",
+      "title": "Cross-Site Scripting (XSS)",
+      "auth_required": "none",
+      "severity": "MEDIUM",
+      "cvss": 6.1,
+      "affected_max": "3.25.9",
+      "fixed_in": "3.25.10"
+    },
+    {
+      "slug": "elementor",
+      "cve_id": "CVE-2026-1206",
+      "title": "Cross-Site Scripting (XSS)",
+      "auth_required": "contributor",
+      "severity": "MEDIUM",
+      "cvss": 6.1,
+      "affected_max": "3.35.7",
+      "fixed_in": "3.35.8"
+    },
+    {
+      "slug": "elementor-pro",
+      "cve_id": "WPVDB-ELEMENTOR-PRO-RCE",
+      "title": "Arbitrary File Upload / RCE",
+      "auth_required": "none",
+      "severity": "CRITICAL",
+      "cvss": 9.8,
+      "affected_min": "3.0.0",
+      "affected_max": "3.18.2",
+      "fixed_in": "3.18.3"
+    },
+    {
+      "slug": "wordpress-seo",
+      "aliases": ["yoast-seo"],
+      "cve_id": "CVE-2024-4984",
+      "title": "Cross-Site Scripting (XSS)",
+      "auth_required": "contributor",
+      "severity": "MEDIUM",
+      "cvss": 6.1,
+      "affected_max": "22.6",
+      "fixed_in": "22.7"
+    },
+    {
+      "slug": "wordpress-seo",
+      "aliases": ["yoast-seo"],
+      "cve_id": "CVE-2026-3427",
+      "title": "Cross-Site Scripting (XSS)",
+      "auth_required": "contributor",
+      "severity": "MEDIUM",
+      "cvss": 6.1,
+      "affected_max": "27.1",
+      "fixed_in": "27.2"
+    },
+    {
+      "slug": "duplicate-post",
+      "aliases": ["yoast-duplicate-post"],
+      "cve_id": "CVE-2026-1217",
+      "title": "Broken Access Control",
+      "auth_required": "contributor",
+      "severity": "MEDIUM",
+      "cvss": 6.5,
+      "affected_max": "4.5",
+      "fixed_in": "4.6"
+    },
+    {
+      "slug": "wpforms-lite",
+      "aliases": ["wpforms"],
+      "cve_id": "CVE-2024-11223",
+      "title": "Cross-Site Scripting (XSS)",
+      "auth_required": "none",
+      "severity": "MEDIUM",
+      "cvss": 6.1,
+      "affected_max": "1.9.2.2",
+      "fixed_in": "1.9.2.3"
+    },
+    {
+      "slug": "jetpack",
+      "cve_id": "CVE-2024-10858",
+      "title": "Cross-Site Scripting (XSS)",
+      "auth_required": "none",
+      "severity": "MEDIUM",
+      "cvss": 6.1,
+      "affected_max": "14.0",
+      "fixed_in": "14.1"
+    },
+    {
+      "slug": "seo-by-rank-math",
+      "aliases": ["rank-math"],
+      "cve_id": "CVE-2024-4617",
+      "title": "Cross-Site Scripting (XSS)",
+      "auth_required": "contributor",
+      "severity": "MEDIUM",
+      "cvss": 6.1,
+      "affected_max": "1.0.218",
+      "fixed_in": "1.0.219"
+    },
+    {
+      "slug": "essential-addons-for-elementor-lite",
+      "aliases": ["essential-addons-elementor"],
+      "cve_id": "CVE-2024-4624",
+      "title": "Cross-Site Scripting (XSS)",
+      "auth_required": "contributor",
+      "severity": "MEDIUM",
+      "cvss": 6.1,
+      "affected_max": "5.9.20",
+      "fixed_in": "5.9.21"
+    },
+    {
+      "slug": "elementskit-lite",
+      "aliases": ["elementskit"],
+      "cve_id": "CVE-2024-6455",
+      "title": "Sensitive Data Exposure",
+      "auth_required": "none",
+      "severity": "CRITICAL",
+      "cvss": 9.1,
+      "affected_max": "3.2.0",
+      "fixed_in": "3.2.1"
+    },
+    {
+      "slug": "really-simple-ssl",
+      "cve_id": "CVE-2026-32461",
+      "title": "Authentication Bypass",
+      "auth_required": "none",
+      "severity": "CRITICAL",
+      "cvss": 9.8,
+      "affected_max": "9.5.7",
+      "fixed_in": "9.5.8"
+    }
+  ],
+  "themes": [
+    {
+      "slug": "avada",
+      "cve_id": "CVE-2024-13346",
+      "title": "Unauthenticated Shortcode Execution / SSRF chain",
+      "auth_required": "none",
+      "severity": "CRITICAL",
+      "cvss": 9.2,
+      "affected_max": "7.11.13",
+      "fixed_in": "7.11.14"
+    },
+    {
+      "slug": "divi",
+      "cve_id": "CVE-2024-38291",
+      "title": "CSRF — unauthorized admin actions",
+      "auth_required": "none",
+      "severity": "MEDIUM",
+      "cvss": 6.8,
+      "affected_min": "4.0",
+      "affected_max": "4.24.2",
+      "fixed_in": "4.24.3"
+    },
+    {
+      "slug": "motors",
+      "cve_id": "CVE-2025-64374",
+      "title": "Missing permission check on AJAX plugin install",
+      "auth_required": "subscriber",
+      "severity": "CRITICAL",
+      "cvss": 9.1,
+      "affected_max": "5.6.81"
+    },
+    {
+      "slug": "alone",
+      "cve_id": "CVE-2025-5394",
+      "title": "Arbitrary File Upload / RCE via plugin install",
+      "auth_required": "none",
+      "severity": "CRITICAL",
+      "cvss": 9.8,
+      "affected_max": "7.8.3",
+      "fixed_in": "7.8.5"
+    }
+  ]
+}

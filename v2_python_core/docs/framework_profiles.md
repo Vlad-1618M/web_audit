@@ -95,10 +95,10 @@ compare:
   semver_engine: packaging         # Python packaging.version
 
 vuln:
-  enabled: false                   # Tier 2b / Tier 3
-  source: cache                    # cache | wpscan | wporg_only
+  enabled: true                    # shipped default — WordPress CVE matching
+  source: cache                    # cache | wpscan | wporg_only (wpscan → snapshot until API wired)
   cache_ttl_days: 14
-  api_daily_budget: 25             # WPScan free tier
+  api_daily_budget: 25             # reserved for live WPScan free tier
   auth_required_default_class: VERIFY
 
 scoring:
@@ -190,6 +190,10 @@ Profile: profiles/wordpress/extensions.yaml
 
 If confidence < `min_detection_confidence` → generic profile + VERIFY finding “framework unclear.”
 
+### CVE matching (WordPress)
+
+When `collectors.vuln.enabled: true` and framework is WordPress, observed plugin/theme versions are checked against `webaudit/data/vuln_snapshot.json` (update periodically; see [plugin_vulnerability_research.md](plugin_vulnerability_research.md) §4). Sqlite cache avoids re-parsing the same `(slug, version)` within `cache_ttl_days`. Full config: [config.md](config.md#plugintheme-cve-cache-tier-3).
+
 ---
 
 ## Tier placement
@@ -199,7 +203,7 @@ If confidence < `min_detection_confidence` → generic profile + VERIFY finding 
 | Profile loader + merge | **Tier 2** (Stage 5) |
 | WP slug/version from HTML + readme | **Tier 2b** |
 | wp.org latest compare | **Tier 2b** |
-| WPScan/CVE cache | **Tier 3** |
+| WPScan/CVE cache | **Tier 3** ✓ (shipped snapshot + sqlite; live API deferred) |
 | Joomla/Magento profiles | **Future** |
 
 See [stages.md](stages.md) for Tier 2b detail.

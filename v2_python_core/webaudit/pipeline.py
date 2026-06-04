@@ -24,6 +24,7 @@ from webaudit.analyzers.html import analyze_html
 from webaudit.analyzers.paths import analyze_paths
 from webaudit.analyzers.extensions import analyze_extensions
 from webaudit.analyzers.wp_themes import analyze_wp_themes
+from webaudit.analyzers.plugin_vuln import analyze_wordpress_vulns
 from webaudit.analyzers.extension_compare import registry_for_framework, registry_meta
 from webaudit.analyzers.policy import analyze_policy
 from webaudit.analyzers.rate_limit import analyze_rate_limit
@@ -471,6 +472,34 @@ def _step_extensions(
     return findings, {"extensions": artifact, "plugins": artifact if framework == "wordpress" else {}}
 
 
+def _step_vuln(
+    settings: Settings,
+    result: PipelineResult,
+) -> tuple[list[Finding], dict[str, dict[str, Any]]]:
+    if not settings.collectors.vuln.enabled:
+        return [], {}
+
+    if settings.target.framework != "wordpress":
+        return [], {}
+
+    ext_art = result.artifacts.get("extensions") or {}
+    if not ext_art:
+        return [], {}
+
+    profile = load_framework_profile("wordpress")
+    if profile is None:
+        return [], {}
+
+    profile_vuln = profile.vuln
+    findings, artifact = analyze_wordpress_vulns(
+        ext_art,
+        profile,
+        settings.collectors.vuln,
+        profile_vuln=profile_vuln,
+    )
+    return findings, {"vuln": artifact}
+
+
 def _step_seo_surface(
     settings: Settings,
     result: PipelineResult,
@@ -560,6 +589,7 @@ _CONTEXT_STEPS = frozenset({
     "_step_js",
     "_step_links",
     "_step_extensions",
+    "_step_vuln",
     "_step_seo_surface",
 })
 _PIPELINE: tuple[Callable[..., tuple[list[Finding], dict[str, dict[str, Any]]]], ...] = (
@@ -578,6 +608,7 @@ _PIPELINE: tuple[Callable[..., tuple[list[Finding], dict[str, dict[str, Any]]]],
     _step_links,
     _step_api,
     _step_extensions,
+    _step_vuln,
     _step_seo_surface,
 )
 

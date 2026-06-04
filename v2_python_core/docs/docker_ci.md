@@ -218,6 +218,8 @@ Full command reference:
 | `docker-scan-host` | Scan a host URL from webaudit container on `webaudit-test-net` |
 | `wp-integration` | `wp-up` → `integration` → `wp-down` (unless `--keep-wp`) |
 
+**Public Docker scans (host reports + browser open):** [`scripts/webaudit-docker.sh`](../scripts/webaudit-docker.sh) — not an orchestrate job; see [Host wrapper](#host-wrapper-recommended-for-visitors) below.
+
 ### Orchestrator flags
 
 | Flag | Purpose |
@@ -294,7 +296,48 @@ webaudit scan http://127.0.0.1:8080 -v --open html
 
 ## webaudit Pro Docker image
 
-### Pull from GHCR (after CI publish or manual push)
+### Host wrapper (recommended for visitors)
+
+`scripts/webaudit-docker.sh` runs the GHCR (or local) image with:
+
+- A **bind-mounted host folder** for reports (no copy step after the scan)
+- **`--open` on the host** — browser opens on your Mac/Linux, not inside the container
+- **Output presets:** `cwd`, `home`, `desktop`, `documents`, or an absolute path
+
+```bash
+cd v2_python_core
+
+# Interactive: scan then y/N to open report.html
+./scripts/webaudit-docker.sh scan https://example.com
+
+# Explicit open + save under ~/Documents/WebAudit
+./scripts/webaudit-docker.sh --output-dir documents scan https://example.com -v --api --open html
+
+# SARIF for CI (file lands in mounted audit_logs/)
+./scripts/webaudit-docker.sh scan https://example.com --sarif -v --open none
+
+# All webaudit scan flags pass through; --open is handled on the host
+./scripts/webaudit-docker.sh scan https://example.com -v --js --open all
+
+# Local image from orchestrate.sh
+./scripts/webaudit-docker.sh --image webaudit:local scan https://example.com
+```
+
+| Wrapper flag | Purpose |
+|--------------|---------|
+| `--output-dir PRESET` | Where reports live on **your** machine (default: `cwd` → `./audit_logs`) |
+| `--open MODE` | `html`, `json`, `txt`, `all`, `none`, `ask` — applied **after** scan on host |
+| `--sarif` | Writes `audit_run.sarif.json` into the mounted output dir (GitHub Code Scanning) |
+| `--image IMAGE` | Default `ghcr.io/vlad-1618m/webaudit:latest` |
+| `-y` / `--yes` | Skip y/N open prompt when mode is `ask` |
+
+Inside the container, `webaudit` always runs with `--open none`. If you use raw `docker run … --open html`, the CLI prints a note that Docker cannot open a browser — use the wrapper instead.
+
+Pass **options before the URL** in raw `docker run` (Typer requirement), e.g. `scan -v --api --open none https://example.com`. The wrapper reorders arguments automatically.
+
+**Colors:** Rich scan progress is colored when stdout is a TTY. Raw `docker run` without `-t` looks plain; use `docker run -t …` or the wrapper (it adds `-t` when your shell is interactive). No extra libraries needed — the image already includes Rich.
+
+### Pull from GHCR (manual / CI)
 
 Replace `vlad-1618m` with your GitHub username/org (**lowercase** — Docker rejects mixed case):
 
@@ -302,7 +345,7 @@ Replace `vlad-1618m` with your GitHub username/org (**lowercase** — Docker rej
 docker pull ghcr.io/vlad-1618m/webaudit:latest
 docker run --rm \
   -v "$(pwd)/audit_logs:/work/audit_logs" \
-  ghcr.io/vlad-1618m/webaudit:latest scan https://example.com --open none
+  ghcr.io/vlad-1618m/webaudit:latest scan -v --open none https://example.com
 ```
 
 **Platforms:** each tag is a multi-arch manifest (`linux/amd64`, `linux/arm64`). No separate Mac/Linux tags. If you pulled an older amd64-only image on Apple Silicon, re-pull after the next CI publish (or use `docker pull --platform linux/amd64 …` as a fallback).
@@ -322,7 +365,7 @@ Tags pushed by CI:
 cd v2_python_core
 ./orchestrate.sh --job docker-build
 
-docker run --rm webaudit:local scan https://example.com --open none
+docker run --rm webaudit:local scan -v --open none https://example.com
 ```
 
 Scan local WP fixture (join Docker network):

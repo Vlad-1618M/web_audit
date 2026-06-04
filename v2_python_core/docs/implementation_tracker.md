@@ -48,6 +48,8 @@ See [CHANGELOG.md](../CHANGELOG.md) for release notes.
 | **extensions** (multi-framework) | `collectors/extensions/` ✓ | `analyzers/extensions.py` ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **wp_plugins** (WP HTML/readme) | via `collectors/extensions/wordpress.py` ✓ | via unified analyzer ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **wp_themes** (WP active/child theme) | `collectors/wp_themes.py` ✓ | `analyzers/wp_themes.py` ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
+| **plugin_vuln** (CVE cache) | `storage/vuln_snapshot.py`, `storage/vuln_cache.py` ✓ | `analyzers/plugin_vuln.py` ✓ | wired ✓ | ✓ | **6 / Tier 3** ✓ |
+| **sarif** export | n/a | `export/sarif.py` ✓ | wired ✓ | ✓ | **6 / Tier 3** ✓ |
 | **seo_surface** | — (uses framework HTML + artifacts) | `analyzers/seo_surface.py` ✓ | wired ✓ | ✓ | **5 / 2c** ✓ |
 | **diff** | n/a | n/a | `scoring/diff.py` + `cli/diff_cmd.py` ✓ | ✓ | **5 / 2** ✓ |
 
@@ -127,6 +129,7 @@ Register new work in `webaudit/pipeline.py` (preferred) or append in `orchestrat
 | `plugins` | 5 / 2b | live (WP mirror of extensions) |
 | `extensions` | 5 / 2b | live |
 | `extensions.themes` (WP) | 5 / 2b | live — style.css, child theme, wp.org compare, hardening VERIFY |
+| `vuln` | 6 / Tier 3 | live — snapshot match count, cache path |
 | `seo_surface` | 5 / 2c | live |
 
 ---
@@ -199,7 +202,7 @@ Document intentional deltas in this file under **Parity deltas** when behavior d
 | Permissions-Policy missing | INFO, unscored | same | ✓ |
 | DNS | scored SPF/DMARC + report cards (A/MX/NS/ASN) | n/a | new signal |
 | PDF | browser print default | browser print | optional WeasyPrint |
-| Plugins/extensions | unified `extensions` pipeline + profiles; HTML from `scan_html` | readme.txt blind probes | Tier 2b ✓ (CVE cache deferred) |
+| Plugins/extensions | unified `extensions` pipeline + profiles; HTML from `scan_html` | readme.txt blind probes | Tier 2b ✓; CVE cache ✓ (Tier 3 snapshot) |
 | Plugin count in report | artifact row count + honest empty state | v1 N/A | v2 UX only |
 | Attribution | footer/context linked credits only | grep-style HTML scan | hardened 2.1.0a1 |
 | WAF / bot protection | VERIFY when captcha interstitial; framework hint from robots.txt | n/a | SiteGround HTTP 202 |
@@ -231,4 +234,46 @@ Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
 
 ---
 
-*Last updated: 2.1.0b3 — Docker CI, orchestrate.sh, WP themes, pytest QA reports (2026-06).*
+## Backlog / brainstorm (not scheduled)
+
+### Framework-specific CLI + prebuilt site configs
+
+**Problem today:** forcing `target.framework: wordpress` requires a YAML file (`--site-config` or project config). Auto-detect often returns `unknown` on hardened WP sites, so the extensions/themes pipeline is skipped unless robots.txt rescues it.
+
+**Proposed UX (Tier 2 polish / early Tier 3):**
+
+| Piece | Idea |
+|-------|------|
+| Scan flag | `webaudit scan URL --framework wordpress` → sets `target.framework` without a config file (same as forced framework in `collect_framework()`) |
+| Config scaffold | `webaudit config init --framework wordpress --host muzar.io -o site_configs/muzar.io.yaml` |
+| Prebuilt content | Merge shipped `profiles/wordpress/extensions.yaml` watchlist, default WP path extras, `collectors.extensions` on, passive-scan notes, optional `paths.extra_get` stubs (`/blog/`, `/shop/`) |
+| User edit pass | Generated YAML is a starting point — add `extensions.extra_watch`, `expected`, rate-limit POST paths, report variant |
+| Docker wrapper | Pass `--framework` through `scripts/webaudit-docker.sh` like `--site-config` |
+
+**Limits (keep in docs):** passive-only; no wp-admin login. Prebuilt WordPress config improves *which checks run*, not *how many plugins* appear vs homepage HTML. Auth-aware inventory remains Tier 3 / out of scope for default product.
+
+**Also related:** improve auto-detect — score framework from full `scan_html`, lightweight `/wp-json/` hint probe (careful with probe noise).
+
+- [ ] `--framework` CLI on `webaudit scan`
+- [ ] `webaudit config init --framework …` scaffold command
+- [ ] Shipped templates under `mockups/config/frameworks/` (wordpress, django, …)
+- [ ] Docs + `--help` examples; docker_ci.md passthrough
+
+### SARIF + CI / auth-aware scale (revisit later)
+
+**Shipped today:** `webaudit/export/sarif.py`, `--sarif` flag, docs in [config.md](config.md#sarif-export-github-code-scanning). **Not required** for manual owner audits (HTML + `audit_run.json` are the product).
+
+**Revisit when:**
+- Add GitHub Actions example: scan target → upload `audit_run.sarif.json` via `github/codeql-action/upload-sarif` (artifacts stay out of git)
+- Multi-tenant or scheduled scans at scale (GHCR cron, client sites)
+- **Authenticated scan mode** (explicit scope change) — wp-admin plugin list, deeper CVE match; SARIF then complements HTML for SecOps/CI
+
+**Not doing now:** promoting SARIF in default scan path; committing scan JSON/SARIF to the repo.
+
+- [ ] Sample `.github/workflows/webaudit-scheduled.yml` + upload-sarif step
+- [ ] Document “when SARIF vs HTML” for audience split (owner vs dev/CI)
+- [ ] Re-evaluate SARIF `include_verify` once auth-aware findings exist
+
+---
+
+*Last updated: 2.1.0b3 — Docker CI, orchestrate.sh, WP themes, pytest QA reports; SARIF/CVE shipped unreleased (2026-06).*

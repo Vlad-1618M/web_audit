@@ -67,4 +67,4 @@ cd v2_python_core
 .venv/bin/python -m pytest -q
 ```
 
-Automated v1-vs-v2 golden fixtures: planned; unit tests mock I/O today (~193 unit tests).
+Automated v1-vs-v2 golden fixtures: planned; unit tests mock I/O today (~201 unit tests); WP Docker integration for live fixture.

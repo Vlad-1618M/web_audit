@@ -10,6 +10,7 @@ Update this file **whenever** a module lands or a contract changes. Cross-check 
 
 | Tag | Date | Notes |
 |-----|------|-------|
+| **2.1.0b3** | 2026-06 | **Stage 6 CI/Docker** — orchestrate.sh, WP fixture, GHA, GHCR, pytest QA reports; WP themes + path streaming |
 | **2.1.0b2** | 2026-06 | **Stage 5 beta complete** — Tier 2 JS/API/links, bot protection, report UX polish |
 | **2.1.0b1** | 2026-06 | **Stage 5 beta** — Tier 2b/2c, owner report, CDN HSTS parity, Discoverability block |
 | **2.1.0a1** | 2026-05 | **Stage 5 alpha** — Tier 2b extensions, DNS enrichment, report polish, baseline diff |
@@ -46,6 +47,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for release notes.
 | **profiles** (WP/Django/Laravel/Rails YAML) | `profiles/loader.py` ✓ | — | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **extensions** (multi-framework) | `collectors/extensions/` ✓ | `analyzers/extensions.py` ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **wp_plugins** (WP HTML/readme) | via `collectors/extensions/wordpress.py` ✓ | via unified analyzer ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
+| **wp_themes** (WP active/child theme) | `collectors/wp_themes.py` ✓ | `analyzers/wp_themes.py` ✓ | wired ✓ | ✓ | **5 / 2b** ✓ |
 | **seo_surface** | — (uses framework HTML + artifacts) | `analyzers/seo_surface.py` ✓ | wired ✓ | ✓ | **5 / 2c** ✓ |
 | **diff** | n/a | n/a | `scoring/diff.py` + `cli/diff_cmd.py` ✓ | ✓ | **5 / 2** ✓ |
 
@@ -124,12 +126,26 @@ Register new work in `webaudit/pipeline.py` (preferred) or append in `orchestrat
 | `inventory` | 2–3 | live (paths) |
 | `plugins` | 5 / 2b | live (WP mirror of extensions) |
 | `extensions` | 5 / 2b | live |
-| `extensions.themes` (WP) | 6 / 2b | live — style.css, child theme, wp.org compare |
+| `extensions.themes` (WP) | 5 / 2b | live — style.css, child theme, wp.org compare, hardening VERIFY |
 | `seo_surface` | 5 / 2c | live |
 
 ---
 
-## Config contract
+## CI / Docker harness (Stage 6 — 2.1.0b3)
+
+| Component | Path | Status |
+|-----------|------|--------|
+| WordPress fixture | `docker/docker-compose.yml`, `docker/wp-test/init-wordpress.sh` | ✓ weak/mid/good |
+| Local orchestrator | `orchestrate.sh` | ✓ |
+| Pytest QA reports | `scripts/pytest_reports.sh`, `pytest-html` | ✓ |
+| Pro image | `docker/webaudit/Dockerfile` → `webaudit:local` | ✓ |
+| GitHub Actions | `.github/workflows/ci.yml`, `security.yml`, `publish-ghcr.yml` | ✓ |
+| WP integration tests | `tests/integration/test_wp_docker_scan.py` | ✓ |
+| GHCR publish | on push to `main` / `v.tools_main` / `v*` tags | ✓ |
+
+Guide: [docker_ci.md](docker_ci.md)
+
+---
 
 Merge order (do not change without updating [config.md](config.md)):
 
@@ -210,9 +226,9 @@ Full matrix: [tests/parity/PARITY.md](../tests/parity/PARITY.md).
 - [ ] `pipeline.py` or orchestrator wired; no scoring logic in collector  
 - [ ] Unit tests with mocks (no live internet in CI)  
 - [ ] `defaults.yaml` + `PathsSettings` / collector settings if new flags  
-- [ ] [CHANGELOG.md](../CHANGELOG.md) Unreleased section (Stage 6 items only after 2.1.0b2)  
+- [ ] [CHANGELOG.md](../CHANGELOG.md) Unreleased section (Tier 3 product backlog only)
 - [ ] Parity delta noted if v1 behavior intentionally differs  
 
 ---
 
-*Last updated: WordPress theme fingerprint — style.css, child theme, update-trap VERIFY (2026-06).*
+*Last updated: 2.1.0b3 — Docker CI, orchestrate.sh, WP themes, pytest QA reports (2026-06).*

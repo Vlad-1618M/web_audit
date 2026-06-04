@@ -307,10 +307,10 @@ Tags pushed by CI:
 
 | Tag | When |
 |-----|------|
-| `2.1.0b2` (package version) | Every publish |
+| `2.1.0b3` (package version) | Every publish |
 | `latest` | Push to `v.tools_main` or `main` |
 | `sha-abc1234` | Git commit short SHA |
-| `v2.1.0b2` | Git tag starting with `v` |
+| `v2.1.0b3` | Git tag starting with `v` |
 
 ### Build locally
 

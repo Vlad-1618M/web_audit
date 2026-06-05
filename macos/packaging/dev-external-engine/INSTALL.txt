@@ -1,0 +1,75 @@
+Web Audit for Mac — developer build (external scan engine)
+==========================================================
+
+This disk image is for repo developers and testers only.
+The GUI app does NOT bundle the Python scan engine — you must provide one
+on your Mac before scanning will work.
+
+
+SYSTEM REQUIREMENTS
+-------------------
+• macOS 13 (Ventura), 14 (Sonoma), or 15 (Sequoia) — Intel or Apple Silicon
+• Internet access for scans
+• A scan engine on the host (pick one option below)
+
+
+ENGINE OPTIONS (pick one before scanning)
+-------------------------------------------
+A) Docker (recommended for most devs)
+
+   Install Docker Desktop: https://docs.docker.com/desktop/setup/install/mac-install/
+
+   One-time Terminal setup for webaudit-docker:
+
+     docker pull ghcr.io/vlad-1618m/webaudit:latest
+
+     mkdir -p ~/.local/bin
+     docker run --rm --entrypoint cat ghcr.io/vlad-1618m/webaudit:latest \
+       /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
+     chmod +x ~/.local/bin/webaudit-docker
+
+   Ensure ~/.local/bin is on your PATH.
+
+   Full guide:
+   https://github.com/Vlad-1618M/web_audit/blob/v.tools_main/v2_python_core/docs/getting_started_plain.md
+
+B) Python venv in the repo
+
+   From the cloned repo:
+
+     cd v2_python_core && ./dev-venv.sh
+
+C) pipx / pip install webaudit
+
+   Install webaudit so the webaudit command is on your PATH.
+
+
+INSTALL THE APP
+---------------
+1. Open this disk image.
+2. Drag "Web Audit.app" to Applications.
+3. Eject the disk image.
+
+
+FIRST LAUNCH (unsigned)
+-----------------------
+Applications → right-click "Web Audit" → Open → Open
+
+
+DEV LAUNCH (recommended while hacking on the app)
+-------------------------------------------------
+From the repo:
+
+  macos/WebAuditMac/run-dev.sh
+
+Sets WEBAUDIT_ENGINE_POLICY=external and prefers webaudit-docker when available.
+
+
+UNINSTALL
+---------
+Drag "Web Audit.app" from Applications to Trash.
+
+
+SUPPORT
+-------
+https://github.com/Vlad-1618M/web_audit

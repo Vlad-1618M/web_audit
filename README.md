@@ -2,17 +2,32 @@
 
 External security hygiene checks for **public websites** you own or have permission to test.
 
-This repository ships **two editions**. They share the same philosophy (passive, unauthenticated, external-only) but differ in install and depth.
+This repository ships **two product editions** (v1 bash + v2 Python) and **several ways to run v2**. Same philosophy: passive, unauthenticated, external-only.
 
 | | **v1 Audit Lite** | **v2 Audit Pro** |
 |---|-------------------|------------------|
 | **What** | Single shell script | Python package + HTML reports |
 | **Location** | [`web_audit.sh`](web_audit.sh) (repo root) | [`v2_python_core/`](v2_python_core/) |
-| **Install** | `git clone` + zsh/bash — **no pip, no Docker** | **Docker** (recommended for visitors) or `pip install` from source |
+| **Install** | `git clone` + zsh/bash — **no pip, no Docker** | See [**delivery paths**](DELIVERY_PATHS.md) — Docker, venv, Mac app, or bundled `.dmg` |
 | **Best for** | SSH boxes, CI, minimal deps | Site owners, richer reports, WP themes, DNS/TLS depth |
-| **Docs** | This file (below) | [**v2 README**](v2_python_core/README.md) · [Docker / CI guide](v2_python_core/docs/docker_ci.md) |
+| **Docs** | This file (below) | [**v2 README**](v2_python_core/README.md) · [**How to run**](DELIVERY_PATHS.md) · [Docker / CI](v2_python_core/docs/docker_ci.md) · [Tags](VERSIONING_AND_TAGS.md) |
 
 > **Not** a penetration test, authenticated scanner, or replacement for OWASP ZAP / nuclei. Use on sites you own or have explicit permission to test.
+
+---
+
+## How to run v2 — pick your path
+
+**Full matrix:** [**DELIVERY_PATHS.md**](DELIVERY_PATHS.md)
+
+| You are… | Start here |
+|----------|------------|
+| **Mac site owner** (no Terminal, no Docker) | Download **`WebAudit-*-macOS.dmg`** — engine bundled in app · [macos/README.md](macos/README.md) |
+| **Mac/Linux site owner** (OK with one-time Terminal setup) | Docker + `webaudit-docker` — [section below](#docker--github-packages--v2-audit-pro) |
+| **Mac developer** (repo UI + Docker or venv) | `macos/WebAuditMac/run-dev.sh` or dev DMG |
+| **Python developer** (no Docker) | `v2_python_core/dev-venv.sh` → `webaudit scan …` |
+| **CI / server** | `docker run ghcr.io/vlad-1618m/webaudit …` |
+| **Minimal shell** | [v1 `web_audit.sh`](#v1-audit-lite--bash-quick-start) — no Docker, no Python package |
 
 ---
 
@@ -78,7 +93,7 @@ cd web_audit/v2_python_core
 | **v2 full README** (reports, optional `--js`, dev setup) | [v2_python_core/README.md](v2_python_core/README.md) |
 | **Docker, CI, GHCR publish** | [v2_python_core/docs/docker_ci.md](v2_python_core/docs/docker_ci.md) |
 | **Plain-English guide** (non-developers) | [v2_python_core/docs/getting_started_plain.md](v2_python_core/docs/getting_started_plain.md) |
-| **macOS app** (SwiftUI, site owners) | [macos/WebAuditMac/](macos/WebAuditMac/) · [architecture guide](macos/WebAuditMac/SWIFT_APP_GUIDE.md) |
+| **macOS app** (public `.dmg` + dev builds) | [macos/](macos/) · [delivery paths](DELIVERY_PATHS.md) · [Swift guide](macos/WebAuditMac/SWIFT_APP_GUIDE.md) |
 | **v1 bash script** (zero-install shell edition) | [↓ v1 section below](#v1-audit-lite--bash-quick-start) |
 
 ---
@@ -359,8 +374,10 @@ POST rate-limit probes send **real invalid login traffic** — use responsibly.
 | `web_audit.sh` | **v1** — main bash audit tool |
 | `v2_python_core/` | **v2** — Python package, Docker image source, docs |
 | `v2_python_core/docker/webaudit/Dockerfile` | Builds `ghcr.io/vlad-1618m/webaudit` |
-| `macos/WebAuditMac/` | **macOS SwiftUI app** — GUI wrapper around v2 scan engine |
-| `macos/WebAuditMac/SWIFT_APP_GUIDE.md` | Swift module map, libraries, dev vs `.dmg` (non-Swift devs) |
+| `macos/` | **macOS** — SwiftUI app, packaging, built `.dmg` in `macos/installers/` |
+| `macos/WebAuditMac/` | Swift source — one UI, two engine policies (bundled vs external) |
+| `DELIVERY_PATHS.md` | **Which install path?** — app, Docker, venv, shell (no Docker) |
+| `VERSIONING_AND_TAGS.md` | Git tags, GHCR, Mac release versions |
 | `designs/swift/` | HTML wireframes + user-flow diagrams for the Mac app |
 | `site.conf.template` | v1 per-site config template |
 | `README.md` | **This hub** — v1 quick start + v2/Docker pointers |

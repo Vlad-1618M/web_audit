@@ -10,6 +10,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ### Added
 
+- **Mac public DMG (bundled engine)** — `macos/orchestrate-macos.sh public-dmg` bundles Python + `webaudit` inside `Web Audit.app`; site owners need no Docker or Terminal. Dev track: `dev-dmg` / `run-dev.sh` with external engine (Docker, venv, PATH). Docs: [DELIVERY_PATHS.md](../DELIVERY_PATHS.md), per-track `INSTALL.txt`.
 - **Pull-only Docker UX** — host wrapper `webaudit-docker.sh` shipped inside the image at `/usr/share/webaudit/`; extract once with `docker run --entrypoint cat …` (no git clone). Docs updated for GHCR visitors.
 - **Plugin/theme CVE cache** — shipped `data/vuln_snapshot.json`, sqlite TTL cache (`~/.local/share/webaudit/vuln_cache.db`), `analyzers/plugin_vuln.py` pipeline step; auth-aware `PLUGIN_CVE` / `THEME_CVE` findings (unauth → ACTION; contributor+ → VERIFY)
 - **SARIF export** — `audit_run.sarif.json` via `output.formats: [sarif]` or `webaudit scan URL --sarif` (GitHub Code Scanning 2.1.0)

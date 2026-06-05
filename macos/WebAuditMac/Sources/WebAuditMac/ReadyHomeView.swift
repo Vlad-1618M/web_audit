@@ -3,9 +3,9 @@ import SwiftUI
 struct ReadyHomeView: View {
     @ObservedObject var viewModel: ScanViewModel
     var onSubmit: () -> Void
-    var onPreferShell: () -> Void
 
     @State private var contentWidth: CGFloat = 720
+    @State private var showDeleteAllConfirm = false
 
     private static let features: [FeatureItem] = [
         FeatureItem(id: "scores", icon: "gauge.with.dots.needle.67percent", color: ReportTheme.cyan, title: "Hygiene & exposure scores", detail: "Configuration quality vs. public leak risk — higher is better."),
@@ -25,17 +25,29 @@ struct ReadyHomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18 * metrics.scale) {
                 heroCard
+                if !viewModel.completedScans.isEmpty {
+                    savedReportsSection
+                }
                 scanEntryCard
                 infoColumns
-                if !viewModel.completedScans.isEmpty {
-                    sessionHistorySection
-                }
             }
             .padding(.bottom, 8)
             .frame(maxWidth: .infinity, alignment: .topLeading)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .trackContentWidth($contentWidth)
+        .confirmationDialog(
+            "Delete all saved reports?",
+            isPresented: $showDeleteAllConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Delete all reports", role: .destructive) {
+                viewModel.deleteAllSavedReports()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This permanently removes every scan folder under ~/Documents/WebAudit/. Diagnostic logs in Logs/ are kept. Consider “Zip all reports” first if you want a backup.")
+        }
     }
 
     private var heroCard: some View {
@@ -50,6 +62,9 @@ struct ReadyHomeView: View {
                     .font(metrics.bodyFont)
                     .foregroundStyle(ReportTheme.muted)
                     .fixedSize(horizontal: false, vertical: true)
+                if let last = viewModel.lastSavedScan {
+                    lastScanSummary(last)
+                }
             }
             Spacer(minLength: 0)
         }
@@ -121,11 +136,7 @@ struct ReadyHomeView: View {
     }
 
     private var aboutPanel: some View {
-        AboutDisclaimerPanel(metrics: metrics) {
-            viewModel.showHelp = true
-        } onPreferShell: {
-            onPreferShell()
-        }
+        AboutDisclaimerPanel(metrics: metrics)
     }
 
     private var whatYouGetCard: some View {
@@ -176,16 +187,48 @@ struct ReadyHomeView: View {
         .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 
-    private var sessionHistorySection: some View {
+    private func lastScanSummary(_ scan: CompletedScan) -> some View {
+        HStack(spacing: 8) {
+            Text("Last scan:")
+                .foregroundStyle(ReportTheme.muted)
+            Text(scan.hostLabel)
+                .foregroundStyle(ReportTheme.cyan)
+            Text("·")
+                .foregroundStyle(ReportTheme.muted)
+            LiveRelativeDateLabel(date: scan.completedAt, font: metrics.captionFont)
+            Text("(\(scan.completedAt.formatted(date: .abbreviated, time: .shortened)))")
+                .foregroundStyle(ReportTheme.muted)
+        }
+        .font(metrics.captionFont)
+        .padding(.top, 4)
+    }
+
+    private var savedReportsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("This session")
-                    .font(metrics.sectionTitle)
-                    .foregroundStyle(ReportTheme.text)
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Saved reports on this Mac")
+                        .font(metrics.sectionTitle)
+                        .foregroundStyle(ReportTheme.text)
+                    Text("Tap a report to reopen it. Times update while the app is open.")
+                        .font(metrics.captionFont)
+                        .foregroundStyle(ReportTheme.muted)
+                }
                 Spacer()
-                Text("\(viewModel.completedScans.count) report\(viewModel.completedScans.count == 1 ? "" : "s")")
+                Text("\(viewModel.completedScans.count) saved")
                     .font(metrics.captionFont)
                     .foregroundStyle(ReportTheme.muted)
+            }
+            HStack(spacing: 10) {
+                Button("Zip all reports") {
+                    viewModel.zipAllSavedReports()
+                }
+                .buttonStyle(.bordered)
+                Button("Delete all reports…") {
+                    showDeleteAllConfirm = true
+                }
+                .buttonStyle(.bordered)
+                .foregroundStyle(.red)
             }
             if metrics.isTwoColumn {
                 LazyVGrid(
@@ -230,9 +273,7 @@ struct ScanHistoryRow: View {
                             .font(metrics.rowTitle)
                             .foregroundStyle(ReportTheme.text)
                         Spacer()
-                        Text(scan.completedAt, style: .relative)
-                            .font(metrics.captionFont)
-                            .foregroundStyle(ReportTheme.muted)
+                        ScanDateLabels(date: scan.completedAt, metrics: metrics)
                     }
                     HStack(spacing: 8) {
                         VerdictPill(label: scan.verdictLabel, tone: scan.verdictTone)
@@ -298,24 +339,3 @@ struct ScoreMiniPill: View {
     }
 }
 
-struct SessionHistoryStrip: View {
-    let scans: [CompletedScan]
-    let currentReportDir: URL
-    let onSelect: (CompletedScan) -> Void
-
-    var body: some View {
-        let others = scans.filter { $0.reportDir != currentReportDir }
-        if !others.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Other reports this session")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(ReportTheme.muted)
-                ForEach(others.prefix(4)) { scan in
-                    ScanHistoryRow(scan: scan) {
-                        onSelect(scan)
-                    }
-                }
-            }
-        }
-    }
-}

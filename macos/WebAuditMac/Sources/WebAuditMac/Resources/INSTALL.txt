@@ -1,0 +1,106 @@
+Web Audit for Mac — install (self-contained, unsigned alpha)
+============================================================
+
+You do NOT need Docker. You do NOT need to install Python on your Mac.
+The scan engine is already inside Web Audit.app.
+
+
+SYSTEM REQUIREMENTS
+-------------------
+• macOS 13 (Ventura), 14 (Sonoma), or 15 (Sequoia) — Intel or Apple Silicon
+• Internet access (the app checks public websites over the network)
+• About 200 MB free disk space (app + bundled scan engine)
+
+
+INSTALL
+-------
+1. Open this disk image (you are reading this from it).
+2. Drag "Web Audit.app" onto the "Applications" folder shortcut.
+3. Eject the disk image.
+
+
+FIRST LAUNCH (unsigned build)
+-----------------------------
+macOS may block the app until you approve it once:
+
+  Applications → right-click "Web Audit" → Open → Open
+
+After that, double-click works normally.
+
+
+SCAN A WEBSITE
+--------------
+1. Open Web Audit from Applications.
+2. Paste your site URL (must start with https://).
+3. Tap "Scan my website".
+4. When finished, open the report or find files under:
+
+     ~/Documents/WebAudit/
+
+
+IF SOMETHING IS WRONG (simple checklist)
+----------------------------------------
+Work through these in order. Most problems are fixed by step 1 or 2.
+
+  1. Quit Web Audit completely (Web Audit menu → Quit), then open it again.
+
+  2. Check the URL:
+       • Must start with https://  (not http:// alone)
+       • Example: https://example.com
+
+  3. Check your internet connection (open any website in Safari).
+
+  4. Check free disk space (Apple menu → About This Mac → Storage).
+
+  5. Reinstall the app:
+       • Drag Web Audit.app from Applications to Trash
+       • Open this disk image again
+       • Drag Web Audit.app to Applications (replace if asked)
+       • Right-click → Open once more
+
+  6. Still stuck? In the app, tap "Show log in Finder" on the error screen and
+     send that file to the developer (it includes the URL, date, and scan output).
+     Logs are also saved under ~/Documents/WebAudit/Logs/
+
+  7. Contact support with that log file if the problem persists
+     (links at the bottom of this file).
+
+
+ABOUT PYTHON (you usually can ignore this)
+------------------------------------------
+Web Audit ships with its own Python scan engine inside the app bundle.
+You do NOT need to download or install Python from python.org for normal use.
+
+  • Do NOT install Docker for this app.
+  • Do NOT run Terminal commands to set up a scan engine.
+
+If support asks you to verify the bundled engine (advanced), in Terminal run:
+
+  "/Applications/Web Audit.app/Contents/Resources/Engine/bin/webaudit" --version
+
+You should see a line like: webaudit 2.1.0b4 (bundled engine)
+(Use --help instead of --version on very old builds.)
+
+If both --version and --help fail after a fresh reinstall, the app bundle may be
+incomplete — download the .dmg again.
+
+Official Python documentation (only if you are curious — not required):
+  • Downloads:  https://www.python.org/downloads/
+  • macOS help: https://docs.python.org/3/using/mac.html
+
+
+UNINSTALL
+---------
+Drag "Web Audit.app" from Applications to Trash.
+
+Optional: delete old reports at ~/Documents/WebAudit/
+
+
+REINSTALL
+---------
+Download the same .dmg again, drag the app to Applications, replace if asked.
+
+
+SUPPORT
+-------
+https://github.com/Vlad-1618M/web_audit · https://muzar.io/

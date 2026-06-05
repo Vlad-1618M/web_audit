@@ -122,11 +122,13 @@ struct ReportShareSheet: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
+    @MainActor
     private func reloadOptions() {
         emailOptions = EmailShareHelper.availableOptions()
         services = ShareSheetPresenter.availableServices(fileItems: fileItems, fullItems: shareItems)
     }
 
+    @MainActor
     private func performEmailShare(_ option: EmailShareOption) {
         do {
             switch option.id {
@@ -157,6 +159,7 @@ struct ReportShareSheet: View {
         }
     }
 
+    @MainActor
     private func performShare(using service: NSSharingService) {
         service.perform(withItems: shareItems)
         onDismiss()

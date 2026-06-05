@@ -1,0 +1,14 @@
+This file is legacy. Do not copy it into a DMG.
+
+Per-track install instructions live here:
+
+  Public (site owners, bundled engine):
+    macos/packaging/public-installer/INSTALL.txt
+
+  Dev (external Docker / venv engine):
+    macos/packaging/dev-external-engine/INSTALL.txt
+
+Build DMGs from macos/:
+
+  ./orchestrate-macos.sh public-dmg
+  ./orchestrate-macos.sh dev-dmg

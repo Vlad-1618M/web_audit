@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct ReportCompleteView: View {
+    /// Scroll target for ``ContentView`` when switching reports.
+    static let resultsScrollAnchor = "webaudit-report-results"
+
     let snapshot: ScanReportSnapshot
     let reportDir: URL
     @ObservedObject var viewModel: ScanViewModel
@@ -16,25 +19,31 @@ struct ReportCompleteView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16 * metrics.scale) {
+            SavedReportsPicker(
+                scans: viewModel.completedScans,
+                currentReportDir: reportDir,
+                metrics: metrics,
+                onSelect: { viewModel.reopenScan($0) },
+                onReturnHome: { viewModel.returnToHome() }
+            )
             siteHero
+                .id(Self.resultsScrollAnchor)
             verdictBanner
             scoreCards
             findingStatusSection
             fixFirstSection
             actionButtons
-            SessionHistoryStrip(
-                scans: viewModel.completedScans,
-                currentReportDir: reportDir
-            ) { scan in
-                viewModel.reopenScan(scan)
-            }
             Text(reportDir.path)
                 .font(metrics.finePrintFont)
                 .foregroundStyle(ReportTheme.muted)
                 .lineLimit(2)
                 .textSelection(.enabled)
-            Button("Scan another website") { viewModel.resetForAnotherScan() }
-                .buttonStyle(ReportPrimaryButtonStyle())
+            HStack(spacing: 12) {
+                Button("Back to home") { viewModel.returnToHome() }
+                    .buttonStyle(ReportSecondaryButtonStyle())
+                Button("Scan another website") { viewModel.resetForAnotherScan() }
+                    .buttonStyle(ReportPrimaryButtonStyle())
+            }
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .trackContentWidth($contentWidth)

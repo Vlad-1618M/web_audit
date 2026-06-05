@@ -1,0 +1,56 @@
+# Build unsigned Web Audit for Mac .dmg and attach to GitHub Release.
+name: Release macOS app
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. macos-v0.1.0-alpha)"
+        required: true
+        type: string
+  push:
+    tags:
+      - "macos-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-dmg:
+    name: Build DMG (macOS)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read app version
+        id: ver
+        working-directory: macos/WebAuditMac
+        run: |
+          version="$(tr -d '[:space:]' < VERSION)"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "dmg=WebAudit-${version}-macOS.dmg" >> "$GITHUB_OUTPUT"
+
+      - name: Build public installer DMG (bundled engine)
+        working-directory: macos
+        run: |
+          chmod +x orchestrate-macos.sh packaging/**/*.sh
+          ./orchestrate-macos.sh public-smoke
+
+      - name: Upload DMG to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            tag="${{ github.event.inputs.tag }}"
+          else
+            tag="${{ github.ref_name }}"
+          fi
+          dmg="macos/installers/${{ steps.ver.outputs.dmg }}"
+          notes="macos/packaging/public-installer/RELEASE_NOTES.md"
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            gh release create "$tag" \
+              --title "Web Audit for Mac ${{ steps.ver.outputs.version }}" \
+              --notes-file "$notes" \
+              --prerelease
+          fi
+          gh release upload "$tag" "$dmg" --clobber

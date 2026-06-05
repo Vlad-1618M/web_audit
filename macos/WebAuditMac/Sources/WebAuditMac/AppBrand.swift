@@ -4,14 +4,61 @@ import SwiftUI
 enum AppBrand {
     static let repoURL = URL(string: "https://github.com/Vlad-1618M/web_audit")!
 
-    /// v1 Audit Lite — for users who prefer to read or download the shell script.
+    enum Support {
+        static let contactEmailAddress = "contact@muzar.io"
+        static let documentation = URL(
+            string: "https://github.com/Vlad-1618M/web_audit/blob/v.tools_main/v2_python_core/docs/getting_started_plain.md"
+        )!
+        static let swiftAppGuide = URL(
+            string: "https://github.com/Vlad-1618M/web_audit/blob/v.tools_main/macos/WebAuditMac/SWIFT_APP_GUIDE.md"
+        )!
+        static let uiDesignMocks = URL(
+            string: "https://github.com/Vlad-1618M/web_audit/tree/v.tools_main/designs/swift"
+        )!
+        static let muzarHome = URL(string: "https://muzar.io/")!
+        /// Published Mac .dmg downloads (tag `macos-v*` when released).
+        static let macInstallReleases = URL(string: "https://github.com/Vlad-1618M/web_audit/releases")!
+        static let issueTracker = URL(string: "https://github.com/Vlad-1618M/web_audit/issues")!
+        static let dockerPackage = URL(
+            string: "https://github.com/Vlad-1618M/web_audit/pkgs/container/webaudit"
+        )!
+        static let dockerPullImage = "ghcr.io/vlad-1618m/webaudit:latest"
+
+        static let licenseNotice = """
+        Apple Developer ID signing and notarization are in progress for Web Audit Pro. \
+        Thank you for using this early release.
+
+        If macOS blocks the app on first launch, open Applications, right-click Web Audit, \
+        choose Open, then confirm Open once.
+        """
+
+        static func openBundledInstallGuide() {
+            guard let url = bundledResourceURL(name: "INSTALL", ext: "txt") else { return }
+            NSWorkspace.shared.open(url)
+        }
+
+        private static func bundledResourceURL(name: String, ext: String) -> URL? {
+            if let url = Bundle.main.url(forResource: name, withExtension: ext) {
+                return url
+            }
+            return Bundle.module.url(forResource: name, withExtension: ext)
+        }
+    }
+
+    /// Web Audit shell version V1 — bash script for users who prefer Terminal.
     enum ShellEdition {
-        static let readmeV1 = URL(string: "https://github.com/Vlad-1618M/web_audit#v1-audit-lite--bash-quick-start")!
+        static let label = "Web Audit shell version V1"
+        static let docs = URL(string: "https://github.com/Vlad-1618M/web_audit#v1-audit-lite--bash-quick-start")!
+        static let readmeV1 = docs
         static let readScript = URL(string: "https://github.com/Vlad-1618M/web_audit/blob/v.tools_main/web_audit.sh")!
         static let downloadScript = URL(string: "https://raw.githubusercontent.com/Vlad-1618M/web_audit/v.tools_main/web_audit.sh")!
         static let reportComparison = URL(
             string: "https://github.com/Vlad-1618M/web_audit/blob/v.tools_main/v2_python_core/README.md#report-examples---v1-shell-based-vs-v2-python-core"
         )!
+
+        static func openDocs() {
+            NSWorkspace.shared.open(docs)
+        }
 
         static func openReadScript() {
             NSWorkspace.shared.open(readScript)

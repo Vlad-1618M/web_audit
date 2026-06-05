@@ -1,6 +1,10 @@
 # Swift Package Manager — local build output (swift build)
 .build/
 
+# Installer packaging output
+build/
+dist/
+
 # Xcode opening Package.swift
 .swiftpm/
 xcuserdata/

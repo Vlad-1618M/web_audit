@@ -24,6 +24,7 @@ enum EmailShareError: LocalizedError {
 }
 
 /// Email paths that actually support zip attachments (macOS ``composeEmail`` cannot when Chrome is the default handler).
+@MainActor
 enum EmailShareHelper {
     static func availableOptions() -> [EmailShareOption] {
         var options: [EmailShareOption] = []
@@ -92,7 +93,6 @@ enum EmailShareHelper {
         }
     }
 
-    @MainActor
     static func openGmailCompose(
         zipURL: URL,
         hostLabel: String,
@@ -119,7 +119,6 @@ enum EmailShareHelper {
         }
     }
 
-    @MainActor
     static func openSystemDefaultEmail(zipURL: URL, hostLabel: String, body: String) {
         guard let service = NSSharingService(named: .composeEmail) else { return }
         service.subject = "Web Audit report — \(hostLabel)"

@@ -2,10 +2,13 @@ import Foundation
 import Darwin
 import os
 
-/// Locates and runs webaudit-docker or native webaudit; streams combined stdout/stderr.
+/// Locates and runs bundled or host ``webaudit`` / ``webaudit-docker``; streams combined stdout/stderr.
 final class ScanRunner {
     static let outputRoot = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Documents/WebAudit", isDirectory: true)
+
+    private static let bundledEngineRelativePath = "Engine/bin/webaudit"
+    private static let enginePolicyPlistKey = "WEBAUDITEnginePolicy"
 
     private let lastRunMarker = ".webaudit-last-run"
 
@@ -50,23 +53,52 @@ final class ScanRunner {
 
         let engine = detectEngine()
         guard engine.kind != .none else {
-            throw ScanRunnerError.engineMissing
+            throw ScanRunnerError.engineMissing(policy: Self.enginePolicy())
         }
         return engine
     }
 
+    static func enginePolicy() -> EnginePolicy {
+        if let raw = ProcessInfo.processInfo.environment["WEBAUDIT_ENGINE_POLICY"],
+           let policy = EnginePolicy(rawValue: raw) {
+            return policy
+        }
+        if let raw = Bundle.main.object(forInfoDictionaryKey: enginePolicyPlistKey) as? String,
+           let policy = EnginePolicy(rawValue: raw) {
+            return policy
+        }
+        if bundledEnginePath() != nil {
+            return .bundledFirst
+        }
+        return .externalFirst
+    }
+
     func detectEngine() -> ScanEngineInfo {
-        let candidates = resolveDockerWrapperCandidates() + resolveWebauditCandidates()
-        for path in candidates {
+        let policy = Self.enginePolicy()
+        let bundled = resolveBundledCandidates()
+        let docker = resolveDockerWrapperCandidates()
+        let cli = resolveWebauditCandidates()
+
+        let ordered: [(String, ScanEngineInfo.Kind)]
+        switch policy {
+        case .bundledFirst:
+            ordered = bundled + cli + docker
+        case .externalFirst:
+            ordered = docker + cli + bundled
+        }
+
+        for (path, kind) in ordered {
             if isRunnable(at: path) {
-                let kind: ScanEngineInfo.Kind = path.contains("webaudit-docker") ? .webauditDocker : .webauditCLI
-                return ScanEngineInfo(kind: kind, path: path, detail: "Ready")
+                return ScanEngineInfo(kind: kind, path: path, detail: engineDetail(for: kind))
             }
         }
+
         return ScanEngineInfo(
             kind: .none,
             path: "",
-            detail: "Install webaudit-docker (see README) or webaudit on PATH"
+            detail: policy == .bundledFirst
+                ? "Bundled scan engine missing from app Resources/Engine"
+                : "Install webaudit-docker (see README) or webaudit on PATH"
         )
     }
 
@@ -77,8 +109,16 @@ final class ScanRunner {
         let pipe = Pipe()
         process.standardOutput = pipe
         process.standardError = pipe
+        process.environment = Self.subprocessEnvironment(enginePath: engine.path)
 
         switch engine.kind {
+        case .bundled, .webauditCLI:
+            configureProcess(process, scriptPath: engine.path, arguments: [
+                "scan", url,
+                "-v",
+                "--open", "none",
+                "-o", Self.outputRoot.path,
+            ])
         case .webauditDocker:
             configureProcess(process, scriptPath: engine.path, arguments: [
                 "--output-dir", "documents",
@@ -87,16 +127,8 @@ final class ScanRunner {
                 "scan", url,
                 "-v",
             ])
-        case .webauditCLI:
-            process.executableURL = URL(fileURLWithPath: engine.path)
-            process.arguments = [
-                "scan", url,
-                "-v",
-                "--open", "none",
-                "-o", Self.outputRoot.path,
-            ]
         case .none:
-            throw ScanRunnerError.engineMissing
+            throw ScanRunnerError.engineMissing(policy: Self.enginePolicy())
         }
 
         let lineBuffer = OutputLineBuffer()
@@ -189,7 +221,18 @@ final class ScanRunner {
         return "\(verdict) · Hygiene \(hygiene) · Exposure \(exposure)"
     }
 
-    private func resolveDockerWrapperCandidates() -> [String] {
+    private static func bundledEnginePath() -> String? {
+        guard let resources = Bundle.main.resourceURL else { return nil }
+        let path = resources.appendingPathComponent(bundledEngineRelativePath).path
+        return FileManager.default.isReadableFile(atPath: path) ? path : nil
+    }
+
+    private func resolveBundledCandidates() -> [(String, ScanEngineInfo.Kind)] {
+        guard let path = Self.bundledEnginePath() else { return [] }
+        return [(path, .bundled)]
+    }
+
+    private func resolveDockerWrapperCandidates() -> [(String, ScanEngineInfo.Kind)] {
         var paths: [String] = []
         let home = FileManager.default.homeDirectoryForCurrentUser.path
         paths.append("\(home)/.local/bin/webaudit-docker")
@@ -204,10 +247,10 @@ final class ScanRunner {
         if let fromShell = shellWhich("webaudit-docker") {
             paths.append(fromShell)
         }
-        return paths
+        return paths.map { ($0, .webauditDocker) }
     }
 
-    private func resolveWebauditCandidates() -> [String] {
+    private func resolveWebauditCandidates() -> [(String, ScanEngineInfo.Kind)] {
         var paths: [String] = []
         let home = FileManager.default.homeDirectoryForCurrentUser.path
         paths.append("\(home)/.local/bin/webaudit")
@@ -221,7 +264,49 @@ final class ScanRunner {
         if let fromShell = shellWhich("webaudit") {
             paths.append(fromShell)
         }
-        return paths
+        return paths.map { ($0, .webauditCLI) }
+    }
+
+    private func engineDetail(for kind: ScanEngineInfo.Kind) -> String {
+        switch kind {
+        case .bundled:
+            return "Ready (inside app)"
+        case .webauditDocker, .webauditCLI:
+            return "Ready"
+        case .none:
+            return "Not found"
+        }
+    }
+
+    /// GUI launches (Finder, Dock, Launchpad) get a minimal PATH. Terminal tools like
+    /// `docker` and `webaudit-docker` live in Homebrew, Docker.app, or ~/.local/bin.
+    private static func subprocessEnvironment(enginePath: String? = nil) -> [String: String] {
+        var env = ProcessInfo.processInfo.environment
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        var extraPaths = [
+            "\(home)/.local/bin",
+            "/opt/homebrew/bin",
+            "/opt/homebrew/sbin",
+            "/usr/local/bin",
+            "/Applications/Docker.app/Contents/Resources/bin",
+        ]
+        if let enginePath {
+            let engineBin = URL(fileURLWithPath: enginePath).deletingLastPathComponent().path
+            extraPaths.insert(engineBin, at: 0)
+        }
+        if let bundled = bundledEnginePath() {
+            let engineBin = URL(fileURLWithPath: bundled).deletingLastPathComponent().path
+            extraPaths.insert(engineBin, at: 0)
+        }
+        let existing = env["PATH"] ?? "/usr/bin:/bin:/usr/sbin:/sbin"
+        var seen = Set<String>()
+        var parts: [String] = []
+        for segment in extraPaths + existing.split(separator: ":").map(String.init) {
+            guard !segment.isEmpty, seen.insert(segment).inserted else { continue }
+            parts.append(segment)
+        }
+        env["PATH"] = parts.joined(separator: ":")
+        return env
     }
 
     private func shellWhich(_ name: String) -> String? {
@@ -231,6 +316,7 @@ final class ScanRunner {
         process.arguments = [name]
         process.standardOutput = pipe
         process.standardError = Pipe()
+        process.environment = Self.subprocessEnvironment()
         do {
             try process.run()
             process.waitUntilExit()
@@ -250,7 +336,10 @@ final class ScanRunner {
     }
 
     private func configureProcess(_ process: Process, scriptPath: String, arguments: [String]) {
-        if scriptPath.hasSuffix(".sh") {
+        if FileManager.default.isExecutableFile(atPath: scriptPath) {
+            process.executableURL = URL(fileURLWithPath: scriptPath)
+            process.arguments = arguments
+        } else if scriptPath.hasSuffix(".sh") {
             process.executableURL = URL(fileURLWithPath: "/bin/bash")
             process.arguments = [scriptPath] + arguments
         } else {
@@ -261,18 +350,26 @@ final class ScanRunner {
 }
 
 enum ScanRunnerError: LocalizedError {
-    case engineMissing
+    case engineMissing(policy: EnginePolicy)
     case scanFailed(code: Int)
     case reportNotFound
 
     var errorDescription: String? {
         switch self {
-        case .engineMissing:
-            return """
-            Scan engine not found. Install once:
-            • Docker: webaudit-docker → ~/.local/bin (see v2_python_core/docs/docker_ci.md)
-            • Or: pip install webaudit / dev venv with webaudit on PATH
-            """
+        case .engineMissing(let policy):
+            switch policy {
+            case .bundledFirst:
+                return """
+                Scan engine missing from this app bundle.
+                Reinstall Web Audit from the official .dmg, or contact support.
+                """
+            case .externalFirst:
+                return """
+                Scan engine not found. Install once:
+                • Docker: webaudit-docker → ~/.local/bin (see v2_python_core/docs/docker_ci.md)
+                • Or: pip install webaudit / dev venv with webaudit on PATH
+                """
+            }
         case .scanFailed(let code):
             return "Scan failed (exit \(code)). See log above."
         case .reportNotFound:

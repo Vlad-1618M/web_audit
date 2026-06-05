@@ -10,7 +10,7 @@ Add PNGs here when you walk through the app. Filenames expected by the guide:
 | `04-error.png` | Error state |
 | `05-help-sheet.png` | What is this? sheet |
 | `06-advanced.png` | Advanced disclosure |
-| `07-session-history.png` | This session history |
+| `07-saved-reports.png` | Saved reports list + switcher on complete screen |
 | `08-shell-edition.png` | v1 shell edition dialog |
 
 Capture at a comfortable window width (default ~1280 pt). macOS: **⌘⇧4** then Space for window shot.

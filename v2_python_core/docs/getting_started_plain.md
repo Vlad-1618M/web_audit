@@ -2,6 +2,14 @@
 
 *For site owners, PMs, or anyone who does not live in a terminal. Developers: see [README](../README.md) for the technical quick start.*
 
+**Pick your path:** [DELIVERY_PATHS.md](../../DELIVERY_PATHS.md)
+
+| You are… | Start here |
+|----------|------------|
+| **Mac site owner** (no Terminal, no Docker) | [Mac app — public installer](#easiest-way-on-mac-the-app-no-docker-no-terminal-during-the-scan) |
+| **Mac/Windows/Linux** (OK with one-time Terminal setup) | [Docker](#easiest-way-docker-no-python-install) |
+| **Do not trust installers** | [v1 `web_audit.sh`](../../README.md#v1-audit-lite--bash-quick-start) or **Learn more → Web Audit shell V1** in the Mac app |
+
 ---
 
 ## Easiest way: Docker (no Python install)
@@ -45,21 +53,34 @@ More detail: [Docker / CI guide](docker_ci.md) · [Root README — Docker sectio
 
 ---
 
-## Easiest way on Mac: the app (no Terminal during the scan)
+## Easiest way on Mac: the app (no Docker, no Terminal during the scan)
 
-If you have **Web Audit for Mac** (SwiftUI app from this repo, or a `.dmg` when published):
+There are **two Mac app builds**. Site owners want the **public** one.
 
-1. Install **Docker Desktop** and the **`webaudit-docker`** helper once (same Step 1 as above).
-2. Open the app — paste your URL → **Scan my website**.
-3. Watch the live log; when done, use **Open report in browser** or share the HTML from `~/Documents/WebAudit/`.
+### Public installer (site owners) — **no Docker**
 
-The app is a friendly window around the same scan engine. It does not replace Docker yet; it runs `webaudit-docker` for you in the background.
+1. Download **`WebAudit-*-macOS.dmg`** from [GitHub Releases](https://github.com/Vlad-1618M/web_audit/releases) (when published) or get the file from your developer.
+2. Open the disk image → drag **Web Audit** to **Applications**.
+3. First launch: **Right-click → Open** (unsigned build until notarized).
+4. Paste your URL → **Scan my website** → open or share the report from `~/Documents/WebAudit/`.
 
-- Build from source: [macos/WebAuditMac/README.md](../../macos/WebAuditMac/README.md)
-- How the Swift code fits together: [SWIFT_APP_GUIDE.md](../../macos/WebAuditMac/SWIFT_APP_GUIDE.md)
-- UI wireframes: [designs/swift/](../../designs/swift/)
+The scan engine is **already inside the app**. You do **not** need Docker Desktop, Python from python.org, or Terminal commands for normal use.
 
-**Do not trust the Mac app?** Use the **v1 shell edition** link inside the app to read or download `web_audit.sh` on GitHub — one script, no installer.
+Help inside the app: **Learn more** (install guide, contact, documentation).
+
+### Developer Mac app (repo testers only) — Docker or Python on the Mac
+
+If you build from source or use **`WebAudit-*-macOS-dev.dmg`**, the app does **not** bundle the engine. You must provide one of:
+
+- **Docker** + `webaudit-docker` (same Step 1 as the Docker section above), or  
+- A Python **venv** / `webaudit` on your PATH.
+
+That path is for developers — not what we ship to flower-shop / construction-site owners.
+
+- Build: [macos/README.md](../../macos/README.md)
+- All paths compared: [DELIVERY_PATHS.md](../../DELIVERY_PATHS.md)
+
+**Do not trust the Mac app?** In the app, open **Learn more → Web Audit shell V1** to read or download `web_audit.sh` — one bash script, no Docker, no installer.
 
 ---
 

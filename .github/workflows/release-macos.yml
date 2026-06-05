@@ -30,12 +30,11 @@ jobs:
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "dmg=WebAudit-${version}-macOS.dmg" >> "$GITHUB_OUTPUT"
 
-      - name: Build release, app bundle, and DMG
-        working-directory: macos/WebAuditMac
+      - name: Build public installer DMG (bundled engine)
+        working-directory: macos
         run: |
-          chmod +x scripts/*.sh
-          ./scripts/build-dmg.sh
-          ./scripts/smoke-install.sh
+          chmod +x orchestrate-macos.sh packaging/**/*.sh
+          ./orchestrate-macos.sh public-smoke
 
       - name: Upload DMG to GitHub Release
         env:
@@ -46,8 +45,8 @@ jobs:
           else
             tag="${{ github.ref_name }}"
           fi
-          dmg="macos/WebAuditMac/dist/${{ steps.ver.outputs.dmg }}"
-          notes="macos/WebAuditMac/RELEASE_NOTES.md"
+          dmg="macos/installers/${{ steps.ver.outputs.dmg }}"
+          notes="macos/packaging/public-installer/RELEASE_NOTES.md"
           if ! gh release view "$tag" >/dev/null 2>&1; then
             gh release create "$tag" \
               --title "Web Audit for Mac ${{ steps.ver.outputs.version }}" \

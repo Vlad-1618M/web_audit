@@ -12,9 +12,19 @@ Native macOS app for site owners — same flow as [designs/swift](../../designs/
 
 - macOS 13+
 - Xcode 15+ or Swift 5.9+ toolchain
-- **Scan engine** (one of):
-  - **`webaudit-docker`** on PATH (recommended) — Docker Desktop + [install from image](../../v2_python_core/docs/docker_ci.md)
+- **Dev run** — scan engine on host (one of):
+  - **`webaudit-docker`** — Docker Desktop + [install from image](../../v2_python_core/docs/docker_ci.md)
   - **`webaudit`** CLI — dev venv or pipx
+- **Public `.dmg`** — bundled Python engine (no Docker); see packaging below
+
+## Packaging tracks
+
+| Track | Command | DMG |
+|-------|---------|-----|
+| **Public installer** | `../orchestrate-macos.sh public-dmg` | `../installers/WebAudit-*-macOS.dmg` (~70 MB) |
+| **Dev external-engine** | `../orchestrate-macos.sh dev-dmg` | `../installers/WebAudit-*-macOS-dev.dmg` |
+
+Details: [../packaging/README.md](../packaging/README.md)
 
 ---
 
@@ -73,18 +83,20 @@ cd macos/WebAuditMac && swift build && .build/debug/WebAuditMac
 
 ## Build installer (.app + .dmg) for release
 
-Unsigned alpha builds for GitHub Releases / muzar.io / email links:
+Use the orchestrator from `macos/` (two DMG tracks):
 
 ```bash
-cd macos/WebAuditMac
-chmod +x scripts/*.sh
-./scripts/build-dmg.sh          # → dist/WebAudit-<VERSION>-macOS.dmg
-./scripts/smoke-install.sh      # install / uninstall / reinstall smoke test
+cd macos
+./orchestrate-macos.sh public-dmg   # site owners → installers/WebAudit-<VERSION>-macOS.dmg
+./orchestrate-macos.sh public-smoke
+./orchestrate-macos.sh dev-dmg      # developers → installers/WebAudit-<VERSION>-macOS-dev.dmg
+./orchestrate-macos.sh dev-smoke
 ```
 
-The DMG includes `INSTALL.txt`, **Web Audit.app**, and an **Applications** shortcut.
+Each DMG includes its own `INSTALL.txt`, **Web Audit.app**, and an **Applications** shortcut.
+Public `INSTALL.txt` does **not** mention Docker; dev `INSTALL.txt` documents external engine setup.
 
-**Supported macOS:** 13, 14, 15 (see `VERSION` + [RELEASE_NOTES.md](RELEASE_NOTES.md)).
+**Supported macOS:** 13, 14, 15 (see `VERSION` + [RELEASE_NOTES.md](RELEASE_NOTES.md) → public notes in `packaging/public-installer/`).
 
 **GitHub Release:** push tag `macos-v0.1.0-alpha` or run workflow **Release macOS app** (uploads DMG + release notes).
 
@@ -111,11 +123,14 @@ Notarization / Developer ID signing — Stage 2 (after DMG pipeline is verified)
 1. Enter URL → **Scan my website**
 2. Live log streams `webaudit -v` output (auto-scroll)
 3. On success: in-app **verdict + hygiene/exposure scores** (from `audit_run.json`), metric chips, fix-first list
-4. **Open report in browser**, **Save report to share** (zip with HTML + CSS + instructions), Finder, Share
-5. **Session history** — reopen up to 10 scans from the same app session
-6. Reports under **`~/Documents/WebAudit/`**
-7. Footer: Powered by [muzar.io](https://muzar.io/) · [GitHub](https://github.com/Vlad-1618M) · © Vtools
-8. **v1 shell edition** link — read/download `web_audit.sh` for users who do not trust the Mac app yet
+4. **Open report in browser**, **Save report to share** (zip), Finder, Share sheet (Mail / Gmail / AirDrop)
+5. **Saved reports** — loads past scans from `~/Documents/WebAudit/` on relaunch; switch reports, zip all, delete all (with confirm)
+6. **Scan failure** — diagnostic log file, **Try again** / **Back to home**, copyable support email
+7. **Learn more** — docs, install guide, shell V1, Docker package (devs), contact
+8. Reports under **`~/Documents/WebAudit/`**; failure logs under **`~/Documents/WebAudit/Logs/`**
+9. Footer: Powered by [muzar.io](https://muzar.io/) · [GitHub](https://github.com/Vlad-1618M) · © Vtools
+
+**Engine:** public `.dmg` = bundled (no Docker). Dev `run-dev.sh` / dev `.dmg` = external (Docker, venv, or PATH). See [DELIVERY_PATHS.md](../../DELIVERY_PATHS.md).
 
 ---
 
@@ -123,9 +138,9 @@ Notarization / Developer ID signing — Stage 2 (after DMG pipeline is verified)
 
 | Step | Status |
 |------|--------|
-| `.dmg` build scripts | **Done** — `scripts/build-dmg.sh` |
-| GitHub Releases `.dmg` | Workflow `.github/workflows/release-macos.yml` |
-| muzar.io download page | Link to same GitHub Release asset |
+| Public + dev `.dmg` scripts | **Done** — `../orchestrate-macos.sh public-dmg` / `dev-dmg` |
+| GitHub Releases `.dmg` | Workflow `.github/workflows/release-macos.yml` (tag `macos-v*`) |
+| muzar.io download page | Link to GitHub Release asset (placeholder until tag) |
 | Apple notarization | **Later** (unsigned: Right-click → Open) |
 
 ---

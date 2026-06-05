@@ -12,6 +12,8 @@ fi
 
 export WEBAUDIT_REPO="${WEBAUDIT_REPO:-$(cd "$ROOT/../.." && pwd)}"
 export WEBAUDIT_DOCKER_SCRIPT="${WEBAUDIT_DOCKER_SCRIPT:-$WEBAUDIT_REPO/v2_python_core/scripts/webaudit-docker.sh}"
+export WEBAUDIT_ENGINE_POLICY="${WEBAUDIT_ENGINE_POLICY:-external}"
+export WEBAUDIT_VENV="${WEBAUDIT_VENV:-$WEBAUDIT_REPO/v2_python_core/.venv}"
 
 # Background + disown: shell keeps your exports, Terminal prompt returns, GUI gets keyboard when clicked.
 .build/debug/WebAuditMac &

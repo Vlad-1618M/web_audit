@@ -36,8 +36,17 @@ enum ScanPhase: Equatable {
     case error(message: String)
 }
 
+/// How ``ScanRunner`` orders bundled vs host-installed engines.
+enum EnginePolicy: String {
+    /// Public `.dmg` — bundled Python engine inside the app bundle.
+    case bundledFirst = "bundled"
+    /// Dev / repo — Docker wrapper, venv, or PATH `webaudit` on the host.
+    case externalFirst = "external"
+}
+
 struct ScanEngineInfo: Equatable {
     enum Kind: String {
+        case bundled = "bundled webaudit"
         case webauditDocker = "webaudit-docker"
         case webauditCLI = "webaudit"
         case none = "not found"

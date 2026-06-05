@@ -7,7 +7,12 @@ HTML wireframes for a **stupid-simple** native Mac app for site owners (Jill / f
 
 **Audience:** zero terminal skill · one URL · report opens in Safari · share with developer.
 
-**Engine (under the hood, hidden from main UI):** `webaudit-docker` on PATH (recommended) or native `webaudit` CLI — see Advanced disclosure in the app.
+**Engine (under the hood, hidden from main UI):**
+
+- **Public `.dmg` (site owners):** bundled `webaudit` inside the app — **no Docker**
+- **Dev build (`run-dev.sh` / dev DMG):** `webaudit-docker` or native `webaudit` CLI — see **Advanced** disclosure
+
+**All install paths:** [DELIVERY_PATHS.md](../../DELIVERY_PATHS.md)
 
 ---
 
@@ -62,15 +67,17 @@ See [user-flow.md](user-flow.md) for full Mermaid diagrams (happy path, errors, 
 | Download | `NSSavePanel` in `downloadReport()` |
 | Share | `NSSharingServicePicker` in `shareReport()` |
 | Help sheet | `ContentView.HelpSheet` |
-| Advanced | Footer `DisclosureGroup` — engine path, reports dir |
+| Advanced | `ExpandableSection` + `HelpFooterView` — engine path, reports dir |
+| Learn more | `LearnMoreResourcesView` — docs, install, shell V1, contact |
+| Saved reports | `ReportHistoryLoader` + `SavedReportsPicker` — disk-backed, up to 100 folders |
 
 Detail: [SWIFT_APP_GUIDE.md](../../macos/WebAuditMac/SWIFT_APP_GUIDE.md)
 
-**Beyond mockups:** session history (up to 10 scans), in-app score dashboard, v1 shell edition escape hatch, `AboutDisclaimerPanel`.
+**Beyond mockups:** saved reports on disk (not session-only), zip all / delete all, failure logs, report switcher, scroll-to-results, `DeveloperContactHelper`, v1 shell edition link.
 
-**Out of scope:** menu bar extra, App Store sandbox, authenticated scans, bundled engine inside `.app`.
+**Out of scope:** menu bar extra, App Store sandbox, authenticated scans.
 
-**Faster prototype:** same flow in [../platypus/](../platypus/) (Platypus.app shell wrapper — not PyGObject).
+**Deferred:** Platypus shell wrapper — [../platypus/](../platypus/) mockups only (native Swift app shipped instead).
 
 ---
 
@@ -78,4 +85,4 @@ Detail: [SWIFT_APP_GUIDE.md](../../macos/WebAuditMac/SWIFT_APP_GUIDE.md)
 
 - Plain-English product copy: [v2_python_core/docs/getting_started_plain.md](../v2_python_core/docs/getting_started_plain.md)
 - Report output (opens in browser): owner HTML variant in `v2_python_core/webaudit/templates/reports/`
-- Platypus fast path (same UX, shell wrapper): brainstorm — `macos/platypus/` TBD
+- Delivery paths matrix: [DELIVERY_PATHS.md](../../DELIVERY_PATHS.md)

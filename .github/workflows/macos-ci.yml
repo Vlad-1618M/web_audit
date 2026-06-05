@@ -23,11 +23,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build and smoke-test installer
-        working-directory: macos/WebAuditMac
+      - name: Dev external-engine DMG smoke
+        working-directory: macos
         run: |
-          chmod +x scripts/*.sh
-          ./scripts/smoke-install.sh
+          chmod +x orchestrate-macos.sh packaging/**/*.sh
+          ./orchestrate-macos.sh dev-smoke
+
+      - name: Public bundled-engine DMG smoke
+        working-directory: macos
+        run: |
+          ./orchestrate-macos.sh public-smoke
 
       - name: Swift unit tests
         working-directory: macos/WebAuditMac

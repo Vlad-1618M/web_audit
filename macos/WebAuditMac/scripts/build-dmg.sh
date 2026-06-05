@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
-# Full pipeline: release binary → .app → .dmg
+# Delegates to dev external-engine DMG (backward compatible).
 set -euo pipefail
-
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$ROOT"
-
-"$ROOT/scripts/build-release.sh"
-"$ROOT/scripts/make-app-bundle.sh"
-"$ROOT/scripts/make-dmg.sh"
-
-echo ""
-echo "Done. Ship: dist/WebAudit-$(tr -d '[:space:]' < VERSION)-macOS.dmg"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+exec "$ROOT/packaging/dev-external-engine/build-dmg.sh"

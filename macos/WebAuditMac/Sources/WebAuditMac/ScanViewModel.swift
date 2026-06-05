@@ -13,13 +13,19 @@ final class ScanViewModel: ObservableObject {
     @Published private(set) var engineInfo: ScanEngineInfo
     @Published private(set) var completedScans: [CompletedScan] = []
     @Published private(set) var activeReport: ScanReportSnapshot?
+    @Published private(set) var failureLogURL: URL?
+    @Published var statusMessage: String?
 
     let runner = ScanRunner()
     private var scanTask: Task<Void, Never>?
     private var shareStagingFiles: [URL] = []
+    private var scanStartedAt: Date?
+
+    var lastSavedScan: CompletedScan? { completedScans.first }
 
     init() {
         engineInfo = runner.detectEngine()
+        completedScans = ReportHistoryLoader.loadScans()
         NotificationCenter.default.addObserver(
             forName: NSApplication.willTerminateNotification,
             object: nil,
@@ -70,7 +76,9 @@ final class ScanViewModel: ObservableObject {
 
         scanTask?.cancel()
         logLines = []
+        failureLogURL = nil
         phase = .scanning
+        scanStartedAt = Date()
         logLines.append("Starting scan for \(trimmed)…")
 
         scanTask = Task {
@@ -82,12 +90,22 @@ final class ScanViewModel: ObservableObject {
                 }
                 let summary = runner.loadVerdictSummary(from: runDir)
                 loadReport(from: runDir, scannedURL: trimmed)
-                recordCompletedScan(url: trimmed, reportDir: runDir, summary: summary)
+                refreshSavedScans()
                 phase = .complete(reportDir: runDir, summary: summary)
+                failureLogURL = nil
             } catch is CancellationError {
+                runner.terminateScan()
                 phase = .ready
+                failureLogURL = nil
             } catch {
-                phase = .error(message: error.localizedDescription)
+                runner.terminateScan()
+                let message = error.localizedDescription
+                failureLogURL = recordScanFailure(
+                    url: trimmed,
+                    message: message,
+                    startedAt: scanStartedAt ?? Date()
+                )
+                phase = .error(message: message)
             }
         }
     }
@@ -96,13 +114,66 @@ final class ScanViewModel: ObservableObject {
         runner.terminateScan()
         scanTask?.cancel()
         phase = .ready
-        logLines.append("Scan cancelled.")
+        logLines = []
+        failureLogURL = nil
+    }
+
+    /// Leave the error screen and return to the home page (keeps the URL for editing).
+    func abortFromError() {
+        runner.terminateScan()
+        scanTask?.cancel()
+        phase = .ready
+        logLines = []
+        failureLogURL = nil
+    }
+
+    /// Home screen with saved reports list — keeps history, does not clear URL.
+    func returnToHome() {
+        phase = .ready
+        logLines = []
+        failureLogURL = nil
+        activeReport = nil
     }
 
     func resetForAnotherScan() {
         phase = .ready
         logLines = []
+        failureLogURL = nil
         urlText = ""
+        activeReport = nil
+    }
+
+    func refreshSavedScans() {
+        completedScans = ReportHistoryLoader.loadScans()
+    }
+
+    func revealFailureLogInFinder() {
+        guard let failureLogURL else { return }
+        NSWorkspace.shared.activateFileViewerSelecting([failureLogURL])
+    }
+
+    func copyFailureLogPathToPasteboard() {
+        guard let failureLogURL else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(failureLogURL.path, forType: .string)
+    }
+
+    @discardableResult
+    private func recordScanFailure(url: String, message: String, startedAt: Date) -> URL? {
+        let context = ScanFailureLogWriter.Context(
+            scannedURL: url,
+            errorMessage: message,
+            logLines: logLines,
+            engine: engineInfo,
+            startedAt: startedAt,
+            failedAt: Date()
+        )
+        if let fileURL = try? ScanFailureLogWriter.write(context) {
+            logLines.append("Diagnostic log saved: \(fileURL.path)")
+            return fileURL
+        }
+        logLines.append("Could not save diagnostic log under ~/Documents/WebAudit/Logs/")
+        return nil
     }
 
     func reopenScan(_ scan: CompletedScan) {
@@ -123,24 +194,51 @@ final class ScanViewModel: ObservableObject {
         )
     }
 
-    private func recordCompletedScan(url: String, reportDir: URL, summary: String?) {
-        let snapshot = ScanReportSnapshot.load(from: reportDir)
-        let completedAt = snapshot.flatMap { ScanReportSnapshot.parseDate($0.scannedAt) } ?? Date()
-        let scan = CompletedScan(
-            url: url,
-            reportDir: reportDir,
-            summary: summary,
-            completedAt: completedAt,
-            verdict: snapshot?.verdict ?? "NEEDS_ATTENTION",
-            hygiene: snapshot?.hygiene ?? 0,
-            exposure: snapshot?.exposure ?? 0,
-            hostLabel: snapshot?.hostLabel ?? URL(string: url)?.host ?? url
-        )
-        completedScans.removeAll { $0.reportDir == reportDir }
-        completedScans.insert(scan, at: 0)
-        if completedScans.count > 10 {
-            completedScans = Array(completedScans.prefix(10))
+    func zipAllSavedReports() {
+        let dirs = ReportHistoryLoader.listReportDirectories()
+        guard !dirs.isEmpty else {
+            statusMessage = "No saved reports to archive."
+            return
         }
+
+        let panel = NSSavePanel()
+        panel.title = "Archive all saved reports"
+        panel.message = "Creates one zip with every scan folder from ~/Documents/WebAudit/. Use this before deleting reports to free disk space."
+        panel.nameFieldStringValue = ReportArchiveExporter.defaultArchiveName()
+        panel.allowedContentTypes = [.zip]
+        panel.canCreateDirectories = true
+        guard panel.runModal() == .OK, let dest = panel.url else { return }
+
+        do {
+            let zipURL = try ReportArchiveExporter.createArchive(from: dirs)
+            defer { try? FileManager.default.removeItem(at: zipURL) }
+            let fm = FileManager.default
+            if fm.fileExists(atPath: dest.path) {
+                try fm.removeItem(at: dest)
+            }
+            try fm.copyItem(at: zipURL, to: dest)
+            statusMessage = "Archived \(dirs.count) report\(dirs.count == 1 ? "" : "s") to \(dest.lastPathComponent)."
+            NSWorkspace.shared.activateFileViewerSelecting([dest])
+        } catch {
+            statusMessage = "Could not create archive: \(error.localizedDescription)"
+        }
+    }
+
+    func deleteAllSavedReports() {
+        let dirs = ReportHistoryLoader.listReportDirectories()
+        let fm = FileManager.default
+        for dir in dirs {
+            try? fm.removeItem(at: dir)
+        }
+        completedScans = []
+        activeReport = nil
+        if case .complete = phase {
+            phase = .ready
+        }
+        try? fm.removeItem(at: ScanRunner.outputRoot.appendingPathComponent(".webaudit-last-run"))
+        statusMessage = dirs.isEmpty
+            ? "No saved reports to delete."
+            : "Deleted \(dirs.count) saved report\(dirs.count == 1 ? "" : "s"). Failure logs were kept."
     }
 
     func otherSessionScans(excluding reportDir: URL) -> [CompletedScan] {

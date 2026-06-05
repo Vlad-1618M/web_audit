@@ -1,5 +1,7 @@
 # Web Audit — Platypus.app mockups
 
+**Status: deferred** — mockups and example script only. **Shipped path:** native SwiftUI app + public DMG with bundled engine ([DELIVERY_PATHS.md](../../DELIVERY_PATHS.md) row **A**).
+
 HTML previews of a **Platypus-wrapped** Mac app for site owners. Same user journey as [../swift/](../swift/) — different chrome (native dialogs + Progress Window).
 
 > **Not PyGObject.** [Platypus](https://sveinbjorn.org/platypus) is a **macOS-only** utility that turns shell scripts into double-click `.app` bundles. **PyGObject** is Linux GTK/Python — different tool entirely. Easy to misread when tired.
@@ -36,7 +38,7 @@ open designs/platypus/index.html
 | **UI** | System dialogs + progress text view | Custom window, polished layout |
 | **Live log** | Native — script `echo` → Progress Window | Pipe `Process` stdout → `TextEditor` |
 | **Size** | Tiny `.app` + script | Small app + bundled `webaudit` later |
-| **Engine** | Calls `webaudit-docker` on PATH | Same, or bundled binary |
+| **Engine** | Would call `webaudit-docker` on PATH | **Shipped:** bundled in public DMG |
 | **Platform** | macOS only | macOS only |
 
 ---

@@ -1,9 +1,11 @@
 # Web Audit v2 — Python Core
 
-**Status:** **2.1.0b3+ (Stage 6)** — Tier 1 + Tier 2 depth, WP themes, **Docker CI / GHCR**, **plugin/theme CVE cache**, **SARIF export**. **Next:** live WPScan API, pipx/Homebrew — see [CHANGELOG.md](CHANGELOG.md) `[Unreleased]`.
+**Status:** **2.1.0b4 (Stage 6)** — Tier 1 + Tier 2 depth, WP themes, **Docker CI / GHCR**, **plugin/theme CVE cache**, **SARIF export**. **Next:** live WPScan API, pipx/Homebrew — see [CHANGELOG.md](CHANGELOG.md) `[Unreleased]`. **Tags history:** [VERSIONING_AND_TAGS.md](../VERSIONING_AND_TAGS.md).
 
 > **GHCR / Docker visitors:** Package [`ghcr.io/vlad-1618m/webaudit`](https://github.com/users/Vlad-1618M/packages/container/webaudit) runs **this v2 edition**. Pull and scan — see [Docker quick start](#docker--ghcr-public-usage) below.  
-> **v1 bash script (no Docker):** [Root README — Audit Lite](../README.md#v1-audit-lite--bash-quick-start).
+> **Mac site owners (no Docker):** Public `WebAudit-*-macOS.dmg` bundles this engine — [DELIVERY_PATHS.md](../DELIVERY_PATHS.md) row **A**, [macos/README.md](../macos/README.md).  
+> **v1 bash script (no Docker):** [Root README — Audit Lite](../README.md#v1-audit-lite--bash-quick-start).  
+> **All install paths:** [DELIVERY_PATHS.md](../DELIVERY_PATHS.md).
 
 This directory is the home of **Web Audit v2 (Audit Pro)**. It lives beside the public **v1 bash** tool ([`web_audit.sh`](../web_audit.sh) at the repo root). v1 is **not** being replaced — it stays the zero-install shell edition.
 

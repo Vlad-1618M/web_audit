@@ -2,12 +2,6 @@ import SwiftUI
 
 struct AboutDisclaimerPanel: View {
     var metrics: LayoutMetrics
-    var onShowHelp: () -> Void
-    var onPreferShell: () -> Void
-
-    private static let plainGuideURL = URL(
-        string: "https://github.com/Vlad-1618M/web_audit/blob/v.tools_main/v2_python_core/docs/getting_started_plain.md"
-    )!
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12 * metrics.scale) {
@@ -45,30 +39,11 @@ struct AboutDisclaimerPanel: View {
                 ]
             )
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Learn more")
-                    .font(metrics.rowTitle)
-                    .foregroundStyle(ReportTheme.text)
-                HStack(spacing: 12) {
-                    Button("What is this?") { onShowHelp() }
-                        .buttonStyle(.link)
-                        .foregroundStyle(ReportTheme.cyan)
-                    Link("Plain-English guide", destination: Self.plainGuideURL)
-                        .font(metrics.captionFont)
-                        .foregroundStyle(ReportTheme.cyan)
-                }
-                Button("Don't trust this app? v1 shell edition…") {
-                    onPreferShell()
-                }
-                .buttonStyle(.link)
-                .foregroundStyle(ReportTheme.gold)
-                .font(metrics.captionFont)
-                Text("Passive external scan only — not a substitute for authenticated testing or CDN/WAF review.")
-                    .font(metrics.finePrintFont)
-                    .foregroundStyle(ReportTheme.muted.opacity(0.9))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(.top, 4)
+            Text("Passive external scan only — not a substitute for authenticated testing or CDN/WAF review. Open Learn more below for documentation, contact, and other resources.")
+                .font(metrics.finePrintFont)
+                .foregroundStyle(ReportTheme.muted.opacity(0.9))
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 4)
         }
         .padding(metrics.cardPadding)
         .frame(maxWidth: .infinity, alignment: .topLeading)

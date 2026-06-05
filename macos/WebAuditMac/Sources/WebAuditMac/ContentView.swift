@@ -31,13 +31,27 @@ struct ContentView: View {
                 viewModel.dismissShareSheet()
             }
         }
-        .onAppear { viewModel.refreshEngineInfo() }
+        .onAppear {
+            viewModel.refreshEngineInfo()
+            viewModel.refreshSavedScans()
+        }
+        .alert("Notice", isPresented: Binding(
+            get: { viewModel.statusMessage != nil },
+            set: { if !$0 { viewModel.statusMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) { viewModel.statusMessage = nil }
+        } message: {
+            Text(viewModel.statusMessage ?? "")
+        }
         .confirmationDialog(
-            "Web Audit v1 — Audit Lite",
+            AppBrand.ShellEdition.label,
             isPresented: $showShellEditionChoice,
             titleVisibility: .visible
         ) {
-            Button("Read web_audit.sh on GitHub") {
+            Button("V1 documentation") {
+                AppBrand.ShellEdition.openDocs()
+            }
+            Button("Read web_audit.sh source") {
                 AppBrand.ShellEdition.openReadScript()
             }
             Button("Download web_audit.sh") {
@@ -48,7 +62,7 @@ struct ContentView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Don't trust this Mac app? The v1 shell edition is one script — read the source on GitHub first, or download and run it in Terminal. No Docker, no installer.")
+            Text("Prefer Terminal? Web Audit shell version V1 is a single bash script — read the docs, review the source on GitHub, or download and run it yourself. No Docker, no Mac installer.")
         }
     }
 
@@ -100,10 +114,9 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 12) {
                 ReadyHomeView(
                     viewModel: viewModel,
-                    onSubmit: submitScanIfReady,
-                    onPreferShell: { showShellEditionChoice = true }
+                    onSubmit: submitScanIfReady
                 )
-                footerLinks
+                helpFooter
             }
         case .scanning:
             scanningView
@@ -124,7 +137,7 @@ struct ContentView: View {
                 .frame(minHeight: 560, maxHeight: .infinity)
             Button("Cancel scan") { viewModel.cancelScan() }
                 .buttonStyle(.bordered)
-            footerLinks
+            helpFooter
         }
     }
 
@@ -192,20 +205,36 @@ struct ContentView: View {
     }
 
     private func completeView(dir: URL, summary: String?) -> some View {
-        ScrollView {
-            if let snapshot = viewModel.activeReport {
-                ReportCompleteView(
-                    snapshot: snapshot,
-                    reportDir: dir,
-                    viewModel: viewModel
-                )
-            } else {
-                legacyCompleteView(dir: dir, summary: summary)
+        ScrollViewReader { proxy in
+            ScrollView {
+                if let snapshot = viewModel.activeReport {
+                    ReportCompleteView(
+                        snapshot: snapshot,
+                        reportDir: dir,
+                        viewModel: viewModel
+                    )
+                } else {
+                    legacyCompleteView(dir: dir, summary: summary)
+                }
+                helpFooter
+                    .padding(.top, 8)
             }
-            footerLinks
-                .padding(.top, 8)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onAppear {
+                scrollToReportResults(proxy: proxy)
+            }
+            .onChange(of: dir.path) { _ in
+                scrollToReportResults(proxy: proxy)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func scrollToReportResults(proxy: ScrollViewProxy) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
+            withAnimation(.easeInOut(duration: 0.35)) {
+                proxy.scrollTo(ReportCompleteView.resultsScrollAnchor, anchor: .top)
+            }
+        }
     }
 
     private func legacyCompleteView(dir: URL, summary: String?) -> some View {
@@ -232,6 +261,7 @@ struct ContentView: View {
             Text(message)
                 .font(.system(size: 15))
                 .foregroundStyle(.secondary)
+            failureLogGuidance
             if !viewModel.logLines.isEmpty {
                 LiveLogView(lines: viewModel.logLines)
                     .frame(minHeight: 320, maxHeight: .infinity)
@@ -243,46 +273,65 @@ struct ContentView: View {
                 onSubmit: submitScanIfReady
             )
             .frame(maxWidth: .infinity, minHeight: 32)
-            Button("Try again") {
-                viewModel.startScan()
+            HStack(spacing: 12) {
+                Button("Try again") {
+                    viewModel.startScan()
+                }
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.defaultAction)
+                Button("Back to home") {
+                    viewModel.abortFromError()
+                }
+                .buttonStyle(.bordered)
+                .keyboardShortcut(.cancelAction)
             }
-            .buttonStyle(.borderedProminent)
-            .keyboardShortcut(.defaultAction)
-            footerLinks
+            Text("Back to home returns to the main screen without quitting the app. You can pick a saved report or scan another site.")
+                .font(.system(size: 13))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            helpFooter
         }
     }
 
-    private var footerLinks: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 16) {
-                Button("What is this?") { viewModel.showHelp = true }
-                    .buttonStyle(.link)
+    @ViewBuilder
+    private var failureLogGuidance: some View {
+        if viewModel.failureLogURL != nil {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("We saved a diagnostic log on this Mac (URL, date, and scan output). Please send that file to the developer so we can fix this — especially if the problem happens for one website only.")
                     .font(.system(size: 14))
-                    .foregroundStyle(usesReportChrome ? ReportTheme.cyan : .accentColor)
-                Link("Help on GitHub", destination: URL(string: "https://github.com/Vlad-1618M/web_audit/blob/v.tools_main/v2_python_core/docs/getting_started_plain.md")!)
-                    .font(.system(size: 14))
-                    .foregroundStyle(usesReportChrome ? ReportTheme.cyan : .accentColor)
-                Button("v1 shell edition") { showShellEditionChoice = true }
-                    .buttonStyle(.link)
-                    .font(.system(size: 14))
-                    .foregroundStyle(usesReportChrome ? ReportTheme.gold : .orange)
-            }
-            DisclosureGroup("Advanced", isExpanded: $viewModel.showAdvanced) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Engine: \(viewModel.engineInfo.kind.rawValue)")
-                    Text("Path: \(viewModel.engineInfo.path.isEmpty ? "—" : viewModel.engineInfo.path)")
-                    Text("Reports: \(ScanRunner.outputRoot.path)")
-                    Text("Notarization: in progress — first open may require Right-click → Open")
-                        .foregroundStyle(.secondary)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 12) {
+                    Button("Show log in Finder") {
+                        viewModel.revealFailureLogInFinder()
+                    }
+                    .buttonStyle(.bordered)
+                    Button("Copy log path") {
+                        viewModel.copyFailureLogPathToPasteboard()
+                    }
+                    .buttonStyle(.bordered)
+                    Link("Report on GitHub", destination: AppBrand.Support.issueTracker)
+                        .font(.system(size: 14))
                 }
-                .font(.system(size: 13))
-                .textSelection(.enabled)
+                DeveloperContactRow()
             }
-            .font(.system(size: 14))
-            .onChange(of: viewModel.showAdvanced) { expanded in
-                if expanded { viewModel.refreshEngineInfo() }
-            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(nsColor: .controlBackgroundColor))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.orange.opacity(0.35))
+            )
         }
+    }
+
+    private var helpFooter: some View {
+        HelpFooterView(
+            viewModel: viewModel,
+            onDarkBackground: usesReportChrome,
+            onShowShellEdition: { showShellEditionChoice = true }
+        )
     }
 }
 
@@ -322,26 +371,27 @@ struct HelpSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("What is Web Audit Pro?")
+            Text("What is this app for?")
                 .font(.system(size: 22, weight: .bold))
-            Text("A read-only check of your public website — what a stranger on the internet could see. It is not a penetration test and does not log into your site.")
+            Text("Web Audit Pro checks your public website from the outside — the same things a visitor or opportunistic attacker could see without logging in. It is not a penetration test and does not access member areas or admin consoles.")
                 .font(.system(size: 15))
                 .foregroundStyle(.secondary)
-            Text("Reports are saved on this Mac under Documents/WebAudit unless you share them.")
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Reports stay on this Mac under Documents/WebAudit unless you choose to share them.")
                 .font(.system(size: 15))
                 .foregroundStyle(.secondary)
-            Link("Plain-English guide on GitHub", destination: URL(string: "https://github.com/Vlad-1618M/web_audit/blob/v.tools_main/v2_python_core/docs/getting_started_plain.md")!)
+            Link("Documentation on GitHub", destination: AppBrand.Support.documentation)
                 .font(.system(size: 14))
-            Link("v1 shell edition (read or download)", destination: AppBrand.ShellEdition.readScript)
+            DeveloperContactRow()
+            Link("Web Audit shell V1 — documentation", destination: AppBrand.ShellEdition.docs)
                 .font(.system(size: 13))
-            Text("Prefer bash? Read web_audit.sh on GitHub before you run anything.")
+            Link("Web Audit shell V1 — script source", destination: AppBrand.ShellEdition.readScript)
                 .font(.system(size: 13))
-                .foregroundStyle(.secondary)
             Spacer()
             Button("OK") { dismiss() }
                 .keyboardShortcut(.defaultAction)
         }
         .padding(24)
-        .frame(width: 460, height: 300)
+        .frame(width: 480, height: 400)
     }
 }

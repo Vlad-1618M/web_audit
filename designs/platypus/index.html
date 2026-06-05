@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit Platypus — mockup gallery</title>
+  <link rel="stylesheet" href="platypus-mock.css">
+  <style>
+    body {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 2rem 2rem 5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      background: radial-gradient(ellipse at 30% 20%, #2a2a40, #121218);
+    }
+
+    .gallery-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #eee;
+    }
+
+    .gallery-header h1 { font-size: 1.6rem; margin-bottom: 0.5rem; }
+    .gallery-header p { color: #aaa; font-size: 0.9rem; max-width: 40rem; margin: 0 auto 0.75rem; line-height: 1.5; }
+
+    .clarifier {
+      background: rgba(255, 214, 10, 0.12);
+      border: 1px solid rgba(255, 214, 10, 0.35);
+      color: #ffe066;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      max-width: 36rem;
+      margin: 0 auto 1.5rem;
+      text-align: center;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .gallery-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 1rem;
+      text-decoration: none;
+      color: #eee;
+    }
+
+    .gallery-card:hover { border-color: rgba(0, 122, 255, 0.5); }
+
+    .gallery-card h2 { font-size: 0.9375rem; margin-bottom: 0.35rem; }
+    .gallery-card p { font-size: 0.8125rem; color: #aaa; line-height: 1.4; margin-bottom: 0.75rem; }
+
+    .compare {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+    }
+
+    .compare a { color: #64b5ff; }
+
+    .flow-section {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem 1.75rem;
+      color: #ccc;
+    }
+
+    .flow-section h2 { font-size: 1rem; color: #eee; margin-bottom: 0.5rem; }
+    .flow-section p { font-size: 0.8125rem; color: #aaa; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <header class="gallery-header">
+    <h1>Web Audit — Platypus.app mockups</h1>
+    <p>
+      macOS shell wrapper UI: URL dialog → Progress Window (stdout) → completion alert.
+      Same flow as <a href="../swift/index.html" style="color:#64b5ff">Swift mockups</a>, faster to ship.
+    </p>
+    <p class="clarifier">
+      <strong>Platypus</strong> = macOS script → .app tool.
+      Not <strong>PyGObject</strong> (Linux GTK). Totally different thing.
+    </p>
+    <p><a href="README.md" style="color:#64b5ff">README</a> · <a href="example-scan.sh" style="color:#64b5ff">example-scan.sh</a></p>
+  </header>
+
+  <div class="gallery-grid">
+    <a class="gallery-card" href="01-url-prompt.html">
+      <h2>01 · URL prompt</h2>
+      <p>Platypus text input at launch (or droplet URL).</p>
+    </a>
+    <a class="gallery-card" href="02-progress.html">
+      <h2>02 · Progress window</h2>
+      <p>Signature Platypus UI — live <code>webaudit -v</code> stdout (~520×380).</p>
+    </a>
+    <a class="gallery-card" href="03-complete.html">
+      <h2>03 · Report ready</h2>
+      <p>Open in browser · Download HTML · Finder · Scan again.</p>
+    </a>
+    <a class="gallery-card" href="04-error.html">
+      <h2>04 · Error</h2>
+      <p>Invalid URL alert — Try again / Help.</p>
+    </a>
+    <a class="gallery-card" href="05-help.html">
+      <h2>05 · Help</h2>
+      <p>Info dialog + link to plain-English GitHub doc.</p>
+    </a>
+  </div>
+
+  <p class="compare">Compare polish path: <a href="../swift/index.html">designs/swift/</a></p>
+
+  <section class="flow-section">
+    <h2>User flow</h2>
+    <p>Automatic transitions — user does not click through screens manually.</p>
+    <pre class="mermaid">
+flowchart LR
+  A[Double-click app] --> B[Enter URL]
+  B --> C[Progress window]
+  C --> D[Report ready dialog]
+  D --> E[Browser or Finder]
+    </pre>
+    <p style="margin-top:0.75rem;"><a href="user-flow.md" style="color:#64b5ff">Full diagrams → user-flow.md</a></p>
+  </section>
+
+  <nav class="mock-nav">
+    <a href="01-url-prompt.html">01 URL</a>
+    <a href="02-progress.html">02 Progress</a>
+    <a href="03-complete.html">03 Done</a>
+    <a href="04-error.html">04 Error</a>
+    <a href="05-help.html">05 Help</a>
+  </nav>
+
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true, theme: "dark" });
+  </script>
+</body>
+</html>

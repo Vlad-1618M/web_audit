@@ -6,7 +6,14 @@
 #   2. Runs webaudit with --open none in Docker
 #   3. Opens reports on the host (or prompts y/N)
 #
-# Usage:
+# Pull-only install (no git clone — run once after docker pull):
+#   mkdir -p ~/.local/bin
+#   docker run --rm --entrypoint cat ghcr.io/vlad-1618m/webaudit:latest \
+#     /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
+#   chmod +x ~/.local/bin/webaudit-docker
+#   webaudit-docker scan https://example.com --open html
+#
+# Repo devs:
 #   ./scripts/webaudit-docker.sh scan https://example.com
 #   ./scripts/webaudit-docker.sh --output-dir documents scan https://example.com -v --open html
 #   ./scripts/webaudit-docker.sh --image webaudit:local scan https://example.com
@@ -67,9 +74,12 @@ ${BOLD}Examples${NC}
   $(basename "$0") --image webaudit:local scan https://example.com --api
 
 ${BOLD}Notes${NC}
+  ${BOLD}Pull-only (no clone):${NC} install once from the image —
+    ${CYAN}docker run --rm --entrypoint cat ${DEFAULT_IMAGE} /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker${NC}
+    then ${CYAN}chmod +x ~/.local/bin/webaudit-docker${NC}
   Flags may appear before or after the URL; the wrapper reorders them for Typer (options first, URL last).
   Scan progress uses Rich colors when your terminal is a TTY (wrapper passes ${CYAN}docker run -t${NC}).
-  For raw ${CYAN}docker run${NC}, add ${CYAN}-t${NC} for colors, mount a host path, and use ${CYAN}--open none${NC}; open files locally.
+  Raw ${CYAN}docker run … --open html${NC} cannot open a browser — use this wrapper or ${CYAN}--open none${NC} + open report.html yourself.
   See: docs/docker_ci.md
 EOF
 }
@@ -358,12 +368,12 @@ main() {
   printf '%b\n' "${DIM}Host reports:${NC} ${host_dir}/"
   printf '%b\n' "${DIM}Image:${NC} ${IMAGE}"
 
-  local -a docker_tty=()
+  local -a docker_run_args=(--rm)
   if [[ -t 1 ]]; then
-    docker_tty=(-t)
+    docker_run_args+=(-t)
   fi
 
-  if ! docker run --rm "${docker_tty[@]}" \
+  if ! docker run "${docker_run_args[@]}" \
     -e WEBAUDIT_IN_DOCKER=1 \
     -e "WEBAUDIT_HOST_OUTPUT_DIR=${host_dir}" \
     -e "WEBAUDIT_LAST_RUN_FILE=${CONTAINER_OUTPUT}/${LAST_RUN_MARKER}" \

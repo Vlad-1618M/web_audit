@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit Mac — 05 Help & Advanced</title>
+  <link rel="stylesheet" href="swift-mock.css">
+</head>
+<body>
+  <p class="mock-label">Mockup 05 · Help sheet + Advanced</p>
+
+  <div class="mac-window" style="opacity: 0.55; filter: blur(1px);" aria-hidden="true">
+    <header class="titlebar">
+      <div class="traffic"><span class="close"></span><span class="min"></span><span class="max"></span></div>
+      <h1>Web Audit</h1>
+    </header>
+    <main class="content">
+      <h2>Check your website</h2>
+      <p class="subtitle">Background window (dimmed)</p>
+    </main>
+  </div>
+
+  <div class="sheet-overlay">
+    <div class="sheet" role="dialog" aria-label="What is Web Audit?">
+      <header class="sheet-header">
+        <h3>What is Web Audit?</h3>
+        <span style="color: var(--muted); font-size: 1.25rem;">×</span>
+      </header>
+      <div class="sheet-body">
+        <p>
+          Web Audit looks at your <strong style="color: var(--text);">public website</strong> the way a stranger on the internet would —
+          and explains in plain language whether basic security hygiene looks okay.
+        </p>
+        <p><strong style="color: var(--text);">It is not</strong> a full penetration test. It does not log into your site or change anything.</p>
+        <ul>
+          <li>Read-only checks: headers, HTTPS, DNS email settings, exposed files</li>
+          <li>Reports saved on <strong style="color: var(--text);">this Mac</strong> — not uploaded by default</li>
+          <li>Share the HTML report with your developer or host</li>
+        </ul>
+        <p>
+          Full guide:
+          <a href="https://github.com/Vlad-1618M/web_audit/blob/v.tools_main/v2_python_core/docs/getting_started_plain.md" target="_blank" rel="noopener">getting_started_plain.md</a>
+          on GitHub
+        </p>
+        <footer class="site-footer" style="border-top: none; margin-top: 12px; padding-top: 0;">
+          <p class="brand-line">
+            Powered by <a href="https://muzar.io/" target="_blank" rel="noopener">muzar.io</a>
+            · <a href="https://github.com/Vlad-1618M" target="_blank" rel="noopener">GitHub</a>
+          </p>
+          <p class="copyright">© 2026 Vtools. All rights reserved.</p>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <!-- Second preview: Advanced disclosure (inset thumbnail) -->
+  <div class="mac-window" style="position: fixed; right: 2rem; bottom: 5rem; width: 360px; z-index: 3; transform: scale(0.92);">
+    <header class="titlebar">
+      <div class="traffic"><span class="close"></span><span class="min"></span><span class="max"></span></div>
+      <h1>Web Audit</h1>
+    </header>
+    <main class="content" style="padding: 20px;">
+      <details class="disclosure" open>
+        <summary>Advanced</summary>
+        <div class="disclosure-body">
+          Engine: bundled webaudit 2.1.0b4<br>
+          Output: ~/Documents/WebAudit<br>
+          Last run: 20260529_sunrise-florist.com<br><br>
+          <span style="color: var(--accent);">Copy log</span> ·
+          <span style="color: var(--accent);">Open output folder</span>
+        </div>
+      </details>
+      <p class="disclaimer" style="margin-top: 12px;">No cloud account required.</p>
+      <footer class="site-footer">
+        <p class="brand-line">
+          Powered by <a href="https://muzar.io/" target="_blank" rel="noopener">muzar.io</a>
+          · <a href="https://github.com/Vlad-1618M" target="_blank" rel="noopener">GitHub</a>
+        </p>
+        <p class="copyright">© 2026 Vtools. All rights reserved.</p>
+      </footer>
+    </main>
+  </div>
+
+  <nav class="mock-nav">
+    <a href="index.html">Gallery</a>
+    <a href="01-ready.html">01 Ready</a>
+    <a href="02-scanning.html">02 Scanning</a>
+    <a href="03-complete.html">03 Complete</a>
+    <a href="04-error.html">04 Error</a>
+    <a href="05-help-advanced.html" class="active">05 Help</a>
+  </nav>
+</body>
+</html>

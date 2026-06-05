@@ -4,6 +4,65 @@
 
 ---
 
+## Easiest way: Docker (no Python install)
+
+If someone gave you a **Docker** link or you ran `docker pull ghcr.io/vlad-1618m/webaudit`, you do **not** need to clone the GitHub repo or install Python.
+
+You need **Docker Desktop** (Mac/Windows) or Docker on Linux, plus about five minutes once.
+
+### Step 1 — One-time setup
+
+Open Terminal and run these lines (copy all three):
+
+```bash
+docker pull ghcr.io/vlad-1618m/webaudit:latest
+
+mkdir -p ~/.local/bin
+docker run --rm --entrypoint cat ghcr.io/vlad-1618m/webaudit:latest \
+  /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
+chmod +x ~/.local/bin/webaudit-docker
+```
+
+That installs a small helper called **`webaudit-docker`** on your computer. It talks to Docker for you.
+
+### Step 2 — Scan your site
+
+Replace the URL with **your** website (only sites you own or may test):
+
+```bash
+webaudit-docker --output-dir documents scan https://yoursite.com -v --open html
+```
+
+- Reports are saved under **`~/Documents/WebAudit/`** on your Mac (or Linux equivalent).
+- When the scan finishes, it can **open the HTML report in your browser** automatically.
+- You can email that report to your developer or hosting company.
+
+### What **not** to do
+
+Do **not** run `docker run … --open html` by itself. Docker cannot open a browser inside the container, and the report might not appear on your Desktop. Always use **`webaudit-docker`** as above.
+
+More detail: [Docker / CI guide](docker_ci.md) · [Root README — Docker section](../../README.md#docker--github-packages--v2-audit-pro)
+
+---
+
+## Easiest way on Mac: the app (no Terminal during the scan)
+
+If you have **Web Audit for Mac** (SwiftUI app from this repo, or a `.dmg` when published):
+
+1. Install **Docker Desktop** and the **`webaudit-docker`** helper once (same Step 1 as above).
+2. Open the app — paste your URL → **Scan my website**.
+3. Watch the live log; when done, use **Open report in browser** or share the HTML from `~/Documents/WebAudit/`.
+
+The app is a friendly window around the same scan engine. It does not replace Docker yet; it runs `webaudit-docker` for you in the background.
+
+- Build from source: [macos/WebAuditMac/README.md](../../macos/WebAuditMac/README.md)
+- How the Swift code fits together: [SWIFT_APP_GUIDE.md](../../macos/WebAuditMac/SWIFT_APP_GUIDE.md)
+- UI wireframes: [designs/swift/](../../designs/swift/)
+
+**Do not trust the Mac app?** Use the **v1 shell edition** link inside the app to read or download `web_audit.sh` on GitHub — one script, no installer.
+
+---
+
 ## What is Web Audit?
 
 Web Audit looks at your **public website** the way a stranger on the internet would — and tells you, in simple scores, whether basic security hygiene looks okay or needs work.

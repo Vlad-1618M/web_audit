@@ -10,6 +10,7 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). v1 (`web
 
 ### Added
 
+- **Pull-only Docker UX** — host wrapper `webaudit-docker.sh` shipped inside the image at `/usr/share/webaudit/`; extract once with `docker run --entrypoint cat …` (no git clone). Docs updated for GHCR visitors.
 - **Plugin/theme CVE cache** — shipped `data/vuln_snapshot.json`, sqlite TTL cache (`~/.local/share/webaudit/vuln_cache.db`), `analyzers/plugin_vuln.py` pipeline step; auth-aware `PLUGIN_CVE` / `THEME_CVE` findings (unauth → ACTION; contributor+ → VERIFY)
 - **SARIF export** — `audit_run.sarif.json` via `output.formats: [sarif]` or `webaudit scan URL --sarif` (GitHub Code Scanning 2.1.0)
 - Unauthenticated critical CVE findings reduce **Exposure** (−25 each)

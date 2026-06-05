@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit Platypus — 05 Help</title>
+  <link rel="stylesheet" href="platypus-mock.css">
+</head>
+<body>
+  <p class="mock-label">Mockup 05 · Help (dialog + About menu)</p>
+
+  <div class="plat-dialog-wrap">
+    <div class="plat-dialog" role="dialog" aria-label="What is Web Audit">
+      <div class="plat-dialog-icon" aria-hidden="true">ℹ️</div>
+      <h2>What is Web Audit?</h2>
+      <p style="text-align: left; padding: 0 20px 12px;">
+        A <strong>read-only</strong> check of your public website — like a stranger on the internet would see it.
+        Not a penetration test. Reports stay on this Mac unless you share them.
+      </p>
+      <p style="text-align: left; padding: 0 20px 16px; font-size: 12px;">
+        <a href="https://github.com/Vlad-1618M/web_audit/blob/v.tools_main/v2_python_core/docs/getting_started_plain.md" target="_blank" rel="noopener">Plain-English guide (GitHub)</a>
+      </p>
+
+      <div class="plat-dialog-buttons">
+        <button type="button" class="default">OK</button>
+      </div>
+    </div>
+
+    <footer class="site-footer" style="margin-top: 16px; border-top: none;">
+      <p class="brand-line" style="color: #888;">
+        Powered by <a href="https://muzar.io/" target="_blank" rel="noopener">muzar.io</a>
+        · <a href="https://github.com/Vlad-1618M" target="_blank" rel="noopener">GitHub</a>
+      </p>
+      <p class="copyright">© 2026 Vtools. All rights reserved.</p>
+    </footer>
+
+    <p class="plat-note" style="color: #999; margin-top: 12px;">
+      Platypus: Help menu item runs <code>open</code> on docs URL, or embedded HTML via WebView (advanced)
+    </p>
+  </div>
+
+  <nav class="mock-nav">
+    <a href="index.html">Gallery</a>
+    <a href="01-url-prompt.html">01 URL</a>
+    <a href="02-progress.html">02 Progress</a>
+    <a href="03-complete.html">03 Done</a>
+    <a href="04-error.html">04 Error</a>
+    <a href="05-help.html" class="active">05 Help</a>
+  </nav>
+</body>
+</html>

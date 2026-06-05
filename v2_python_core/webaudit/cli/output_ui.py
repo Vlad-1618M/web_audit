@@ -149,8 +149,19 @@ def handle_open_outputs(
                 )
             else:
                 console.print(
-                    "[dim]Mount a host folder (see scripts/webaudit-docker.sh) "
-                    "or use --open none and open report.html locally.[/dim]"
+                    "[dim]Use the host wrapper so reports mount on your machine and "
+                    "the browser opens locally (no git clone):[/dim]"
+                )
+                console.print(
+                    "[dim]  docker run --rm --entrypoint cat ghcr.io/vlad-1618m/webaudit:latest "
+                    "/usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker[/dim]"
+                )
+                console.print(
+                    "[dim]  chmod +x ~/.local/bin/webaudit-docker && "
+                    "webaudit-docker scan URL --open html[/dim]"
+                )
+                console.print(
+                    "[dim]Or mount a folder and use --open none — see docs/docker_ci.md[/dim]"
                 )
         return
     if normalized == "ask":

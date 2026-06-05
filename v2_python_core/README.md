@@ -64,13 +64,26 @@ v2 is **Audit Pro** — built properly for broader consumption, free as any tool
 
 Published image: **`ghcr.io/vlad-1618m/webaudit`** (multi-arch: Intel + Apple Silicon + Linux). Full guide: [docs/docker_ci.md](docs/docker_ci.md).
 
-**Use the host wrapper** so reports land on your machine and `--open html` works in your browser:
+### Pull only — no git clone
+
+The image ships a **host wrapper** at `/usr/share/webaudit/webaudit-docker.sh`. It mounts reports on your Mac/Linux and makes `--open html` work in **your** browser (not inside Docker).
+
+**Install once:**
 
 ```bash
-cd v2_python_core
-./scripts/webaudit-docker.sh scan https://example.com
+docker pull ghcr.io/vlad-1618m/webaudit:latest
 
-./scripts/webaudit-docker.sh --output-dir documents scan https://example.com -v --open html
+mkdir -p ~/.local/bin
+docker run --rm --entrypoint cat ghcr.io/vlad-1618m/webaudit:latest \
+  /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
+chmod +x ~/.local/bin/webaudit-docker
+```
+
+**Scan:**
+
+```bash
+webaudit-docker scan https://example.com
+webaudit-docker --output-dir documents scan https://example.com -v --api --open html
 ```
 
 | `--output-dir` | Host folder |
@@ -80,12 +93,20 @@ cd v2_python_core
 | `desktop` | `~/Desktop/WebAudit` |
 | `documents` | `~/Documents/WebAudit` |
 
-Raw `docker run` (automation / no browser):
+**Do not** run `docker run … --open html` without the wrapper — the container cannot open a browser and reports may not land on your machine.
+
+**CI / automation** — raw `docker run` with a volume and `--open none`:
 
 ```bash
-docker pull ghcr.io/vlad-1618m/webaudit:latest
 docker run --rm -v "$(pwd)/audit_logs:/work/audit_logs" \
   ghcr.io/vlad-1618m/webaudit:latest scan -v --open none https://example.com
+```
+
+### From a git clone (developers)
+
+```bash
+cd v2_python_core
+./scripts/webaudit-docker.sh scan https://example.com -v --open html
 ```
 
 The [GitHub Packages page](https://github.com/users/Vlad-1618M/packages/container/webaudit) shows the **repo root README** (v1 + v2 hub). This file is the **v2-specific** documentation.

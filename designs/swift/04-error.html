@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit Mac — 04 Error</title>
+  <link rel="stylesheet" href="swift-mock.css">
+</head>
+<body>
+  <p class="mock-label">Mockup 04 · Error</p>
+
+  <div class="mac-window" role="img" aria-label="Web Audit Mac app — error state">
+    <header class="titlebar">
+      <div class="traffic" aria-hidden="true">
+        <span class="close"></span>
+        <span class="min"></span>
+        <span class="max"></span>
+      </div>
+      <h1>Web Audit</h1>
+    </header>
+
+    <main class="content">
+      <div class="hero-icon" aria-hidden="true" style="background: linear-gradient(135deg, #ff453a, #ff6482);">!</div>
+      <h2>We couldn’t scan that address</h2>
+      <p class="subtitle">Please check the URL and try again</p>
+
+      <label class="field-label" for="url">Your website address</label>
+      <input class="url-field error" id="url" type="text" value="sunrise-florist" readonly>
+
+      <div class="banner error">
+        <strong>Invalid website address</strong><br>
+        Paste the full link from your browser, starting with <code>https://</code>
+        — for example <code>https://sunrise-florist.com</code>
+      </div>
+
+      <button type="button" class="btn-primary">Try again</button>
+
+      <div class="banner warn" style="margin-top: 12px;">
+        <strong>Scan failed?</strong> The site may be down, blocking automated checks, or unreachable from your network.
+        <a href="#" style="color: #ffe066;">See Help</a>
+      </div>
+
+      <nav class="footer-links">
+        <a href="05-help-advanced.html">What is this?</a>
+        <a href="#">Help</a>
+      </nav>
+
+      <footer class="site-footer">
+        <p class="brand-line">
+          Powered by <a href="https://muzar.io/" target="_blank" rel="noopener">muzar.io</a>
+          · <a href="https://github.com/Vlad-1618M" target="_blank" rel="noopener">GitHub</a>
+        </p>
+        <p class="copyright">© 2026 Vtools. All rights reserved.</p>
+      </footer>
+    </main>
+  </div>
+
+  <nav class="mock-nav">
+    <a href="index.html">Gallery</a>
+    <a href="01-ready.html">01 Ready</a>
+    <a href="02-scanning.html">02 Scanning</a>
+    <a href="03-complete.html">03 Complete</a>
+    <a href="04-error.html" class="active">04 Error</a>
+    <a href="05-help-advanced.html">05 Help</a>
+  </nav>
+</body>
+</html>

@@ -20,24 +20,40 @@ This repository ships **two editions**. They share the same philosophy (passive,
 
 **If you opened the [GHCR package `webaudit`](https://github.com/users/Vlad-1618M/packages/container/webaudit)** or ran `docker pull ghcr.io/vlad-1618m/webaudit`, you want **v2**, not the bash script below.
 
-The container is **Web Audit Pro** (Python `webaudit` CLI). Image reference must be **lowercase**.
+**Requirements:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Mac/Windows) or Docker Engine (Linux). Image name must be **lowercase**: `ghcr.io/vlad-1618m/webaudit`.
 
-**Recommended — host wrapper** (mounts reports, opens browser on your Mac/Linux):
+Browsers **cannot** open from inside the container. Do **not** use `docker run … --open html` alone — use the **host wrapper** below (mounts reports on your Mac/Linux and opens the browser when done). No `docker cp`, no git clone.
 
-```bash
-git clone git@github.com:Vlad-1618M/web_audit.git
-cd web_audit/v2_python_core
-./scripts/webaudit-docker.sh scan https://example.com
+### Pull only — recommended for site owners
 
-# Rich scan + open HTML on host when done
-./scripts/webaudit-docker.sh --output-dir documents scan https://example.com -v --api --open html
-```
-
-**Manual `docker run`** (CI / automation — use `--open none`, open files yourself):
+**One-time setup** (install the small host helper from the image you already pulled):
 
 ```bash
 docker pull ghcr.io/vlad-1618m/webaudit:latest
 
+mkdir -p ~/.local/bin
+docker run --rm --entrypoint cat ghcr.io/vlad-1618m/webaudit:latest \
+  /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
+chmod +x ~/.local/bin/webaudit-docker
+```
+
+Ensure `~/.local/bin` is on your `PATH` (macOS Terminal often includes it; otherwise add to `~/.zshrc`).
+
+**Every scan:**
+
+```bash
+# Scan + prompt y/N to open report.html
+webaudit-docker scan https://example.com
+
+# Verbose scan, save under ~/Documents/WebAudit, open HTML when done
+webaudit-docker --output-dir documents scan https://example.com -v --api --open html
+```
+
+Reports stay on **your machine** (`~/Documents/WebAudit`, `./audit_logs`, etc.). Multi-arch image: Intel Mac, Apple Silicon, Linux.
+
+### CI / automation (no browser)
+
+```bash
 mkdir -p audit_logs
 docker run --rm \
   -v "$(pwd)/audit_logs:/work/audit_logs" \
@@ -45,15 +61,24 @@ docker run --rm \
   scan -v --api --open none https://example.com
 ```
 
-Browsers cannot run inside the container; `--open html` only works via the wrapper or on the host after the scan.
+Then open `audit_logs/*/report.html` yourself, or use SARIF (`--sarif`) for pipelines.
 
-Open `audit_logs/*/report.html` in your browser. Multi-arch: `linux/amd64` + `linux/arm64` (Intel Mac, Apple Silicon, Linux).
+### Developers (git clone)
+
+If you work from the repo, the same wrapper lives at `v2_python_core/scripts/webaudit-docker.sh`:
+
+```bash
+git clone git@github.com:Vlad-1618M/web_audit.git
+cd web_audit/v2_python_core
+./scripts/webaudit-docker.sh scan https://example.com -v --open html
+```
 
 | Resource | Link |
 |----------|------|
 | **v2 full README** (reports, optional `--js`, dev setup) | [v2_python_core/README.md](v2_python_core/README.md) |
 | **Docker, CI, GHCR publish** | [v2_python_core/docs/docker_ci.md](v2_python_core/docs/docker_ci.md) |
 | **Plain-English guide** (non-developers) | [v2_python_core/docs/getting_started_plain.md](v2_python_core/docs/getting_started_plain.md) |
+| **macOS app** (SwiftUI, site owners) | [macos/WebAuditMac/](macos/WebAuditMac/) · [architecture guide](macos/WebAuditMac/SWIFT_APP_GUIDE.md) |
 | **v1 bash script** (zero-install shell edition) | [↓ v1 section below](#v1-audit-lite--bash-quick-start) |
 
 ---
@@ -334,6 +359,9 @@ POST rate-limit probes send **real invalid login traffic** — use responsibly.
 | `web_audit.sh` | **v1** — main bash audit tool |
 | `v2_python_core/` | **v2** — Python package, Docker image source, docs |
 | `v2_python_core/docker/webaudit/Dockerfile` | Builds `ghcr.io/vlad-1618m/webaudit` |
+| `macos/WebAuditMac/` | **macOS SwiftUI app** — GUI wrapper around v2 scan engine |
+| `macos/WebAuditMac/SWIFT_APP_GUIDE.md` | Swift module map, libraries, dev vs `.dmg` (non-Swift devs) |
+| `designs/swift/` | HTML wireframes + user-flow diagrams for the Mac app |
 | `site.conf.template` | v1 per-site config template |
 | `README.md` | **This hub** — v1 quick start + v2/Docker pointers |
 | `v2_python_core/README.md` | v2 Audit Pro — full product README |

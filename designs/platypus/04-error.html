@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Audit Platypus — 04 Error</title>
+  <link rel="stylesheet" href="platypus-mock.css">
+</head>
+<body>
+  <p class="mock-label">Mockup 04 · Error alert</p>
+
+  <div class="plat-dialog-wrap">
+    <div class="plat-dialog" role="alertdialog" aria-label="Invalid URL">
+      <div class="plat-dialog-icon" aria-hidden="true">⚠️</div>
+      <h2>Could not scan</h2>
+      <p>
+        Paste the full website address from your browser,<br>
+        starting with <strong>https://</strong>
+      </p>
+
+      <div class="plat-dialog-field">
+        <label for="url">Website address</label>
+        <input id="url" type="text" class="error" value="sunrise-florist" readonly>
+      </div>
+
+      <div class="plat-dialog-buttons">
+        <button type="button">Help</button>
+        <button type="button" class="default">Try again</button>
+      </div>
+    </div>
+
+    <footer class="site-footer" style="margin-top: 16px; border-top: none;">
+      <p class="brand-line" style="color: #888;">
+        Powered by <a href="https://muzar.io/" target="_blank" rel="noopener">muzar.io</a>
+        · <a href="https://github.com/Vlad-1618M" target="_blank" rel="noopener">GitHub</a>
+      </p>
+      <p class="copyright">© 2026 Vtools. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <nav class="mock-nav">
+    <a href="index.html">Gallery</a>
+    <a href="01-url-prompt.html">01 URL</a>
+    <a href="02-progress.html">02 Progress</a>
+    <a href="03-complete.html">03 Done</a>
+    <a href="04-error.html" class="active">04 Error</a>
+    <a href="05-help.html">05 Help</a>
+  </nav>
+</body>
+</html>

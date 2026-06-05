@@ -1,0 +1,12 @@
+# Swift Package Manager — local build output (swift build)
+.build/
+
+# Xcode opening Package.swift
+.swiftpm/
+xcuserdata/
+
+# Only created if you add package dependencies; regenerate with swift package resolve
+Package.resolved
+
+# macOS Finder
+.DS_Store

@@ -296,31 +296,38 @@ webaudit scan http://127.0.0.1:8080 -v --open html
 
 ## webaudit Pro Docker image
 
-### Host wrapper (recommended for visitors)
+### Pull-only users (no git clone)
 
-`scripts/webaudit-docker.sh` runs the GHCR (or local) image with:
+If you only `docker pull ghcr.io/vlad-1618m/webaudit`, use the **host wrapper** baked into the image. It:
 
-- A **bind-mounted host folder** for reports (no copy step after the scan)
-- **`--open` on the host** — browser opens on your Mac/Linux, not inside the container
-- **Output presets:** `cwd`, `home`, `desktop`, `documents`, or an absolute path
+- Bind-mounts a folder on **your** Mac/Linux (no `docker cp`)
+- Runs the scan in the container with `--open none`
+- Opens `report.html` in **your** browser (or prompts y/N)
+
+**One-time install** (after `docker pull`):
 
 ```bash
-cd v2_python_core
+IMAGE=ghcr.io/vlad-1618m/webaudit:latest   # or :2.1.0b4, :sha-abc1234, etc.
 
+mkdir -p ~/.local/bin
+docker run --rm --entrypoint cat "$IMAGE" \
+  /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
+chmod +x ~/.local/bin/webaudit-docker
+```
+
+Add `~/.local/bin` to `PATH` if needed (`export PATH="$HOME/.local/bin:$PATH"` in `~/.zshrc`).
+
+**Every scan:**
+
+```bash
 # Interactive: scan then y/N to open report.html
-./scripts/webaudit-docker.sh scan https://example.com
+webaudit-docker scan https://example.com
 
-# Explicit open + save under ~/Documents/WebAudit
-./scripts/webaudit-docker.sh --output-dir documents scan https://example.com -v --api --open html
+# Verbose + save under ~/Documents/WebAudit + open HTML
+webaudit-docker --output-dir documents scan https://example.com -v --api --open html
 
-# SARIF for CI (file lands in mounted audit_logs/)
-./scripts/webaudit-docker.sh scan https://example.com --sarif -v --open none
-
-# All webaudit scan flags pass through; --open is handled on the host
-./scripts/webaudit-docker.sh scan https://example.com -v --js --open all
-
-# Local image from orchestrate.sh
-./scripts/webaudit-docker.sh --image webaudit:local scan https://example.com
+# Pin a specific image tag
+webaudit-docker --image ghcr.io/vlad-1618m/webaudit:sha-989bb7e scan https://example.com -v --open html
 ```
 
 | Wrapper flag | Purpose |
@@ -331,7 +338,34 @@ cd v2_python_core
 | `--image IMAGE` | Default `ghcr.io/vlad-1618m/webaudit:latest` |
 | `-y` / `--yes` | Skip y/N open prompt when mode is `ask` |
 
-Inside the container, `webaudit` always runs with `--open none`. If you use raw `docker run … --open html`, the CLI prints a note that Docker cannot open a browser — use the wrapper instead.
+**Alternative (curl, no docker extract):** download the same script from GitHub:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Vlad-1618M/web_audit/v.tools_main/v2_python_core/scripts/webaudit-docker.sh \
+  -o ~/.local/bin/webaudit-docker
+chmod +x ~/.local/bin/webaudit-docker
+```
+
+**Common mistake:** `docker run … scan URL --open html` without a volume or wrapper. The CLI detects Docker and prints install hints; reports may stay inside the container. Always use **`webaudit-docker`** or **`--open none`** + a bind mount.
+
+**Note:** `--js` (Playwright) is **not** included in the stock GHCR image — JS pass is skipped. Use a local venv with `pip install -e ".[js]"` for JS scans.
+
+---
+
+### Host wrapper (repo developers)
+
+From a git clone, run `v2_python_core/scripts/webaudit-docker.sh` — same script as in the image.
+
+```bash
+cd v2_python_core
+
+./scripts/webaudit-docker.sh scan https://example.com
+./scripts/webaudit-docker.sh --output-dir documents scan https://example.com -v --api --open html
+./scripts/webaudit-docker.sh scan https://example.com --sarif -v --open none
+./scripts/webaudit-docker.sh --image webaudit:local scan https://example.com
+```
+
+Inside the container, `webaudit` always runs with `--open none`. Raw `docker run … --open html` cannot open a browser — use the wrapper instead.
 
 Pass **options before the URL** in raw `docker run` (Typer requirement), e.g. `scan -v --api --open none https://example.com`. The wrapper reorders arguments automatically.
 

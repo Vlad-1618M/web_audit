@@ -19,6 +19,7 @@ enum DeveloperContactHelper {
         }
     }
 
+    @MainActor
     @discardableResult
     private static func openAppleMailCompose() -> Bool {
         guard EmailShareHelper.isAppleMailInstalled else { return false }

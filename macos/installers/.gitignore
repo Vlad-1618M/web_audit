@@ -1,0 +1,2 @@
+# Built DMGs — CI/orchestrate-macos.sh produces these locally; Releases upload from workflow.
+*.dmg

@@ -13,5 +13,10 @@ let package = Package(
             path: "Sources/WebAuditMac",
             resources: [.process("Resources")]
         ),
+        .testTarget(
+            name: "WebAuditMacTests",
+            dependencies: ["WebAuditMac"],
+            path: "Tests/WebAuditMacTests"
+        ),
     ]
 )

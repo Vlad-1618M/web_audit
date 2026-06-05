@@ -71,6 +71,29 @@ cd macos/WebAuditMac && swift build && .build/debug/WebAuditMac
 
 ---
 
+## Build installer (.app + .dmg) for release
+
+Unsigned alpha builds for GitHub Releases / muzar.io / email links:
+
+```bash
+cd macos/WebAuditMac
+chmod +x scripts/*.sh
+./scripts/build-dmg.sh          # → dist/WebAudit-<VERSION>-macOS.dmg
+./scripts/smoke-install.sh      # install / uninstall / reinstall smoke test
+```
+
+The DMG includes `INSTALL.txt`, **Web Audit.app**, and an **Applications** shortcut.
+
+**Supported macOS:** 13, 14, 15 (see `VERSION` + [RELEASE_NOTES.md](RELEASE_NOTES.md)).
+
+**GitHub Release:** push tag `macos-v0.1.0-alpha` or run workflow **Release macOS app** (uploads DMG + release notes).
+
+**Unit tests:** `swift test` (requires full **Xcode.app** selected in `xcode-select`, not Command Line Tools alone). CI runs tests on `macos-14`.
+
+First launch (unsigned): **Right-click → Open** in Applications.
+
+---
+
 ## Xcode (optional)
 
 ```bash
@@ -79,7 +102,7 @@ open Package.swift   # opens as Swift package in Xcode
 # Run scheme WebAuditMac (My Mac)
 ```
 
-To ship a `.app` bundle / `.dmg`, add an Xcode **App** target or use `xcodebuild` archive — documented when notarization pipeline lands.
+Notarization / Developer ID signing — Stage 2 (after DMG pipeline is verified).
 
 ---
 
@@ -96,15 +119,14 @@ To ship a `.app` bundle / `.dmg`, add an Xcode **App** target or use `xcodebuild
 
 ---
 
-## Distribution (later)
+## Distribution
 
 | Step | Status |
 |------|--------|
-| GitHub Releases `.dmg` | TODO |
-| Apple notarization | **In progress** |
-| muzar.io download page | TODO |
-
-Until then: build from source or email a zip of `.build/debug/WebAuditMac` for trusted testers only.
+| `.dmg` build scripts | **Done** — `scripts/build-dmg.sh` |
+| GitHub Releases `.dmg` | Workflow `.github/workflows/release-macos.yml` |
+| muzar.io download page | Link to same GitHub Release asset |
+| Apple notarization | **Later** (unsigned: Right-click → Open) |
 
 ---
 

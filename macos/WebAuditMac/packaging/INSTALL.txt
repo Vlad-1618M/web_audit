@@ -1,0 +1,51 @@
+Web Audit for Mac — install (alpha, unsigned)
+=============================================
+
+SYSTEM REQUIREMENTS
+-------------------
+• macOS 13 (Ventura), 14 (Sonoma), or 15 (Sequoia) — Intel or Apple Silicon
+• Docker Desktop (scan engine runs via webaudit-docker — not inside this app)
+• Internet access for scans
+
+INSTALL THE APP
+---------------
+1. Open this disk image (you are reading this from it).
+2. Drag "Web Audit.app" onto the "Applications" folder shortcut.
+3. Eject the disk image.
+
+FIRST LAUNCH (unsigned build)
+-----------------------------
+macOS may block the app until you approve it once:
+
+  Applications → right-click "Web Audit" → Open → Open
+
+After that, double-click works normally.
+
+ONE-TIME SCAN ENGINE SETUP (required before scanning)
+-----------------------------------------------------
+The app needs webaudit-docker on your Mac. In Terminal, run:
+
+  docker pull ghcr.io/vlad-1618m/webaudit:latest
+
+  mkdir -p ~/.local/bin
+  docker run --rm --entrypoint cat ghcr.io/vlad-1618m/webaudit:latest \
+    /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
+  chmod +x ~/.local/bin/webaudit-docker
+
+Ensure ~/.local/bin is on your PATH.
+
+Full guide: https://github.com/Vlad-1618M/web_audit/blob/v.tools_main/v2_python_core/docs/getting_started_plain.md
+
+UNINSTALL
+---------
+Drag "Web Audit.app" from Applications to Trash.
+
+Optional: delete old reports at ~/Documents/WebAudit/
+
+REINSTALL
+---------
+Download the same .dmg again, drag the app to Applications, replace if asked.
+
+SUPPORT
+-------
+https://github.com/Vlad-1618M/web_audit · https://muzar.io/

@@ -77,6 +77,7 @@ final class ScanRunner {
         let pipe = Pipe()
         process.standardOutput = pipe
         process.standardError = pipe
+        process.environment = Self.subprocessEnvironment()
 
         switch engine.kind {
         case .webauditDocker:
@@ -224,6 +225,29 @@ final class ScanRunner {
         return paths
     }
 
+    /// GUI launches (Finder, Dock, Launchpad) get a minimal PATH. Terminal tools like
+    /// `docker` and `webaudit-docker` live in Homebrew, Docker.app, or ~/.local/bin.
+    private static func subprocessEnvironment() -> [String: String] {
+        var env = ProcessInfo.processInfo.environment
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        let extraPaths = [
+            "\(home)/.local/bin",
+            "/opt/homebrew/bin",
+            "/opt/homebrew/sbin",
+            "/usr/local/bin",
+            "/Applications/Docker.app/Contents/Resources/bin",
+        ]
+        let existing = env["PATH"] ?? "/usr/bin:/bin:/usr/sbin:/sbin"
+        var seen = Set<String>()
+        var parts: [String] = []
+        for segment in extraPaths + existing.split(separator: ":").map(String.init) {
+            guard !segment.isEmpty, seen.insert(segment).inserted else { continue }
+            parts.append(segment)
+        }
+        env["PATH"] = parts.joined(separator: ":")
+        return env
+    }
+
     private func shellWhich(_ name: String) -> String? {
         let process = Process()
         let pipe = Pipe()
@@ -231,6 +255,7 @@ final class ScanRunner {
         process.arguments = [name]
         process.standardOutput = pipe
         process.standardError = Pipe()
+        process.environment = Self.subprocessEnvironment()
         do {
             try process.run()
             process.waitUntilExit()

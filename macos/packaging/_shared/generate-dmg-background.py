@@ -2,7 +2,6 @@
 """Generate retina DMG background (1320x800 for 660x400 window). Keep in sync with dmg-layout.env."""
 from __future__ import annotations
 
-import os
 import re
 from pathlib import Path
 

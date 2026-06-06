@@ -1,4 +1,4 @@
-Web Audit for Mac — install (self-contained, unsigned alpha)
+Web Audit for Mac — install (self-contained, unsigned beta)
 ============================================================
 
 You do NOT need Docker. You do NOT need to install Python on your Mac.

@@ -17,7 +17,7 @@
 
 ## A — Mac app, public installer (recommended for site owners)
 
-- **Artifact:** `WebAudit-*-macOS.dmg` from [GitHub Releases](https://github.com/Vlad-1618M/web_audit/releases) (tag `macos-v*` when published) or build: `macos/orchestrate-macos.sh public-dmg`
+- **Artifact:** `WebAudit-*-macOS.dmg` from [GitHub Releases](https://github.com/Vlad-1618M/web_audit/releases) (current: tag `macos-v0.1.0-beta` → `WebAudit-0.1.0-beta-macOS.dmg`) or build: `macos/orchestrate-macos.sh public-dmg`
 - **Engine:** bundled Python + `webaudit` — no Docker, no `python.org` install, no Terminal during scans
 - **Docs:** `macos/packaging/public-installer/INSTALL.txt` (in DMG and inside app **Learn more**)
 - **Not the same as:** dev DMG (`WebAudit-*-macOS-dev.dmg`) — that row is **C**
@@ -101,5 +101,5 @@ Code: `macos/WebAuditMac/Sources/WebAuditMac/ScanRunner.swift`
 - [macos/README.md](macos/README.md) — build orchestrator
 - [macos/WebAuditMac/SWIFT_APP_GUIDE.md](macos/WebAuditMac/SWIFT_APP_GUIDE.md) — Swift architecture
 
-*Last updated: 2026-06-05*<br>
+*Last updated: 2026-06-06 — Mac public DMG `0.1.0-beta`.*<br>
 *- Vlad.M* 

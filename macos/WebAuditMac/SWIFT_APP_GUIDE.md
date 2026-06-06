@@ -1,6 +1,6 @@
 # Web Audit Pro for Mac — Swift notes
 
-**Status:** Early alpha · **Public DMG:** bundled Python engine (no Docker) · **Dev:** external engine (Docker / venv / PATH)
+**Status:** **0.1.0-beta** · **Public DMG:** bundled Python engine + Playwright (no Docker) · **Dev:** external engine (Docker / venv / PATH)
 
 **Audience:** Non-Swift developers who need to navigate the GUI code, packaging, and how it talks to `webaudit`.
 

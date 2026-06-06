@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "mac": {
+    "version_file": "macos/WebAuditMac/VERSION",
+    "replace_in_files": [
+      "macos/WebAuditMac/VERSION",
+      "macos/WebAuditMac/README.md",
+      "macos/WebAuditMac/SWIFT_APP_GUIDE.md",
+      "macos/WebAuditMac/RELEASE_NOTES.md",
+      "macos/README.md",
+      "macos/packaging/public-installer/RELEASE_NOTES.md",
+      "macos/packaging/public-installer/INSTALL.txt",
+      "macos/WebAuditMac/Sources/WebAuditMac/Resources/INSTALL.txt",
+      "DELIVERY_PATHS.md",
+      "VERSIONING_AND_TAGS.md",
+      ".github/workflows/release-macos.yml",
+      "macos/packaging/_shared/make-styled-dmg.sh"
+    ],
+    "notes": [
+      "RELEASE_NOTES.md: add a new section manually or edit after bump",
+      "CHANGELOG.md is not auto-edited"
+    ]
+  },
+  "engine": {
+    "version_files": [
+      {
+        "path": "v2_python_core/webaudit/__version__.py",
+        "line_pattern": "__version__ = \"{old}\"",
+        "line_replacement": "__version__ = \"{new}\""
+      },
+      {
+        "path": "v2_python_core/pyproject.toml",
+        "line_pattern": "version = \"{old}\"",
+        "line_replacement": "version = \"{new}\""
+      }
+    ],
+    "replace_in_files": [
+      "v2_python_core/README.md",
+      "macos/packaging/public-installer/INSTALL.txt",
+      "macos/WebAuditMac/Sources/WebAuditMac/Resources/INSTALL.txt",
+      "macos/packaging/public-installer/RELEASE_NOTES.md",
+      "VERSIONING_AND_TAGS.md",
+      "v2_python_core/docs/docker_ci.md"
+    ],
+    "notes": [
+      "v2_python_core/CHANGELOG.md: add release section manually",
+      "Do not bump SARIF spec version in export/sarif.py"
+    ]
+  }
+}

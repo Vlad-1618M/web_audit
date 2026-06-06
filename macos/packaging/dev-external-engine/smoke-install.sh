@@ -52,6 +52,10 @@ install_from_dmg() {
   policy="$(/usr/libexec/PlistBuddy -c 'Print :WEBAUDITEnginePolicy' "$app/Contents/Info.plist")"
   [[ "$policy" == "external" ]] || fail "Expected WEBAUDITEnginePolicy external, got $policy"
 
+  # shellcheck source=../_shared/smoke-app-launch.sh
+  source "$ROOT/../_shared/smoke-app-launch.sh"
+  smoke_app_launch "$app" || fail "App launch smoke failed"
+
   ok "$label — dev bundle valid"
 }
 

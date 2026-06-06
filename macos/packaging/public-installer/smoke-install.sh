@@ -65,6 +65,10 @@ install_from_dmg() {
     fail "Bundled webaudit --version failed"
   fi
   ok "$label — bundled engine responds (--help and --version)"
+
+  # shellcheck source=../_shared/smoke-app-launch.sh
+  source "$ROOT/../_shared/smoke-app-launch.sh"
+  smoke_app_launch "$app" || fail "App launch smoke failed"
 }
 
 install_from_dmg "Install #1"

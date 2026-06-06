@@ -12,6 +12,10 @@ Two DMG tracks share one Swift UI (`../WebAuditMac/`).
 Built DMGs live in **[../installers/](../installers/)** (gitignored). Scripts and `build/` staging stay here.
 
 Each track ships its own **`INSTALL.txt`** inside the DMG (public = no Docker; dev = external engine setup).
+
+**DMG window:** branded background + drag-to-Applications layout via vendored [create-dmg](_shared/vendor/README.md). Icon positions: `_shared/dmg-layout.env` (shared with `generate-dmg-background.py`). Regenerate art after layout edits: `python3 _shared/generate-dmg-background.py`.
+
+**App icon:** `_shared/make-icns.sh` renders `webaudit.png` with macOS squircle corners (~22.37% radius) via `render-macos-iconset.py` (Pillow; auto-installs on build hosts if missing).
 Do not use legacy `WebAuditMac/packaging/INSTALL.txt`.
 
 ## Commands

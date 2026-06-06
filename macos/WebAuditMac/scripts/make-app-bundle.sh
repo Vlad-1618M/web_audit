@@ -25,6 +25,11 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/WebAuditMac"
 chmod +x "$APP/Contents/MacOS/WebAuditMac"
 
+APP_ROOT="$ROOT"
+# shellcheck source=../../packaging/_shared/stage-spm-resource-bundle.sh
+source "$ROOT/../packaging/_shared/stage-spm-resource-bundle.sh"
+stage_spm_resource_bundle "$APP"
+
 cp "$ROOT/Sources/WebAuditMac/Resources/"*.png "$APP/Contents/Resources/" 2>/dev/null || true
 "$ROOT/scripts/make-icns.sh" "$APP/Contents/Resources/AppIcon.icns"
 

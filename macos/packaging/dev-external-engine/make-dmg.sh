@@ -17,15 +17,12 @@ mkdir -p "$STAGE" "$INSTALLERS_ROOT"
 
 cp -R "$APP" "$STAGE/"
 cp "$ROOT/INSTALL.txt" "$STAGE/"
-ln -s /Applications "$STAGE/Applications"
+# Applications drop link is added by create-dmg (--app-drop-link)
 
-rm -f "$DMG"
-hdiutil create \
-  -volname "Web Audit ${VERSION} (dev)" \
-  -srcfolder "$STAGE" \
-  -ov \
-  -format UDZO \
-  "$DMG" >/dev/null
+ICON_FILE="$APP/Contents/Resources/AppIcon.icns"
+export ICON_FILE
+chmod +x "$ROOT/../_shared/make-styled-dmg.sh"
+"$ROOT/../_shared/make-styled-dmg.sh" "$DMG" "$STAGE" "Web Audit ${VERSION} (dev)"
 
-echo "OK: $DMG"
-du -h "$DMG"
+echo ""
+echo "Done. Dev DMG: $DMG"

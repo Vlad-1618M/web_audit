@@ -52,6 +52,9 @@ DMG_ARGS=(--volname "$VOLNAME")
 if [[ -n "${ICON_FILE:-}" && -f "${ICON_FILE}" ]]; then
   DMG_ARGS+=(--volicon "$ICON_FILE")
 fi
+if ((${#DMG_EXTRA_ICONS[@]} > 0)); then
+  DMG_ARGS+=("${DMG_EXTRA_ICONS[@]}")
+fi
 
 "$CREATE_DMG" \
   "${DMG_ARGS[@]}" \
@@ -65,7 +68,6 @@ fi
   --app-drop-link "$DMG_APPS_X" "$DMG_APPS_Y" \
   --icon "INSTALL.txt" "$DMG_INSTALL_X" "$DMG_INSTALL_Y" \
   --hide-extension "INSTALL.txt" \
-  "${DMG_EXTRA_ICONS[@]}" \
   --no-internet-enable \
   "$DMG_OUT" \
   "$STAGE"

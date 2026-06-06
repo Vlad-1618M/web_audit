@@ -116,8 +116,8 @@ jobs:
 
       - name: Verify Playwright + browsers in image
         run: |
-          docker run --rm webaudit:ci python -c "import playwright"
-          docker run --rm --init webaudit:ci python -c "
+          docker run --rm --entrypoint python webaudit:ci -c "import playwright"
+          docker run --rm --init --entrypoint python webaudit:ci -c "
           from playwright.sync_api import sync_playwright
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)

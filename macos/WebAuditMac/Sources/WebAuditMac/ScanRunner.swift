@@ -8,6 +8,7 @@ final class ScanRunner {
         .appendingPathComponent("Documents/WebAudit", isDirectory: true)
 
     private static let bundledEngineRelativePath = "Engine/bin/webaudit"
+    private static let bundledPlaywrightBrowsersRelativePath = "Engine/playwright-browsers"
     private static let enginePolicyPlistKey = "WEBAUDITEnginePolicy"
 
     private let lastRunMarker = ".webaudit-last-run"
@@ -112,21 +113,12 @@ final class ScanRunner {
         process.environment = Self.subprocessEnvironment(enginePath: engine.path)
 
         switch engine.kind {
-        case .bundled, .webauditCLI:
-            configureProcess(process, scriptPath: engine.path, arguments: [
-                "scan", url,
-                "-v",
-                "--open", "none",
-                "-o", Self.outputRoot.path,
-            ])
-        case .webauditDocker:
-            configureProcess(process, scriptPath: engine.path, arguments: [
-                "--output-dir", "documents",
-                "--open", "none",
-                "-y",
-                "scan", url,
-                "-v",
-            ])
+        case .bundled, .webauditCLI, .webauditDocker:
+            configureProcess(
+                process,
+                scriptPath: engine.path,
+                arguments: Self.scanProcessArguments(engineKind: engine.kind, url: url)
+            )
         case .none:
             throw ScanRunnerError.engineMissing(policy: Self.enginePolicy())
         }
@@ -221,10 +213,45 @@ final class ScanRunner {
         return "\(verdict) · Hygiene \(hygiene) · Exposure \(exposure)"
     }
 
+    /// Process arguments for ``runScan`` — public DMG, dev Docker, and host CLI all pass ``--js`` by default.
+    static func scanProcessArguments(engineKind: ScanEngineInfo.Kind, url: String) -> [String] {
+        switch engineKind {
+        case .bundled, .webauditCLI:
+            return [
+                "scan", url,
+                "-v",
+                "--js",
+                "--open", "none",
+                "-o", outputRoot.path,
+            ]
+        case .webauditDocker:
+            return [
+                "--output-dir", "documents",
+                "--open", "none",
+                "-y",
+                "scan", url,
+                "-v",
+                "--js",
+            ]
+        case .none:
+            return []
+        }
+    }
+
     private static func bundledEnginePath() -> String? {
         guard let resources = Bundle.main.resourceURL else { return nil }
         let path = resources.appendingPathComponent(bundledEngineRelativePath).path
         return FileManager.default.isReadableFile(atPath: path) ? path : nil
+    }
+
+    private static func bundledPlaywrightBrowsersPath() -> String? {
+        guard let resources = Bundle.main.resourceURL else { return nil }
+        let path = resources.appendingPathComponent(bundledPlaywrightBrowsersRelativePath).path
+        var isDir: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: path, isDirectory: &isDir), isDir.boolValue else {
+            return nil
+        }
+        return path
     }
 
     private func resolveBundledCandidates() -> [(String, ScanEngineInfo.Kind)] {
@@ -306,6 +333,9 @@ final class ScanRunner {
             parts.append(segment)
         }
         env["PATH"] = parts.joined(separator: ":")
+        if let browsers = bundledPlaywrightBrowsersPath() {
+            env["PLAYWRIGHT_BROWSERS_PATH"] = browsers
+        }
         return env
     }
 

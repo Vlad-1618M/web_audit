@@ -14,10 +14,12 @@ Downloads a relocatable Python (first run only), installs `webaudit` from `v2_py
 
 `../installers/WebAudit-<version>-macOS.dmg`
 
+The DMG also includes **`Clear-Quarantine.command`** — early adopters double-click it after dragging the app to Applications; Terminal clears download quarantine (`xattr -cr`). Steps are in `INSTALL.txt`.
+
 ## Smoke test
 
 ```bash
 ./smoke-install.sh
 ```
 
-Validates DMG install, correct `INSTALL.txt` (no Docker setup steps), and bundled `Engine/bin/webaudit --help`.
+Validates DMG install, `Clear-Quarantine.command`, correct `INSTALL.txt` (no Docker setup steps), Playwright bundle, and bundled `Engine/bin/webaudit --help`.

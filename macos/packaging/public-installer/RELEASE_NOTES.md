@@ -25,8 +25,9 @@
 
 1. Download `WebAudit-0.1.0-alpha-macOS.dmg` from [GitHub Releases](https://github.com/Vlad-1618M/web_audit/releases) or [muzar.io](https://muzar.io/).
 2. Open DMG → drag **Web Audit** to **Applications**.
-3. **Right-click → Open** the first time (unsigned build).
-4. Paste a URL and scan — see `INSTALL.txt` in the DMG if anything fails.
+3. Double-click **`Clear-Quarantine.command`** on the DMG (Terminal clears download quarantine), then open **Web Audit** from Applications.
+4. If macOS still warns once: **Right-click → Open** (unsigned build).
+5. Paste a URL and scan — see `INSTALL.txt` in the DMG if anything fails.
 
 ### Uninstall
 
@@ -34,7 +35,7 @@ Drag **Web Audit.app** to Trash. Reports in `~/Documents/WebAudit/` are optional
 
 ### Known limitations
 
-- Unsigned: Gatekeeper warning on first open
+- Unsigned: Gatekeeper / “damaged” on first open — use `Clear-Quarantine.command` in the DMG, then Right-click → Open if needed
 - WhatsApp / some social apps do not register with macOS Share — use Gmail in browser or save zip
 - Chrome as default “Mail” handler cannot attach files — use **Gmail in browser** or **Apple Mail** in the app
 

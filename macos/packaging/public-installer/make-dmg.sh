@@ -17,6 +17,8 @@ mkdir -p "$STAGE" "$INSTALLERS_ROOT"
 
 cp -R "$APP" "$STAGE/"
 cp "$ROOT/INSTALL.txt" "$STAGE/"
+cp "$ROOT/Clear-Quarantine.command" "$STAGE/"
+chmod +x "$STAGE/Clear-Quarantine.command"
 # Applications drop link is added by create-dmg (--app-drop-link)
 
 ICON_FILE="$APP/Contents/Resources/AppIcon.icns"

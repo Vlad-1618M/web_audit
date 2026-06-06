@@ -39,6 +39,12 @@ source "$LAYOUT_ENV"
 [[ -d "$STAGE/${APP_NAME}.app" ]] || fail "missing app in stage: $STAGE/${APP_NAME}.app"
 [[ -f "$STAGE/INSTALL.txt" ]] || fail "missing INSTALL.txt in stage"
 
+QUARANTINE_SCRIPT="Clear-Quarantine.command"
+DMG_EXTRA_ICONS=()
+if [[ -f "$STAGE/$QUARANTINE_SCRIPT" ]]; then
+  DMG_EXTRA_ICONS+=(--icon "$QUARANTINE_SCRIPT" "$DMG_QUARANTINE_X" "$DMG_QUARANTINE_Y")
+fi
+
 mkdir -p "$(dirname "$DMG_OUT")"
 rm -f "$DMG_OUT"
 
@@ -59,6 +65,7 @@ fi
   --app-drop-link "$DMG_APPS_X" "$DMG_APPS_Y" \
   --icon "INSTALL.txt" "$DMG_INSTALL_X" "$DMG_INSTALL_Y" \
   --hide-extension "INSTALL.txt" \
+  "${DMG_EXTRA_ICONS[@]}" \
   --no-internet-enable \
   "$DMG_OUT" \
   "$STAGE"

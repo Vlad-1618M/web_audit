@@ -1,8 +1,9 @@
-# Web Audit
+# Web Audit - v1 Bash & Web Audit Pro - v2 Python + Swift
 
 External security hygiene checks for **public websites** you own or have permission to test.
 
-This repository ships **two product editions** (v1 bash + v2 Python) and **several ways to run v2**. Same philosophy: passive, unauthenticated, external-only.
+This repository ships **two product editions** (v1 bash + v2 Python) and **several ways to run v2**.
+Same philosophy applies -  passive, unauthenticated, external-only scans.
 
 | | **v1 Audit Lite** | **v2 Audit Pro** |
 |---|-------------------|------------------|
@@ -12,7 +13,13 @@ This repository ships **two product editions** (v1 bash + v2 Python) and **sever
 | **Best for** | SSH boxes, CI, minimal deps | Site owners, richer reports, WP themes, DNS/TLS depth |
 | **Docs** | This file (below) | [**v2 README**](v2_python_core/README.md) · [**How to run**](DELIVERY_PATHS.md) · [Docker / CI](v2_python_core/docs/docker_ci.md) · [Tags](VERSIONING_AND_TAGS.md) |
 
-> **Not** a penetration test, authenticated scanner, or replacement for OWASP ZAP / nuclei. Use on sites you own or have explicit permission to test.
+> **This tool is not:**
+> - A penetration test
+> - An authenticated scanner or replacement for OWASP ZAP or nuclei
+>
+> **Use responsibly:**
+> - Only scan sites you own or have explicit permission to test
+> - Helps improve clarity during conversations with your Dev/Admin team or support staff
 
 ---
 
@@ -98,6 +105,21 @@ cd web_audit/v2_python_core
 
 ---
 
+# Web Audit Pro App - .dmg View
+>![home](/v2_python_core/mockups/screenshots/app_home.png)
+
+>![onmac](/v2_python_core/mockups/screenshots/installed_app.png)
+
+>![report](/v2_python_core/mockups/screenshots/scanned.png)
+
+>![share](/v2_python_core/mockups/screenshots/report.png)
+
+# Web Audit Pro Report View 
+>![report](/v2_python_core/mockups/screenshots/report_main.png)
+
+>![report](/v2_python_core/mockups/screenshots/tech_view_reporet.png)
+
+
 ## v1 Audit Lite — bash quick start
 
 **Zero Install** — one shell script, `curl` + `openssl` only.
@@ -122,6 +144,10 @@ OPEN_BROWSER=0 zsh ./web_audit.sh --config ./my-site.conf --framework django htt
 ```
 
 Reports are written to `audit_logs/` **next to the script** (cwd-independent).
+
+## Web Audit v1 -  Report Sample View
+![sample_0](/png/wiki_audit_preview.png) <br><br>
+<!-- ![sample_1](/png/zillo_view.png) -->
 
 ---
 
@@ -340,9 +366,9 @@ Legacy flat `items` is kept for backward compatibility. Hash-only nav (`/#sectio
 
 Report header shows **Website** and, when detected in an acceptable place, **Designer / Creator** next to it.
 
----
+<!-- --- -->
 
-## Out of scope - TBD
+<!-- ## Out of scope - TBD
 
 - Authenticated / logged-in areas
 - JavaScript / SPA crawling
@@ -350,7 +376,7 @@ Report header shows **Website** and, when detected in an acceptable place, **Des
 - Full sitemap crawl
 - Compliance certification (PCI/SOC2/HIPAA)
 
-POST rate-limit probes send **real invalid login traffic** — use responsibly.
+POST rate-limit probes send **real invalid login traffic** — use responsibly. -->
 
 ---
 
@@ -387,10 +413,6 @@ POST rate-limit probes send **real invalid login traffic** — use responsibly.
 | `site_configs/` | v1 auto-generated per-host configs (gitignored) |
 
 ---
-## Report Sample View
-![sample_0](/png/wiki_audit_preview.png) <br><br>
-![sample_1](/png/zillo_view.png)
-
 
 #### Legal
 ##### For **authorized security assessment only**. <br>Unauthorized scanning may violate terms of service or local law.

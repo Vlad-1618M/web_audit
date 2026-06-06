@@ -151,7 +151,8 @@ Four layers: shell → state → engine → presentation.
 
 | Path | Role |
 |------|------|
-| **`Resources/*.png`** | Icons, trademark |
+| **`Resources/webaudit_pro_icon.svg`** | App icon source (rasterized at DMG build → `AppIcon.icns` + `webaudit.png`) |
+| **`Resources/*.png`** | Rasterized app logo, trademark |
 | **`Resources/INSTALL.txt`** | Same text as public DMG install guide |
 | **`run-dev.sh`** | Dev launch, `WEBAUDIT_ENGINE_POLICY=external` |
 

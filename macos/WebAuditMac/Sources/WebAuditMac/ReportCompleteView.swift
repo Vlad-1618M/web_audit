@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct ReportCompleteView: View {
@@ -50,8 +51,8 @@ struct ReportCompleteView: View {
     }
 
     private var siteHero: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: 8 * metrics.scale) {
+            HStack(alignment: .center, spacing: 10 * metrics.scale) {
                 ZStack {
                     Circle()
                         .fill(
@@ -61,23 +62,31 @@ struct ReportCompleteView: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 44, height: 44)
+                        .frame(width: 32 * metrics.scale, height: 32 * metrics.scale)
                     Image(systemName: "checkmark")
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.system(size: 14 * metrics.scale, weight: .bold))
                         .foregroundStyle(.white)
                 }
-                VStack(alignment: .leading, spacing: 2) {
+
+                HStack(alignment: .firstTextBaseline, spacing: 8 * metrics.scale) {
                     Text("Report ready")
                         .font(metrics.sectionTitle)
                         .foregroundStyle(ReportTheme.text)
+                    Text("·")
+                        .font(metrics.sectionTitle)
+                        .foregroundStyle(ReportTheme.muted.opacity(0.55))
                     Text(snapshot.hostLabel)
-                        .font(.system(size: 20 * metrics.scale, weight: .semibold))
+                        .font(.system(size: 18 * metrics.scale, weight: .semibold))
                         .foregroundStyle(ReportTheme.cyan)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
                 }
+
+                Spacer(minLength: 0)
             }
-            Link(snapshot.targetURL, destination: URL(string: snapshot.targetURL) ?? URL(string: "https://example.com")!)
-                .font(metrics.bodyFont)
-                .foregroundStyle(ReportTheme.muted)
+
+            ScannedTargetLink(urlString: snapshot.targetURL, metrics: metrics)
+
             Text("Framework: \(snapshot.framework) (\(snapshot.frameworkConfidence)) · Scanned \(formatScannedAt(snapshot.scannedAt))")
                 .font(metrics.captionFont)
                 .foregroundStyle(ReportTheme.muted)
@@ -329,6 +338,69 @@ private struct ReportMetricChip: View {
                 .stroke(Color.white.opacity(0.1), lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+/// Full-width scanned URL — clear hover affordance and reliable click target on macOS.
+private struct ScannedTargetLink: View {
+    let urlString: String
+    let metrics: LayoutMetrics
+
+    @State private var isHovered = false
+    @Environment(\.openURL) private var openURL
+
+    private var destination: URL {
+        URL(string: urlString) ?? URL(string: "https://example.com")!
+    }
+
+    var body: some View {
+        Button {
+            openURL(destination)
+        } label: {
+            HStack(spacing: 10 * metrics.scale) {
+                Image(systemName: "link")
+                    .font(.system(size: 13 * metrics.scale, weight: .semibold))
+                    .foregroundStyle(isHovered ? ReportTheme.cyan : ReportTheme.muted)
+                Text(urlString)
+                    .font(.system(size: 15 * metrics.scale, weight: isHovered ? .semibold : .medium))
+                    .foregroundStyle(isHovered ? ReportTheme.text : ReportTheme.cyan.opacity(0.88))
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                Spacer(minLength: 0)
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 12 * metrics.scale, weight: .semibold))
+                    .foregroundStyle(ReportTheme.cyan)
+                    .opacity(isHovered ? 1 : 0.35)
+            }
+            .padding(.horizontal, 12 * metrics.scale)
+            .padding(.vertical, 10 * metrics.scale)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(isHovered ? ReportTheme.surface2 : ReportTheme.surface.opacity(0.65))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(
+                        ReportTheme.cyan.opacity(isHovered ? 0.65 : 0.22),
+                        lineWidth: isHovered ? 1.5 : 1
+                    )
+            )
+            .shadow(color: ReportTheme.cyan.opacity(isHovered ? 0.18 : 0), radius: isHovered ? 10 : 0)
+        }
+        .buttonStyle(.plain)
+        .contentShape(RoundedRectangle(cornerRadius: 10))
+        .animation(.easeOut(duration: 0.16), value: isHovered)
+        .onHover { hovering in
+            isHovered = hovering
+            if hovering {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
+        .accessibilityLabel("Open scanned site")
+        .accessibilityHint(urlString)
     }
 }
 

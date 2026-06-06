@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Switch between saved reports or return to the home screen.
@@ -7,6 +8,8 @@ struct SavedReportsPicker: View {
     var metrics: LayoutMetrics = LayoutMetrics(width: 720)
     let onSelect: (CompletedScan) -> Void
     let onReturnHome: () -> Void
+
+    @State private var hoveredScanID: String?
 
     /// Keeps the picker compact; full list scrolls inside this cap.
     private var reportListMaxHeight: CGFloat {
@@ -61,6 +64,9 @@ struct SavedReportsPicker: View {
     @ViewBuilder
     private func savedReportRow(_ scan: CompletedScan) -> some View {
         let isCurrent = scan.reportDir == currentReportDir
+        let isHovered = hoveredScanID == scan.id
+        let rowOpacity: CGFloat = isCurrent ? 1 : (isHovered ? 0.9 : 0.7)
+
         Button {
             guard !isCurrent else { return }
             onSelect(scan)
@@ -80,7 +86,7 @@ struct SavedReportsPicker: View {
                                 .foregroundStyle(ReportTheme.lime)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(ReportTheme.lime.opacity(0.15))
+                                .background(ReportTheme.lime.opacity(0.22))
                                 .clipShape(Capsule())
                         }
                     }
@@ -99,18 +105,54 @@ struct SavedReportsPicker: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(isCurrent ? ReportTheme.surface : ReportTheme.surface.opacity(0.5))
+            .background(rowBackground(isCurrent: isCurrent, isHovered: isHovered))
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(
-                        isCurrent ? ReportTheme.lime.opacity(0.45) : Color.white.opacity(0.08),
-                        lineWidth: isCurrent ? 1.5 : 1
+                        rowBorderColor(isCurrent: isCurrent, isHovered: isHovered),
+                        lineWidth: isCurrent ? 1.5 : (isHovered ? 1.25 : 1)
                     )
             )
+            .shadow(
+                color: isCurrent ? ReportTheme.lime.opacity(0.12) : .clear,
+                radius: isCurrent ? 8 : 0
+            )
+            .opacity(rowOpacity)
             .contentShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
-        .disabled(isCurrent)
+        .allowsHitTesting(!isCurrent)
+        .animation(.easeOut(duration: 0.14), value: isHovered)
+        .animation(.easeOut(duration: 0.14), value: isCurrent)
+        .onHover { hovering in
+            guard !isCurrent else { return }
+            hoveredScanID = hovering ? scan.id : nil
+            if hovering {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
+    }
+
+    private func rowBackground(isCurrent: Bool, isHovered: Bool) -> Color {
+        if isCurrent {
+            return ReportTheme.surface2
+        }
+        if isHovered {
+            return ReportTheme.surface.opacity(0.72)
+        }
+        return ReportTheme.surface.opacity(0.28)
+    }
+
+    private func rowBorderColor(isCurrent: Bool, isHovered: Bool) -> Color {
+        if isCurrent {
+            return ReportTheme.lime.opacity(0.62)
+        }
+        if isHovered {
+            return ReportTheme.cyan.opacity(0.38)
+        }
+        return Color.white.opacity(0.07)
     }
 }

@@ -30,9 +30,9 @@ chmod +x "$APP/Contents/MacOS/WebAuditMac"
 source "$ROOT/../_shared/stage-spm-resource-bundle.sh"
 stage_spm_resource_bundle "$APP"
 
-cp "$APP_ROOT/Sources/WebAuditMac/Resources/"*.png "$APP/Contents/Resources/" 2>/dev/null || true
 cp "$ROOT/INSTALL.txt" "$APP/Contents/Resources/INSTALL.txt"
 "$ROOT/../_shared/make-icns.sh" "$APP/Contents/Resources/AppIcon.icns"
+cp "$APP_ROOT/Sources/WebAuditMac/Resources/"*.png "$APP/Contents/Resources/" 2>/dev/null || true
 
 rm -rf "$APP/Contents/Resources/Engine"
 cp -R "$ENGINE_SRC" "$APP/Contents/Resources/Engine"

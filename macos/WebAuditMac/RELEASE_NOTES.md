@@ -1,5 +1,7 @@
 # Web Audit for Mac — release notes
 
+**Current public version:** `0.1.0-beta` · tag `macos-v0.1.0-beta` · DMG `WebAudit-0.1.0-beta-macOS.dmg`
+
 Two installer tracks — use the right DMG for your audience:
 
 | Audience | DMG | Notes |

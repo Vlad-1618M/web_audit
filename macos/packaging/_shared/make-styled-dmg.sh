@@ -17,7 +17,7 @@ usage() {
 Usage: $(basename "$0") <dmg_output_path> <stage_folder> <volume_name>
 
 Example:
-  make-styled-dmg.sh "\$INSTALLERS_ROOT/WebAudit-0.1.0-alpha-macOS.dmg" "\$STAGE" "Web Audit"
+  make-styled-dmg.sh "\$INSTALLERS_ROOT/WebAudit-0.1.0-beta-macOS.dmg" "\$STAGE" "Web Audit"
 EOF
 }
 
@@ -39,12 +39,21 @@ source "$LAYOUT_ENV"
 [[ -d "$STAGE/${APP_NAME}.app" ]] || fail "missing app in stage: $STAGE/${APP_NAME}.app"
 [[ -f "$STAGE/INSTALL.txt" ]] || fail "missing INSTALL.txt in stage"
 
+QUARANTINE_SCRIPT="Clear-Quarantine.command"
+DMG_EXTRA_ICONS=()
+if [[ -f "$STAGE/$QUARANTINE_SCRIPT" ]]; then
+  DMG_EXTRA_ICONS+=(--icon "$QUARANTINE_SCRIPT" "$DMG_QUARANTINE_X" "$DMG_QUARANTINE_Y")
+fi
+
 mkdir -p "$(dirname "$DMG_OUT")"
 rm -f "$DMG_OUT"
 
 DMG_ARGS=(--volname "$VOLNAME")
 if [[ -n "${ICON_FILE:-}" && -f "${ICON_FILE}" ]]; then
   DMG_ARGS+=(--volicon "$ICON_FILE")
+fi
+if ((${#DMG_EXTRA_ICONS[@]} > 0)); then
+  DMG_ARGS+=("${DMG_EXTRA_ICONS[@]}")
 fi
 
 "$CREATE_DMG" \

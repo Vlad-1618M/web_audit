@@ -1,6 +1,6 @@
 # Web Audit Pro for Mac — Swift notes
 
-**Status:** Early alpha · **Public DMG:** bundled Python engine (no Docker) · **Dev:** external engine (Docker / venv / PATH)
+**Status:** **0.1.0-beta** · **Public DMG:** bundled Python engine + Playwright (no Docker) · **Dev:** external engine (Docker / venv / PATH)
 
 **Audience:** Non-Swift developers who need to navigate the GUI code, packaging, and how it talks to `webaudit`.
 
@@ -151,7 +151,8 @@ Four layers: shell → state → engine → presentation.
 
 | Path | Role |
 |------|------|
-| **`Resources/*.png`** | Icons, trademark |
+| **`Resources/webaudit_pro_icon.svg`** | App icon source (rasterized at DMG build → `AppIcon.icns` + `webaudit.png`) |
+| **`Resources/*.png`** | Rasterized app logo, trademark |
 | **`Resources/INSTALL.txt`** | Same text as public DMG install guide |
 | **`run-dev.sh`** | Dev launch, `WEBAUDIT_ENGINE_POLICY=external` |
 

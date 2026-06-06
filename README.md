@@ -108,7 +108,7 @@ cd web_audit/v2_python_core
 # Web Audit Pro App - .dmg View
 >![home](/v2_python_core/mockups/screenshots/app_home.png)
 
->![onmac](/v2_python_core/mockups/screenshots/installed_app.png)
+>![onmac](/v2_python_core/mockups/screenshots/onmac_app_view.png)
 
 >![report](/v2_python_core/mockups/screenshots/scanned.png)
 

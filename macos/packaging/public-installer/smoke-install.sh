@@ -36,6 +36,11 @@ install_from_dmg() {
   attach_dmg
   [[ -d "$MOUNT/${APP_NAME}.app" ]] || fail "App not in DMG ($MOUNT)"
   [[ -f "$MOUNT/INSTALL.txt" ]] || fail "INSTALL.txt not in DMG"
+  [[ -f "$MOUNT/Clear-Quarantine.command" ]] || fail "Clear-Quarantine.command not in DMG"
+  [[ -x "$MOUNT/Clear-Quarantine.command" ]] || fail "Clear-Quarantine.command not executable"
+  if ! grep -q 'xattr -cr' "$MOUNT/Clear-Quarantine.command"; then
+    fail "Clear-Quarantine.command missing xattr -cr"
+  fi
   if grep -qiE 'docker desktop|webaudit-docker|docker pull' "$MOUNT/INSTALL.txt"; then
     fail "Public INSTALL.txt must not require Docker setup"
   fi
@@ -64,7 +69,19 @@ install_from_dmg() {
   if ! "$engine" --version >/dev/null 2>&1; then
     fail "Bundled webaudit --version failed"
   fi
-  ok "$label — bundled engine responds (--help and --version)"
+
+  local py="$app/Contents/Resources/Engine/python/bin/python3"
+  local browsers="$app/Contents/Resources/Engine/playwright-browsers"
+  [[ -x "$py" ]] || fail "Bundled python missing: $py"
+  if ! "$py" -c "import playwright" >/dev/null 2>&1; then
+    fail "Bundled engine missing playwright package"
+  fi
+  [[ -d "$browsers" ]] || fail "Bundled Playwright browsers dir missing: $browsers"
+  if [[ -z "$(find "$browsers" -type f 2>/dev/null | head -1)" ]]; then
+    fail "Bundled Playwright browsers dir is empty: $browsers"
+  fi
+
+  ok "$label — bundled engine responds (--help, --version, playwright + browsers)"
 
   # shellcheck source=../_shared/smoke-app-launch.sh
   source "$ROOT/../_shared/smoke-app-launch.sh"

@@ -12,37 +12,39 @@ This directory is the home of **Web Audit v2 (Audit Pro)**. It lives beside the 
 ---
 
 ## Why bash came first ?
+UI developmnet was alwasy outside my purview - was never a thing for me.
+The story starts with personal project where I needed a frontend layer on an application that was already hosted, CDN-configured, and fully public on the network. <br>
+That meant living with the usual nightmare checks: 
+>- bots
+>-`robots.txt`
+>- admin surface controls
+>- "bad actors" scraping data and all the rest.<br>
 
-I am not a UI developer. I do not like UIs. I have been a terminal person for over twenty years, and that is where I am comfortable.
+At some point I started asking **what** my app was leaking to the outside no doubt it does, we've all been there. 
+Reality checks came fast — potential data leaks, dev habits left as leftovers on endpoints and configs, things I missed while building. Testing matters everywhere even in _sandboxes_ and side projects. A quick shell script was my first approach. It worked and helped. Then I kept enhancing it, got carried away a bit, and it grew into a the a usual _“that’ll do for now”_ type of deal.
 
-The story starts with personal project  **muzar.io**. I needed a frontend layer on an application that was already hosted, CDN-configured, and fully public on the network. That meant living with the usual nightmare checks: bots, `robots.txt`, admin surface controls, bad actors scraping data, and all the rest. At some point I started asking **what** my app was leaking to the outside world, no doubt it does,we've all been there. 
-
-Reality checks came fast — potential data leaks, dev habits left as leftovers on endpoints and configs, things I missed while building. Tests matter everywhere, including pet projects and sandboxes. A quick shell script was my first approach. It worked. It helped. Then I kept enhancing it, got carried away a bit, and it grew into something more than I expected — the usual “that’ll do for now” type of deal.
-
-When I realized I had enough, the script was **over 3,000 lines** of code (I know — tha is not how you’re supposed to do this) LOL. <br>
+When I realized I had enough, the script was **> 3,500 lines** of code ( _I know — tha is not how you’re supposed to do this_) <br>
 The fix and honestly apart of the reason “bored, let me complicate my life some more” — came from a different question.
 
 ---
 
 ## The problem I actually wanted to solve
 
-How does someone who hires outside devs to build their business online, pays for the website, and has to take it at face value — with no technical knowledge — vet or QA what they paid for?
+How does someone who hires outside devs to build their business online, pays for the website, and has to take it at face value — with no technical knowledge or QA ?<br>
+Sure they can get a full team to do the work, pay premium - nothing is wrong with that, but how many small business owners in U.S can actually afford a full stack engineering team ?  
+They pay for site - _Admin Support_, _Google Ads_ + _SEO_ optimizations and no business leads show up. <br>
+All they hear is: <br> 
+- *It'll take more time for Google to index your site.* <br> 
+- *We're working on features.* <br> 
+- *We'll tag PNGs and put a cool landing page on a new domain.* <br> 
+- *Just pay $X more and in X months you'll see leads.* <br> 
 
-They pay for site support, Google Ads, SEO optimizations. No business leads show up. <br>All they hear is: <br> - *It'll take more time for Google to index your site.* <br> - *We're working on features.* <br> - *We'll tag PNGs and put a cool landing page on a new domain.* <br> - *Just pay $X more and in X months you'll see leads.* <br> But nothing changes except wasted money and the same song over and over again. <br>The only thing one gets is `www.look-how-cool-my-site-is.com` = Some templatized WordPress copy/paste deal (no offense — just a typical truth nowadays)
+But nothing changes except for wasted cash and the same song over and over again. <br>
+The only thing one gets is `www.look-how-cool-my-site-is.com`  as Some templatized WordPress copy/paste deal (no offense — just a typical truth nowadays)
 
-<!-- They pay for site support, Google Ads, SEO optimizations. No business leads show up. <br>All they hear is: <br> - *It’ll take more time for Google to index your site. <br> - We’re working on features.<br> - We’ll tag PNGs and put a cool landing page on a new domain. <br>-  Just pay $X more and in X months you’ll see leads.* <br> But, nothing changes except wasted money and  same song over and over again. <br>The only item one gets is `www.look how cool my site is.com` = SOme templetized WordPress copy paste deal ( no affence people just typical truth now days) -->
+<!-- ### _**Wat I want is**_  - simple, manageable way for anyone especially people who have only seen a _terminal_ in the movies — to understand what their public website is actually exposing and a way to establish clarity  -->
 
-**Wat I want is simple, manageable way for anyone — especially people who have only seen a terminal in the movies — to understand what their public website is actually exposing.**
-
-That is v2.
----
-#### Report Examples -  ***v1-shell based*** VS ***v2-Python Core***
-- *v1 left* | *v2 right* - side-by-side preview
-![report_view](/v2_python_core/mockups/screenshots/v1_vs_v2_report_view_0.png)
-- *v1 left* | *v2 right* - side-by-side preview
-![report_view](/v2_python_core/mockups/screenshots/v1_vs_v2_report_view_1.png)
-- *v1 left* | *v2 right* - side-by-side preview
-![report_view](/v2_python_core/mockups/screenshots/v1_vs_v2_report_view_2.png)
+_**Wat I want is**_ - A simple, manageable way for anyone - especially people who have only seen a _terminal_ in the movies - to understand what their public website is actually exposing. A tool that delivers results in a way where both the *site owner* and their *developer* or *support team* can find equal clarity and understanding, grounded in the same shared project. This app never logs in anywhere. It only observes what any visitor on the internet can already see. It does not share or upload any data - all reports are saved to the user's Documents folder. The user has full control over what they scan, share or what they keep.
 
 ## What v2 is
 
@@ -50,25 +52,24 @@ That is v2.
 |---|-----------|-------------|
 | **Location** | Repo root [`web_audit.sh`](../web_audit.sh) | `v2_python_core/webaudit/` package (2.1.0b3) |
 | **Audience** | Devs, CI, SSH boxes | Devs **and** non-technical site owners |
-| **Install** | curl + openssl + zsh/bash | **Docker** (`ghcr.io/vlad-1618m/webaudit`) or `pip install` from source |
+| **Install** | curl + openssl + zsh/bash | **Docker** [ghcr.io/vlad-1618m/webaudit](https://github.com/Vlad-1618M/web_audit/pkgs/container/webaudit) or `pip install` from source or [.dmg](https://github.com/Vlad-1618M/web_audit/tags) installer as app|
 | **Architecture** | Monolith script | Modular collectors, analyzers, scorers, renderers |
 | **Reports** | HTML with browser “Save as PDF” | **`owner`** combined HTML (default) + five standalone variants; native PDF optional |
-| **Scope** | External hygiene snapshot | Same philosophy, **deeper signal** (DNS, TLS, DOM, optional JS) |
+| **Scope** | External hygiene snapshot | Same philosophy, **deeper signal** (DNS, TLS, DOM, JS, GraphQL) |
 | **Hub / compare** | [Root README](../README.md) | This file |
 
-v1 remains **Audit Lite** — zero dependencies, Unix-first, public forever.
 
-v2 is **Audit Pro** — built properly for broader consumption, free as any tool should be, installable without living in a terminal.
-
----
+## v1 remains **Audit Lite** — zero dependencies, Unix-first.
+## v2 is **Audit Pro** — built properly, installable for broader consumption.
 
 ## Docker / GHCR (public usage)
 
 Published image: **`ghcr.io/vlad-1618m/webaudit`** (multi-arch: Intel + Apple Silicon + Linux). Full guide: [docs/docker_ci.md](docs/docker_ci.md).
 
-### Pull only — no git clone
+### Pull only — no git clone | [ghcr.io/vlad-1618m/webaudit](https://github.com/Vlad-1618M/web_audit/pkgs/container/webaudit)
 
-The image ships a **host wrapper** at `/usr/share/webaudit/webaudit-docker.sh`. It mounts reports on your Mac/Linux and makes `--open html` work in **your** browser (not inside Docker).
+The image ships a **host wrapper** at `/usr/share/webaudit/webaudit-docker.sh`. <br>
+It mounts reports on your Mac/Linux and makes `--open html` work in **your** browser (not inside Docker).
 
 **Install once:**
 
@@ -267,10 +268,20 @@ v2 docs are part of the same repository; implementation will cite v1 behavior wh
 
 ---
 
-### **Some mockups Ideas for Web Audit v2.**
+# Report Examples -  ***v1-shell based*** VS ***v2-Python Core***
+## *v1 left* | *v2 right* - side-by-side preview
+![report_view](/v2_python_core/mockups/screenshots/v1_vs_v2_report_view_0.png)
+
+## *v1 left* | *v2 right* - side-by-side preview
+![report_view](/v2_python_core/mockups/screenshots/v1_vs_v2_report_view_1.png)
+
+## *v1 left* | *v2 right* - side-by-side preview
+![report_view](/v2_python_core/mockups/screenshots/v1_vs_v2_report_view_2.png)
+
+<!-- ### **Some mockups Ideas for Web Audit v2.**
 ![0](/v2_python_core/mockups/screenshots/idea_0.png)<br><br>
 ![1](/v2_python_core/mockups/screenshots/idea_1.png)<br><br>
 ![2](/v2_python_core/mockups/screenshots/idea_2.png)<br><br>
 
 
-*— memo & TODO: for Vlad by Vlad repo owner.*
+*— memo & TODO: for Vlad by Vlad repo owner.* -->

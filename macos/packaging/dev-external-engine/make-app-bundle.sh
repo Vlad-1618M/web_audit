@@ -25,8 +25,8 @@ chmod +x "$APP/Contents/MacOS/WebAuditMac"
 source "$ROOT/../_shared/stage-spm-resource-bundle.sh"
 stage_spm_resource_bundle "$APP"
 
-cp "$APP_ROOT/Sources/WebAuditMac/Resources/"*.png "$APP/Contents/Resources/" 2>/dev/null || true
 "$ROOT/../_shared/make-icns.sh" "$APP/Contents/Resources/AppIcon.icns"
+cp "$APP_ROOT/Sources/WebAuditMac/Resources/"*.png "$APP/Contents/Resources/" 2>/dev/null || true
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

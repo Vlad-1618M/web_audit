@@ -2,7 +2,7 @@
 
 Native macOS app for site owners — same flow as [designs/swift](../../designs/swift/) mockups.
 
-**Status:** early alpha · **DMG / notarization:** in progress (local build + Right-click → Open for now)
+**Status:** **0.1.0-beta** (unsigned) · **DMG / notarization:** in progress (`Clear-Quarantine.command` + Right-click → Open for now)
 
 **Architecture & module guide (non-Swift devs):** [SWIFT_APP_GUIDE.md](SWIFT_APP_GUIDE.md) — file-by-file map, libraries, dev build vs `.dmg`, screenshot placeholders, Mermaid diagrams.
 
@@ -21,7 +21,7 @@ Native macOS app for site owners — same flow as [designs/swift](../../designs/
 
 | Track | Command | DMG |
 |-------|---------|-----|
-| **Public installer** | `../orchestrate-macos.sh public-dmg` | `../installers/WebAudit-*-macOS.dmg` (~70 MB) |
+| **Public installer** | `../orchestrate-macos.sh public-dmg` | `../installers/WebAudit-*-macOS.dmg` (~400 MB with bundled JS browser) |
 | **Dev external-engine** | `../orchestrate-macos.sh dev-dmg` | `../installers/WebAudit-*-macOS-dev.dmg` |
 
 Details: [../packaging/README.md](../packaging/README.md)
@@ -98,7 +98,7 @@ Public `INSTALL.txt` does **not** mention Docker; dev `INSTALL.txt` documents ex
 
 **Supported macOS:** 13, 14, 15 (see `VERSION` + [RELEASE_NOTES.md](RELEASE_NOTES.md) → public notes in `packaging/public-installer/`).
 
-**GitHub Release:** push tag `macos-v0.1.0-alpha` or run workflow **Release macOS app** (uploads DMG + release notes).
+**GitHub Release:** push tag `macos-v0.1.0-beta` or run workflow **Release macOS app** (uploads DMG + release notes).
 
 **Unit tests:** `swift test` (requires full **Xcode.app** selected in `xcode-select`, not Command Line Tools alone). CI runs tests on `macos-14`.
 

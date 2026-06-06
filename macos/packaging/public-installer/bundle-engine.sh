@@ -56,17 +56,33 @@ tar -xzf "$TAR_CACHE" -C "$WORK"
 }
 
 PY="$WORK/python/bin/python3"
-echo "==> Installing webaudit from $PYTHON_CORE"
+echo "==> Installing webaudit[js] from $PYTHON_CORE"
 "$PY" -m pip install --upgrade pip >/dev/null
-"$PY" -m pip install "$PYTHON_CORE" --no-cache-dir
+"$PY" -m pip install "$PYTHON_CORE[js]" --no-cache-dir
 
 cp -R "$WORK/python" "$ENGINE_OUT/python"
+
+BROWSERS_DIR="$ENGINE_OUT/playwright-browsers"
+mkdir -p "$BROWSERS_DIR"
+echo "==> Installing Playwright Chromium into $BROWSERS_DIR"
+export PLAYWRIGHT_BROWSERS_PATH="$BROWSERS_DIR"
+"$ENGINE_OUT/python/bin/python3" -m playwright install chromium chromium-headless-shell
+
+if ! "$ENGINE_OUT/python/bin/python3" -c "import playwright" >/dev/null 2>&1; then
+  echo "error: playwright package not importable in bundled engine" >&2
+  exit 1
+fi
+if [[ -z "$(find "$BROWSERS_DIR" -type f 2>/dev/null | head -1)" ]]; then
+  echo "error: no Playwright browser binaries under $BROWSERS_DIR" >&2
+  exit 1
+fi
 
 cat > "$ENGINE_OUT/bin/webaudit" <<'WRAP'
 #!/usr/bin/env bash
 set -euo pipefail
 ENGINE_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PY="$ENGINE_ROOT/python/bin/python3"
+export PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-$ENGINE_ROOT/playwright-browsers}"
 case "${1:-}" in
   --version|-V)
     if VER="$("$PY" -c "import importlib.metadata as m; print(m.version('webaudit'))" 2>/dev/null)"; then

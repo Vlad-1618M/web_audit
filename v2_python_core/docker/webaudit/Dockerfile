@@ -1,6 +1,6 @@
 # Web Audit Pro — runnable image for Windows/macOS/Linux via Docker Desktop.
 # Build:  docker build -f docker/webaudit/Dockerfile -t webaudit:local .
-# Run:    docker run --rm webaudit:local scan https://example.com --open none
+# Run:    docker run --rm webaudit:local scan https://example.com --js --open none
 #
 # Pull-only users: extract the host wrapper (mount + browser open on your Mac/Linux):
 #   docker run --rm --entrypoint cat webaudit:local /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
@@ -24,7 +24,8 @@ COPY webaudit ./webaudit
 COPY scripts/webaudit-docker.sh /usr/share/webaudit/webaudit-docker.sh
 
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir . \
+    && pip install --no-cache-dir ".[js]" \
+    && python -m playwright install --with-deps chromium chromium-headless-shell \
     && chmod 755 /usr/share/webaudit/webaudit-docker.sh
 
 ENV WEBAUDIT_OUTPUT_DIR=/work/audit_logs

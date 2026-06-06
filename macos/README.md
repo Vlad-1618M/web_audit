@@ -24,7 +24,7 @@
 
 Design reference: [designs/swift/](../designs/swift/)
 
-**Versions & tags:** [VERSIONING_AND_TAGS.md](../VERSIONING_AND_TAGS.md) — git tags, GHCR, Mac DMG, dev vs stable (draft).
+**Versions & tags:** [VERSIONING_AND_TAGS.md](../VERSIONING_AND_TAGS.md) — Mac app **0.1.0-beta** (`macos-v0.1.0-beta`), engine **2.1.0b4**, GHCR.
 
 ## Engine policy
 

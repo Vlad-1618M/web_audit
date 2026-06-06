@@ -25,6 +25,7 @@ ensure_packaging_scripts() {
   fi
   find "$dir" "$SHARED" -name '*.sh' -type f -print0 2>/dev/null \
     | xargs -0 chmod +x 2>/dev/null || true
+  [[ -x "$SHARED/vendor/create-dmg" ]] || chmod +x "$SHARED/vendor/create-dmg" 2>/dev/null || true
 }
 
 usage() {

@@ -16,6 +16,7 @@ on:
       - "macos/**"
       - ".github/workflows/macos-ci.yml"
 
+
 jobs:
   dmg-smoke:
     name: Build DMG + install smoke

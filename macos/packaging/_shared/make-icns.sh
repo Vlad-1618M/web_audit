@@ -16,13 +16,17 @@ ICONSET="$(mktemp -d)/AppIcon.iconset"
 mkdir -p "$(dirname "$OUT")"
 mkdir -p "$ICONSET"
 
+ICON_PY=python3
 if ! python3 -c "import PIL" 2>/dev/null; then
-  echo "==> Installing Pillow for macOS squircle icon rendering…"
-  python3 -m pip install --quiet Pillow
+  echo "==> Pillow not found; using temp venv for squircle icon rendering…"
+  ICON_VENV="$(mktemp -d)/icon-venv"
+  python3 -m venv "$ICON_VENV"
+  "$ICON_VENV/bin/pip" install --quiet Pillow
+  ICON_PY="$ICON_VENV/bin/python"
 fi
 
-if ! python3 "$RENDER" "$SRC" "$ICONSET"; then
-  echo "error: render-macos-iconset.py failed (install Pillow: pip install Pillow)" >&2
+if ! "$ICON_PY" "$RENDER" "$SRC" "$ICONSET"; then
+  echo "error: render-macos-iconset.py failed" >&2
   exit 1
 fi
 

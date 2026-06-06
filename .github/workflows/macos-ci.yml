@@ -23,9 +23,6 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Install Pillow for icon rendering
-        run: python3 -m pip install --user Pillow
 
       - name: Dev external-engine DMG smoke
         working-directory: macos

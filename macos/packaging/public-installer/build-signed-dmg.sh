@@ -6,6 +6,7 @@ ROOT="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=../_shared/paths.sh
 source "$ROOT/../_shared/paths.sh"
 
+export WEBAUDIT_DISTRIBUTION_CHANNEL=release
 "$ROOT/build-app.sh"
 APP="$ROOT/build/${APP_NAME}.app"
 "$ROOT/../_shared/sign-app-bundle.sh" "$APP"

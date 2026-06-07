@@ -332,6 +332,9 @@ body.sidebar-resizing {
 .chip.score-band.poor .n { color: #ff9f6b; text-shadow: 0 0 20px rgba(255, 107, 53, 0.35); }
 .chip.score-band.critical .n { color: var(--coral); text-shadow: 0 0 20px rgba(255, 51, 85, 0.45); }
 .chip.verdict .n { font-size: 1rem; color: var(--magenta); }
+.chip.verdict.pass .n { color: var(--lime); text-shadow: 0 0 24px rgba(57, 255, 140, 0.45); }
+.chip.verdict.needs-attention .n { color: var(--gold); text-shadow: 0 0 24px rgba(255, 193, 77, 0.45); }
+.chip.verdict.at-risk .n { color: var(--coral); text-shadow: 0 0 24px rgba(255, 51, 85, 0.45); }
 
 .metric-row {
   display: grid;

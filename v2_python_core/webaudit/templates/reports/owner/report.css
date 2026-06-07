@@ -417,6 +417,9 @@ body.sidebar-resizing {
 .chip.score-band.poor .n { color: #ff9f6b; text-shadow: 0 0 20px rgba(255, 107, 53, 0.35); }
 .chip.score-band.critical .n { color: var(--coral); text-shadow: 0 0 20px rgba(255, 51, 85, 0.45); }
 .chip.verdict .n { font-size: 1rem; color: var(--magenta); }
+.chip.verdict.pass .n { color: var(--lime); text-shadow: 0 0 24px rgba(57, 255, 140, 0.45); }
+.chip.verdict.needs-attention .n { color: var(--gold); text-shadow: 0 0 24px rgba(255, 193, 77, 0.45); }
+.chip.verdict.at-risk .n { color: var(--coral); text-shadow: 0 0 24px rgba(255, 51, 85, 0.45); }
 
 .metric-row {
   display: grid;
@@ -1909,6 +1912,9 @@ details[open] summary {
 .tag.c { border-color: rgba(0, 240, 255, 0.4); color: var(--cyan); background: rgba(0, 240, 255, 0.08); }
 .tag.m { border-color: rgba(255, 0, 128, 0.4); color: var(--magenta); background: rgba(255, 0, 128, 0.08); }
 .tag.g { border-color: rgba(57, 255, 140, 0.4); color: var(--lime); background: rgba(57, 255, 140, 0.08); }
+.tag.verdict.pass { border-color: rgba(57, 255, 140, 0.45); color: var(--lime); background: rgba(57, 255, 140, 0.1); text-shadow: 0 0 20px rgba(57, 255, 140, 0.35); }
+.tag.verdict.needs-attention { border-color: rgba(255, 193, 77, 0.45); color: var(--gold); background: rgba(255, 193, 77, 0.1); }
+.tag.verdict.at-risk { border-color: rgba(255, 51, 85, 0.45); color: var(--coral); background: rgba(255, 51, 85, 0.1); }
 
 .owner-section.digest-section .digest-top {
   text-align: left;

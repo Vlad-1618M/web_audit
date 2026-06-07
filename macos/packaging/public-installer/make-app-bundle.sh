@@ -9,6 +9,7 @@ BUNDLE_ID="io.vtools.weaudit.mac"
 BUILD_NUMBER="${BUILD_NUMBER:-1}"
 MIN_MACOS="${MIN_MACOS:-13.0}"
 ENGINE_POLICY="bundled"
+WEBAUDIT_DISTRIBUTION_CHANNEL="${WEBAUDIT_DISTRIBUTION_CHANNEL:-unsigned}"
 ENGINE_SRC="$ROOT/build/engine"
 
 BIN="$APP_ROOT/.build/release/WebAuditMac"
@@ -68,10 +69,12 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <string>Copyright © 2026 Vtools. All rights reserved.</string>
   <key>WEBAUDITEnginePolicy</key>
   <string>${ENGINE_POLICY}</string>
+  <key>WEBAUDITDistributionChannel</key>
+  <string>${WEBAUDIT_DISTRIBUTION_CHANNEL}</string>
 </dict>
 </plist>
 PLIST
 
 echo "OK: $APP"
-echo "    version=${VERSION} policy=${ENGINE_POLICY} min_macos=${MIN_MACOS}"
+echo "    version=${VERSION} policy=${ENGINE_POLICY} channel=${WEBAUDIT_DISTRIBUTION_CHANNEL} min_macos=${MIN_MACOS}"
 du -sh "$APP/Contents/Resources/Engine"

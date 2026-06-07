@@ -7,6 +7,7 @@ SHARED="$(cd "$(dirname "$0")" && pwd)"
 source "$SHARED/paths.sh"
 
 ENTITLEMENTS="${ENTITLEMENTS:-$SHARED/../public-installer/entitlements.plist}"
+ENGINE_JIT_ENTITLEMENTS="${ENGINE_JIT_ENTITLEMENTS:-$SHARED/../public-installer/engine-jit-entitlements.plist}"
 
 usage() {
   cat <<EOF
@@ -15,6 +16,7 @@ Usage: $(basename "$0") <path/to/Web Audit.app>
 Environment:
   SIGN_ID              Developer ID Application name or SHA-1 hash (auto-detected if unset)
   ENTITLEMENTS         Path to entitlements.plist (default: public-installer/entitlements.plist)
+  ENGINE_JIT_ENTITLEMENTS  JIT entitlements for Playwright node + Chromium (engine-jit-entitlements.plist)
 
 Example:
   $(basename "$0") packaging/public-installer/build/Web\\ Audit.app
@@ -50,12 +52,19 @@ sort_paths_deepest() {
 sign_macho() {
   local target="$1"
   local sign_id="$2"
-  codesign --force --options runtime --timestamp --sign "$sign_id" "$target"
+  local entitlements="${3:-}"
+  if [[ -n "$entitlements" ]]; then
+    codesign --force --options runtime --timestamp \
+      --entitlements "$entitlements" --sign "$sign_id" "$target"
+  else
+    codesign --force --options runtime --timestamp --sign "$sign_id" "$target"
+  fi
 }
 
 sign_macho_files_deepest() {
   local root="$1"
   local label="${2:-$root}"
+  local entitlements="${3:-}"
   local -a files=()
   while IFS= read -r -d '' f; do
     is_macho "$f" || continue
@@ -65,13 +74,14 @@ sign_macho_files_deepest() {
   [[ ${#files[@]} -gt 0 ]] || return 0
   echo "==> Mach-O in $label (${#files[@]} files, deepest first)…"
   printf '%s\n' "${files[@]}" | sort_paths_deepest | while read -r f; do
-    sign_macho "$f" "$SIGN_ID"
+    sign_macho "$f" "$SIGN_ID" "$entitlements"
   done
 }
 
 sign_code_bundles_deepest() {
   local root="$1"
   local label="${2:-$root}"
+  local entitlements="${3:-}"
   local -a bundles=()
   while IFS= read -r bundle; do
     [[ -n "$bundle" ]] || continue
@@ -81,16 +91,49 @@ sign_code_bundles_deepest() {
   [[ ${#bundles[@]} -gt 0 ]] || return 0
   echo "==> Code bundles in $label (${#bundles[@]} bundles, deepest first)…"
   printf '%s\n' "${bundles[@]}" | sort_paths_deepest | while read -r bundle; do
-    sign_macho "$bundle" "$SIGN_ID"
+    sign_macho "$bundle" "$SIGN_ID" "$entitlements"
   done
 }
 
 sign_tree() {
   local root="$1"
   local label="$2"
+  local entitlements="${3:-}"
   [[ -d "$root" ]] || return 0
-  sign_macho_files_deepest "$root" "$label"
-  sign_code_bundles_deepest "$root" "$label"
+  sign_macho_files_deepest "$root" "$label" "$entitlements"
+  sign_code_bundles_deepest "$root" "$label" "$entitlements"
+}
+
+sign_macho_files_deepest_entitled() {
+  sign_macho_files_deepest "$1" "$2" "$ENGINE_JIT_ENTITLEMENTS"
+}
+
+sign_code_bundles_deepest_entitled() {
+  sign_code_bundles_deepest "$1" "$2" "$ENGINE_JIT_ENTITLEMENTS"
+}
+
+# Playwright's bundled node driver and Chromium need JIT under hardened runtime.
+sign_playwright_jit_helpers() {
+  local py_root="$1"
+  local pw_root="$2"
+  [[ -f "$ENGINE_JIT_ENTITLEMENTS" ]] || fail "missing engine JIT entitlements: $ENGINE_JIT_ENTITLEMENTS"
+
+  echo "==> Playwright JIT helpers (node driver + python + Chromium)…"
+  local -a jit_files=()
+  while IFS= read -r -d '' f; do
+    is_macho "$f" || continue
+    jit_files+=("$f")
+  done < <(find "$py_root" \( -path '*/playwright/driver/node' -o -path '*/bin/python3*' \) -type f -print0 2>/dev/null)
+
+  if [[ ${#jit_files[@]} -gt 0 ]]; then
+    printf '%s\n' "${jit_files[@]}" | sort_paths_deepest | while read -r f; do
+      sign_macho "$f" "$SIGN_ID" "$ENGINE_JIT_ENTITLEMENTS"
+    done
+  fi
+
+  [[ -d "$pw_root" ]] || return 0
+  sign_macho_files_deepest_entitled "$pw_root" "playwright-browsers (JIT)"
+  sign_code_bundles_deepest_entitled "$pw_root" "playwright-browsers (JIT)"
 }
 
 [[ $# -ge 1 ]] || { usage >&2; exit 1; }
@@ -109,6 +152,7 @@ PW="$ENGINE/playwright-browsers"
 sign_tree "$PY" "Engine/python"
 [[ -d "$ENGINE/bin" ]] && sign_macho_files_deepest "$ENGINE/bin" "Engine/bin"
 sign_tree "$PW" "playwright-browsers"
+sign_playwright_jit_helpers "$PY" "$PW"
 
 MAIN="$APP/Contents/MacOS/WebAuditMac"
 echo "==> Main executable + app wrapper…"

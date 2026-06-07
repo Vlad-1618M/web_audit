@@ -9,7 +9,7 @@
     </div>
     <div class="tag-row dashboard-tags">
       <span class="tag c">{{ framework }}</span>
-      <span class="tag m">{{ scores.verdict.replace('_', ' ') }}</span>
+      <span class="tag verdict {{ verdict_banner_class }}">{{ scores.verdict.replace('_', ' ') }}</span>
       {% if scores.exposure == 100 %}
       <span class="tag g">No leaks</span>
       {% endif %}

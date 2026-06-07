@@ -378,6 +378,9 @@ final class ScanRunner {
             process.executableURL = URL(fileURLWithPath: scriptPath)
             process.arguments = arguments
         }
+        // Playwright's driver rejects invalid CWD when the app is launched from Finder/Dock.
+        try? FileManager.default.createDirectory(at: Self.outputRoot, withIntermediateDirectories: true)
+        process.currentDirectoryURL = Self.outputRoot
     }
 }
 

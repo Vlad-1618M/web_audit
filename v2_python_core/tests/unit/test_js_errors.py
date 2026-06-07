@@ -22,6 +22,16 @@ def test_js_section_legacy_raw_error_in_artifact():
     assert 'Chromium is not installed' in section['summary']
     assert any(('chromium-headless-shell' in step for step in section['fix_steps']))
 
+def test_normalize_driver_init_context_manager():
+    """PlaywrightContextManager _playwright missing → friendly driver_init message."""
+    raw = "'PlaywrightContextManager' object has no attribute '_playwright'"
+    info = normalize_js_error(raw, target_url='https://example.com')
+    assert info is not None
+    assert info.code == 'driver_init'
+    assert 'browser driver' in info.message
+    assert 'GitHub Releases DMG' in info.fix_steps[0]
+
+
 def test_js_error_from_artifact_prefers_normalized_fields():
     """Ensures Js Error From Artifact Prefers Normalized Fields."""
     info = js_error_from_artifact({'error_code': 'browser_missing', 'error_message': 'Chromium missing.', 'fix_steps': ['playwright install chromium'], 'error_raw': RAW_BROWSER_MISSING}, target_url='https://example.com')

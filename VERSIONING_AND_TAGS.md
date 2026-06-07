@@ -35,7 +35,7 @@ This file is the working ledger — updates happen when I tag the release = publ
 |------|------|---------------|
 | Python engine semver | `v2_python_core/webaudit/__version__.py` | `2.1.0b4` |
 | Python package metadata | `v2_python_core/pyproject.toml` | `2.1.0b4` |
-| Mac app marketing version | `macos/WebAuditMac/VERSION` | `0.1.0-beta` |
+| Mac app marketing version | `macos/WebAuditMac/VERSION` | `0.1.0` |
 | Mac bundled engine | built from `v2_python_core/` at DMG build time | matches `__version__.py` at build |
 | Changelog (engine) | `v2_python_core/CHANGELOG.md` | see `[Unreleased]` + tagged sections |
 
@@ -49,7 +49,8 @@ Sorted newest first. Run `git fetch --tags` then `git tag -l --sort=-creatordate
 
 | Tag | Date (approx) | Type | Notes |
 |-----|---------------|------|-------|
-| `macos-v0.1.0-beta` | *tag next* | **Mac beta** | `WebAudit-0.1.0-beta-macOS.dmg` — `--js` + `--api` default, Playwright bundled, signing/notarization pipeline, PRO icon, UI polish |
+| `macos-v0.1.0` | *tag next* | **Mac stable** | `WebAudit-0.1.0-macOS.dmg` — Developer ID signed + notarized, DMG UX fix, `--js` + `--api` default, PASS report styling |
+| `macos-v0.1.0-beta` | 2026-06 | **Mac beta** | `WebAudit-0.1.0-beta-macOS.dmg` — unsigned; superseded by `0.1.0` |
 | `macos-v0.1.0-alpha.1` | 2026-06 | **Mac alpha** | Launch fix (SPM resource bundle); supersedes broken `macos-v0.1.0-alpha` |
 | `macos-v0.1.0-alpha` | 2026-06 | **Mac alpha** | First public DMG — **do not use** (launch crash) |
 
@@ -66,9 +67,8 @@ Sorted newest first. Run `git fetch --tags` then `git tag -l --sort=-creatordate
 | Planned tag | Artifact | Status |
 |-------------|----------|--------|
 | `v2.1.0` or `v2.1.0ST` | First **stable** engine + GHCR pin | Naming TBD — drop `b` suffix, document in CHANGELOG |
-| `macos-v0.1.0` (or similar) | Signed/notarized public DMG | After Apple Developer ID |
 
-**Mac beta note:** App `0.1.0-beta` can ship while engine stays `2.1.0b4` until a stable engine cut (`v2.1.0`) — rebuild DMG after engine bump to bundle the new semver.
+**Mac stable note:** App `0.1.0` ships while engine stays `2.1.0b4` until a stable engine cut (`v2.1.0`) — rebuild DMG after engine bump to bundle the new semver.
 
 ---
 
@@ -99,21 +99,22 @@ Manual extra tag: workflow **Publish GHCR** (`.github/workflows/publish-ghcr.yml
 
 | Version file | DMG filename | Engine policy | INSTALL.txt |
 |--------------|--------------|---------------|-------------|
-| `0.1.0-beta` | `WebAudit-0.1.0-beta-macOS.dmg` | bundled (public) | `packaging/public-installer/INSTALL.txt` |
-| `0.1.0-beta` | `WebAudit-0.1.0-beta-macOS-dev.dmg` | external Docker/venv | `packaging/dev-external-engine/INSTALL.txt` |
-| `0.1.0-alpha` | `WebAudit-0.1.0-alpha-macOS.dmg` | bundled (public) | superseded — use beta |
+| `0.1.0` | `WebAudit-0.1.0-macOS.dmg` | bundled (public) | `packaging/public-installer/INSTALL.txt` |
+| `0.1.0` | `WebAudit-0.1.0-macOS-dev.dmg` | external Docker/venv | `packaging/dev-external-engine/INSTALL.txt` |
+| `0.1.0-alpha` | `WebAudit-0.1.0-alpha-macOS.dmg` | bundled (public) | superseded — use **0.1.0** |
 
 Build: `macos/orchestrate-macos.sh public-dmg` / `dev-dmg` → output `macos/installers/`.
 
 Release notes (public): `macos/packaging/public-installer/RELEASE_NOTES.md`
 
-**Git tag for Mac releases:** `macos-v<VERSION>` (e.g. `macos-v0.1.0-beta`) — separate from engine `v2.x` tags so Docker users are not confused.
+**Git tag for Mac releases:** `macos-v<VERSION>` (e.g. `macos-v0.1.0`) — separate from engine `v2.x` tags so Docker users are not confused.
 
-**Tag command (after `public-smoke` on release commit):**
+**Tag command (after `public-notarize` + smoke on release commit):**
 
 ```bash
-git tag -s macos-v0.1.0-beta -m "Web Audit for Mac 0.1.0-beta"
-git push origin macos-v0.1.0-beta
+git tag -s macos-v0.1.0 -m "Web Audit for Mac 0.1.0 (signed stable)"
+git push origin macos-v0.1.0
+# Upload notarized WebAudit-0.1.0-macOS.dmg to GitHub Release (CI DMG is unsigned)
 ```
 
 ---
@@ -124,18 +125,18 @@ Open questions to decide before first **stable** release:
 
 1. **Engine stable suffix** — `2.1.0` vs `2.1.0ST` vs `v2.1.0` (git) only?
 2. **Beta** — keep `bN` (`2.1.0b5`) until stable cut?
-3. **Mac app** — stay on `0.x` marketing version while engine is `2.x`? (yes: app `0.1.0-beta`, engine `2.1.0b4` today)
+3. **Mac app** — stay on `0.x` marketing version while engine is `2.x`? (yes: app `0.1.0`, engine `2.1.0b4` today)
 4. **GHCR** — publish `:stable` alias when engine hits stable, or only semver + `latest`?
 5. **Bundled Mac DMG** — record engine semver in release notes / `INSTALL.txt` each build? (yes — see RELEASE_NOTES + INSTALL)
 
 **Proposed stable cut checklist (draft):**
 
-- [ ] Bump `__version__.py` to stable (no `b`)
-- [ ] Tag `v2.1.0` (or agreed name)
-- [ ] CHANGELOG section, not `[Unreleased]`
-- [ ] GHCR publish + pin docs
-- [ ] Rebuild public Mac DMG with new engine
-- [ ] Tag `macos-v…` if shipping installer
+- [x] Mac app `0.1.0` (drop `-beta`) — `release_manager/bump-versions.sh`
+- [x] Signing + notarization scripts — `orchestrate-macos.sh public-notarize`
+- [ ] Notarized DMG verified (`spctl -a -vv`) and uploaded to GitHub Release
+- [ ] Tag `macos-v0.1.0` on release commit
+- [ ] Bump `__version__.py` to stable engine (no `b`) — optional; Mac can ship with `2.1.0b4`
+- [ ] Tag `v2.1.0` (or agreed name) + CHANGELOG + GHCR pin
 
 ---
 
@@ -159,7 +160,7 @@ git fetch --tags
 git tag -l --sort=-creatordate
 
 # Show what's on a tag
-git show macos-v0.1.0-beta --no-patch
+git show macos-v0.1.0 --no-patch
 
 # Local engine version
 grep __version__ v2_python_core/webaudit/__version__.py
@@ -168,5 +169,5 @@ grep __version__ v2_python_core/webaudit/__version__.py
 cat macos/WebAuditMac/VERSION
 ```
 
-*Last updated: 2026-06-06 — Mac `0.1.0-beta` docs; tag `macos-v0.1.0-beta` pending push.*<br>
+*Last updated: 2026-06-07 — Mac `0.1.0` stable docs; tag `macos-v0.1.0` pending notarize + push.*<br>
 *-Vlad.M*

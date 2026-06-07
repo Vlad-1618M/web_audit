@@ -1,6 +1,6 @@
 # Web Audit Pro for Mac — Swift notes
 
-**Status:** **0.1.0-beta** · **Public DMG:** bundled Python engine + Playwright (no Docker) · **Dev:** external engine (Docker / venv / PATH)
+**Status:** **0.1.0** · **Public DMG:** bundled Python engine + Playwright (no Docker) · **Dev:** external engine (Docker / venv / PATH)
 
 **Audience:** Non-Swift developers who need to navigate the GUI code, packaging, and how it talks to `webaudit`.
 
@@ -175,10 +175,10 @@ Four layers: shell → state → engine → presentation.
 |--------|------------------------------|---------------|
 | Artifact | `.build/debug/WebAuditMac` | `Web Audit.app` in DMG |
 | Engine policy | **external** (default via `run-dev.sh`) | **bundled** (`Info.plist`) |
-| Gatekeeper | Local build / Right-click → Open | Unsigned DMG — Right-click → Open once |
-| Updates | `git pull` + rebuild | New DMG from Releases |
+| Gatekeeper | Local build — Right-click → Open if blocked | Notarized release DMG (`public-notarize`) — double-click OK |
+| Updates | `git pull` + rebuild | New DMG from GitHub Releases (`macos-v*`) |
 
-**Notarization:** in progress — see README Distribution table.
+**Signing:** [packaging/public-installer/SIGNING.md](../packaging/public-installer/SIGNING.md) · release `0.1.0` via `orchestrate-macos.sh public-notarize`.
 
 ---
 

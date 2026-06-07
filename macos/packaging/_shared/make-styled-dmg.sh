@@ -17,7 +17,7 @@ usage() {
 Usage: $(basename "$0") <dmg_output_path> <stage_folder> <volume_name>
 
 Example:
-  make-styled-dmg.sh "\$INSTALLERS_ROOT/WebAudit-0.1.0-beta-macOS.dmg" "\$STAGE" "Web Audit"
+  make-styled-dmg.sh "\$INSTALLERS_ROOT/WebAudit-0.1.0-macOS.dmg" "\$STAGE" "Web Audit"
 EOF
 }
 

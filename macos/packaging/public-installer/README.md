@@ -14,7 +14,9 @@ Downloads a relocatable Python (first run only), installs `webaudit` from `v2_py
 
 `../installers/WebAudit-<version>-macOS.dmg`
 
-DMG contents: **Web Audit.app**, **INSTALL.txt**, and an **Applications** shortcut. First launch on unsigned builds: Right-click → Open (see `INSTALL.txt`).
+DMG contents: **Web Audit.app**, **INSTALL.txt**, and an **Applications** shortcut.
+
+**Release:** `cd macos && ./orchestrate-macos.sh public-notarize` — signed + notarized DMG for site owners. Unsigned local/CI builds: Right-click → Open on first launch (see `INSTALL.txt`).
 
 ## Smoke test
 

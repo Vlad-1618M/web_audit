@@ -17,8 +17,9 @@
 
 ## A — Mac app, public installer (recommended for site owners)
 
-- **Artifact:** `WebAudit-*-macOS.dmg` from [GitHub Releases](https://github.com/Vlad-1618M/web_audit/releases) (current: tag `macos-v0.1.0-beta` → `WebAudit-0.1.0-beta-macOS.dmg`) or build: `macos/orchestrate-macos.sh public-dmg`
+- **Artifact:** `WebAudit-0.1.0-macOS.dmg` from [GitHub Releases](https://github.com/Vlad-1618M/web_audit/releases) (tag `macos-v0.1.0`) or build: `macos/orchestrate-macos.sh public-notarize` (signed + notarized)
 - **Engine:** bundled Python + `webaudit` — no Docker, no `python.org` install, no Terminal during scans
+- **Signing:** public release DMG is Developer ID signed and Apple notarized; CI tag builds are unsigned — use the notarized asset on the release page
 - **Docs:** `macos/packaging/public-installer/INSTALL.txt` (in DMG and inside app **Learn more**)
 - **Not the same as:** dev DMG (`WebAudit-*-macOS-dev.dmg`) — that row is **C**
 
@@ -101,5 +102,5 @@ Code: `macos/WebAuditMac/Sources/WebAuditMac/ScanRunner.swift`
 - [macos/README.md](macos/README.md) — build orchestrator
 - [macos/WebAuditMac/SWIFT_APP_GUIDE.md](macos/WebAuditMac/SWIFT_APP_GUIDE.md) — Swift architecture
 
-*Last updated: 2026-06-06 — Mac public DMG `0.1.0-beta`.*<br>
+*Last updated: 2026-06-07 — Mac public DMG `0.1.0` stable (signed/notarized).*<br>
 *- Vlad.M* 

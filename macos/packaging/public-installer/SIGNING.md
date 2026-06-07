@@ -11,7 +11,7 @@ One-time setup (already on your Mac if `security find-identity` shows **1 valid 
 ```bash
 cd macos
 
-# Unsigned DMG (beta / CI)
+# Unsigned DMG (local test / CI)
 ./orchestrate-macos.sh public-dmg
 
 # Signed DMG (local; requires Developer ID)

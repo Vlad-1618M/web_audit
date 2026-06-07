@@ -24,6 +24,9 @@ From `macos/`:
 
 ```bash
 ./orchestrate-macos.sh dev-run
-./orchestrate-macos.sh public-dmg
 ./orchestrate-macos.sh public-smoke
+./orchestrate-macos.sh public-notarize   # signed + notarized public DMG (release)
+./orchestrate-macos.sh public-dmg        # unsigned
 ```
+
+Public signing: [public-installer/SIGNING.md](public-installer/SIGNING.md)

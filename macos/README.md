@@ -24,7 +24,7 @@
 
 Design reference: [designs/swift/](../designs/swift/)
 
-**Versions & tags:** [VERSIONING_AND_TAGS.md](../VERSIONING_AND_TAGS.md) — Mac app **0.1.0-beta** (`macos-v0.1.0-beta`), engine **2.1.0b4**, GHCR.
+**Versions & tags:** [VERSIONING_AND_TAGS.md](../VERSIONING_AND_TAGS.md) — Mac app **0.1.0** (`macos-v0.1.0`), engine **2.1.0b4**, GHCR.
 
 ## Engine policy
 
@@ -41,7 +41,9 @@ All DMGs land in **`installers/`**:
 
 | File | Command |
 |------|---------|
-| `WebAudit-*-macOS.dmg` | `./orchestrate-macos.sh public-dmg` |
+| `WebAudit-*-macOS.dmg` | `./orchestrate-macos.sh public-dmg` (unsigned) |
+| `WebAudit-*-macOS.dmg` (signed) | `./orchestrate-macos.sh public-signed-dmg` |
+| `WebAudit-*-macOS.dmg` (notarized) | `./orchestrate-macos.sh public-notarize` — **ship to users** |
 | `WebAudit-*-macOS-dev.dmg` | `./orchestrate-macos.sh dev-dmg` |
 
 ```bash

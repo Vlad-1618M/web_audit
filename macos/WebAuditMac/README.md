@@ -2,7 +2,7 @@
 
 Native macOS app for site owners — same flow as [designs/swift](../../designs/swift/) mockups.
 
-**Status:** **0.1.0-beta** · **DMG:** signed/notarized pipeline (`orchestrate-macos.sh public-notarize`); unsigned: Right-click → Open on first launch
+**Status:** **0.1.0** (stable) · **Release DMG:** `public-notarize` (Developer ID + Apple notarized) · tag `macos-v0.1.0`
 
 **Architecture & module guide (non-Swift devs):** [SWIFT_APP_GUIDE.md](SWIFT_APP_GUIDE.md) — file-by-file map, libraries, dev build vs `.dmg`, screenshot placeholders, Mermaid diagrams.
 
@@ -45,7 +45,7 @@ open .build/debug/WebAuditMac          # detached, but does not pass custom env 
 (.build/debug/WebAuditMac &)           # manual background; disown optional
 ```
 
-First launch avoids Gatekeeper blocking an unsigned binary. For Finder double-click, use Right-click → **Open** until notarized.
+Local `swift build` / unsigned DMG: Gatekeeper may block on first open — use Right-click → **Open** once. Notarized release DMG (`public-notarize`) opens normally.
 
 **Quit:** **⌘Q** on the app window — not Ctrl+C in Terminal (that does not stop a GUI app or Docker cleanly).
 
@@ -87,9 +87,10 @@ Use the orchestrator from `macos/` (two DMG tracks):
 
 ```bash
 cd macos
-./orchestrate-macos.sh public-dmg   # site owners → installers/WebAudit-<VERSION>-macOS.dmg
 ./orchestrate-macos.sh public-smoke
-./orchestrate-macos.sh dev-dmg      # developers → installers/WebAudit-<VERSION>-macOS-dev.dmg
+./orchestrate-macos.sh public-notarize   # signed + notarized → ship WebAudit-<VERSION>-macOS.dmg
+./orchestrate-macos.sh public-dmg        # unsigned quick build
+./orchestrate-macos.sh dev-dmg           # developers → WebAudit-<VERSION>-macOS-dev.dmg
 ./orchestrate-macos.sh dev-smoke
 ```
 
@@ -98,11 +99,11 @@ Public `INSTALL.txt` does **not** mention Docker; dev `INSTALL.txt` documents ex
 
 **Supported macOS:** 13, 14, 15 (see `VERSION` + [RELEASE_NOTES.md](RELEASE_NOTES.md) → public notes in `packaging/public-installer/`).
 
-**GitHub Release:** push tag `macos-v0.1.0-beta` or run workflow **Release macOS app** (uploads DMG + release notes).
+**GitHub Release:** push tag `macos-v0.1.0` or run workflow **Release macOS app** (uploads DMG + release notes).
 
 **Unit tests:** `swift test` (requires full **Xcode.app** selected in `xcode-select`, not Command Line Tools alone). CI runs tests on `macos-14`.
 
-First launch (unsigned): **Right-click → Open** in Applications.
+Local debug builds (unsigned): **Right-click → Open** on first launch if Gatekeeper blocks.
 
 ---
 
@@ -114,7 +115,7 @@ open Package.swift   # opens as Swift package in Xcode
 # Run scheme WebAuditMac (My Mac)
 ```
 
-Notarization / Developer ID signing — Stage 2 (after DMG pipeline is verified).
+Signing & notarization: [packaging/public-installer/SIGNING.md](../packaging/public-installer/SIGNING.md)
 
 ---
 
@@ -138,10 +139,10 @@ Notarization / Developer ID signing — Stage 2 (after DMG pipeline is verified)
 
 | Step | Status |
 |------|--------|
-| Public + dev `.dmg` scripts | **Done** — `../orchestrate-macos.sh public-dmg` / `dev-dmg` |
-| GitHub Releases `.dmg` | Workflow `.github/workflows/release-macos.yml` (tag `macos-v*`) |
-| muzar.io download page | Link to GitHub Release asset (placeholder until tag) |
-| Apple notarization | **Later** (unsigned: Right-click → Open) |
+| Public + dev `.dmg` scripts | **Done** — `public-dmg` / `dev-dmg` |
+| Developer ID + notarization | **Done** — `public-notarize` (see SIGNING.md) |
+| GitHub Releases `.dmg` | Tag `macos-v0.1.0` — upload **notarized** DMG (CI build is unsigned) |
+| muzar.io download page | Link to GitHub Release asset |
 
 ---
 

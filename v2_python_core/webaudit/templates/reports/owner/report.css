@@ -2064,6 +2064,9 @@ details[open] summary {
 .score-cell.score-band.poor .n { color: #ff9f6b; text-shadow: 0 0 28px rgba(255, 107, 53, 0.35); }
 .score-cell.score-band.critical .n { color: var(--coral); text-shadow: 0 0 28px rgba(255, 51, 85, 0.45); }
 .score-cell.v .n { font-size: 1rem; color: var(--magenta); padding-top: 0.75rem; }
+.score-cell.v.pass .n { color: var(--lime); text-shadow: 0 0 28px rgba(57, 255, 140, 0.45); }
+.score-cell.v.needs-attention .n { color: var(--gold); text-shadow: 0 0 28px rgba(255, 193, 77, 0.45); }
+.score-cell.v.at-risk .n { color: var(--coral); text-shadow: 0 0 28px rgba(255, 51, 85, 0.45); }
 .score-cell .l {
   font-size: 0.7rem;
   color: var(--muted);
@@ -2128,6 +2131,49 @@ header.hero {
   gap: 0.75rem;
   border: 1px solid rgba(255, 193, 77, 0.28);
   background: linear-gradient(135deg, rgba(255, 193, 77, 0.09) 0%, rgba(255, 51, 85, 0.04) 100%);
+}
+
+.verdict-banner.pass {
+  border-color: rgba(57, 255, 140, 0.45);
+  background: linear-gradient(135deg, rgba(57, 255, 140, 0.14) 0%, rgba(0, 240, 255, 0.06) 100%);
+  box-shadow: 0 0 28px rgba(57, 255, 140, 0.14);
+  color: var(--lime);
+}
+
+.verdict-banner.pass .verdict-icon {
+  filter: drop-shadow(0 0 8px var(--lime));
+}
+
+.verdict-banner.pass strong {
+  color: var(--text);
+}
+
+.executive-summary-block .verdict-banner.pass {
+  border-color: rgba(57, 255, 140, 0.38);
+  background: linear-gradient(135deg, rgba(57, 255, 140, 0.11) 0%, rgba(0, 240, 255, 0.05) 100%);
+  box-shadow: none;
+}
+
+.verdict-banner.needs-attention {
+  border-color: rgba(255, 193, 77, 0.4);
+  background: linear-gradient(135deg, rgba(255, 193, 77, 0.12) 0%, rgba(255, 51, 85, 0.06) 100%);
+  box-shadow: 0 0 30px rgba(255, 193, 77, 0.15);
+  color: #ffe8b8;
+}
+
+.verdict-banner.needs-attention .verdict-icon {
+  filter: drop-shadow(0 0 8px var(--gold));
+}
+
+.verdict-banner.at-risk {
+  border-color: rgba(255, 51, 85, 0.5);
+  background: linear-gradient(135deg, rgba(255, 51, 85, 0.16) 0%, rgba(255, 0, 128, 0.08) 100%);
+  box-shadow: 0 0 30px rgba(255, 51, 85, 0.18);
+  color: #ffb8c8;
+}
+
+.verdict-banner.at-risk .verdict-icon {
+  filter: drop-shadow(0 0 8px var(--coral));
 }
 
 .executive-summary-block .verdict-icon {

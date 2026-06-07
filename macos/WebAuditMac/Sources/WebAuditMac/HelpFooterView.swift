@@ -28,7 +28,7 @@ struct HelpFooterView: View {
                     advancedRow("Path", viewModel.engineInfo.path.isEmpty ? "—" : viewModel.engineInfo.path)
                     advancedRow("Reports", ScanRunner.outputRoot.path)
                     advancedRow("Failure logs", ScanFailureLogWriter.defaultLogsDirectory.path)
-                    Text("Notarization: in progress — first open may require Right-click → Open")
+                    Text("Beta (unsigned) — first launch may require Right-click → Open on Web Audit")
                         .font(.system(size: 12))
                         .foregroundStyle(onDarkBackground ? ReportTheme.muted : .secondary)
                         .padding(.top, 4)

@@ -362,6 +362,9 @@ body > * { position: relative; z-index: 1; }
 .score-cell.score-band.poor .n { color: #ff9f6b; text-shadow: 0 0 28px rgba(255, 107, 53, 0.35); }
 .score-cell.score-band.critical .n { color: var(--coral); text-shadow: 0 0 28px rgba(255, 51, 85, 0.45); }
 .score-cell.v .n { font-size: 1rem; color: var(--magenta); padding-top: 0.75rem; }
+.score-cell.v.pass .n { color: var(--lime); text-shadow: 0 0 28px rgba(57, 255, 140, 0.45); }
+.score-cell.v.needs-attention .n { color: var(--gold); text-shadow: 0 0 28px rgba(255, 193, 77, 0.45); }
+.score-cell.v.at-risk .n { color: var(--coral); text-shadow: 0 0 28px rgba(255, 51, 85, 0.45); }
 .score-scale { font-size: 1rem; font-weight: 600; color: var(--muted); margin-left: 0.1rem; }
 
 .score-cell .l {

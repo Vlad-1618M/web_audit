@@ -11,21 +11,23 @@ final class ScanRunnerTests: XCTestCase {
             "scan", "https://example.com",
             "-v",
             "--js",
+            "--api",
             "--open", "none",
             "-o", ScanRunner.outputRoot.path,
         ])
     }
 
-    func testHostCliScanArgumentsIncludeJs() {
+    func testHostCliScanArgumentsIncludeJsAndApi() {
         let args = ScanRunner.scanProcessArguments(
             engineKind: .webauditCLI,
             url: "https://example.com"
         )
         XCTAssertTrue(args.contains("--js"))
+        XCTAssertTrue(args.contains("--api"))
         XCTAssertEqual(args.first, "scan")
     }
 
-    func testDockerScanArgumentsIncludeJs() {
+    func testDockerScanArgumentsIncludeJsAndApi() {
         let args = ScanRunner.scanProcessArguments(
             engineKind: .webauditDocker,
             url: "https://example.com"
@@ -37,6 +39,7 @@ final class ScanRunnerTests: XCTestCase {
             "scan", "https://example.com",
             "-v",
             "--js",
+            "--api",
         ])
     }
 }

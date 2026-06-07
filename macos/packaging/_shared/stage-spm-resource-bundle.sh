@@ -1,10 +1,11 @@
 # SwiftPM resource bundle for executable targets (Bundle.module).
-# Source after paths.sh. Places WebAuditMac_WebAuditMac.bundle beside Contents/ in .app.
+# Source after paths.sh. Places bundle under Contents/Resources/ (notarization-safe).
 
 stage_spm_resource_bundle() {
   local app="$1"
   local app_root="${2:-$APP_ROOT}"
   local bundle_name="WebAuditMac_WebAuditMac.bundle"
+  local dest_dir="$app/Contents/Resources"
 
   [[ -d "$app/Contents" ]] || {
     echo "error: not a .app bundle: $app" >&2
@@ -22,7 +23,8 @@ stage_spm_resource_bundle() {
     return 1
   fi
 
-  rm -rf "$app/${bundle_name}"
-  cp -R "$resource_bundle" "$app/"
-  echo "OK: staged ${bundle_name} from ${resource_bundle}"
+  mkdir -p "$dest_dir"
+  rm -rf "$app/${bundle_name}" "$dest_dir/${bundle_name}"
+  cp -R "$resource_bundle" "$dest_dir/"
+  echo "OK: staged ${bundle_name} → Contents/Resources/ (from ${resource_bundle})"
 }

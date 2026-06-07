@@ -5,12 +5,12 @@ SPM_RESOURCE_BUNDLE_NAME="WebAuditMac_WebAuditMac.bundle"
 
 assert_spm_resource_bundle() {
   local app="$1"
-  local bundle="$app/${SPM_RESOURCE_BUNDLE_NAME}"
+  local bundle="$app/Contents/Resources/${SPM_RESOURCE_BUNDLE_NAME}"
   [[ -d "$bundle" ]] || {
     echo "FAIL: missing SPM resource bundle: $bundle" >&2
     return 1
   }
-  echo "OK: ${SPM_RESOURCE_BUNDLE_NAME} present"
+  echo "OK: ${SPM_RESOURCE_BUNDLE_NAME} present (Contents/Resources)"
 }
 
 smoke_app_launch() {

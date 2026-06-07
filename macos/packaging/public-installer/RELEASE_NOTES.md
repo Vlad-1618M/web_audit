@@ -2,7 +2,7 @@
 
 ## 0.1.0-beta (unsigned)
 
-**Status:** Beta · **Signing:** Not notarized — use `Clear-Quarantine.command` in the DMG, then Right-click → Open if needed.
+**Status:** Beta · **Signing:** Developer ID + notarization in pipeline — unsigned builds: Right-click → Open on first launch.
 
 **DMG:** `WebAudit-0.1.0-beta-macOS.dmg` — self-contained; scan engine + headless browser bundled inside the app.
 
@@ -11,7 +11,7 @@
 ### What’s new since alpha
 
 - **JavaScript scans on by default** — Playwright + Chromium bundled; no extra setup for site owners
-- **`Clear-Quarantine.command`** in the DMG — one double-click after install clears download quarantine
+- **Default scan depth** — `--js` and `--api` on every scan (Playwright + GraphQL/OpenAPI probes)
 - **Web Audit Pro app icon** — from `webaudit_pro_icon.svg`, macOS squircle mask
 - **Report ready UI** — host on one line with title; full-width hoverable scanned URL
 - **Saved reports** — active **Viewing** row stays bright; other rows slightly dimmed
@@ -35,9 +35,8 @@
 
 1. Download `WebAudit-0.1.0-beta-macOS.dmg` from [GitHub Releases](https://github.com/Vlad-1618M/web_audit/releases) or [muzar.io](https://muzar.io/).
 2. Open DMG → drag **Web Audit** to **Applications**.
-3. Double-click **`Clear-Quarantine.command`** on the DMG (Terminal clears download quarantine), then open **Web Audit** from Applications.
-4. If macOS still warns once: **Right-click → Open** (unsigned build).
-5. Paste a URL and scan — see `INSTALL.txt` in the DMG if anything fails.
+3. Open **Web Audit** from Applications. If macOS warns on first launch: **Right-click → Open** → Open.
+4. Paste a URL and scan — see `INSTALL.txt` in the DMG if anything fails.
 
 ### Uninstall
 
@@ -45,7 +44,7 @@ Drag **Web Audit.app** to Trash. Reports in `~/Documents/WebAudit/` are optional
 
 ### Known limitations
 
-- Unsigned: Gatekeeper / “damaged” on first open — use `Clear-Quarantine.command` in the DMG, then Right-click → Open if needed
+- Unsigned builds: Gatekeeper on first open — Right-click → Open (notarized releases skip this)
 - WhatsApp / some social apps do not register with macOS Share — use Gmail in browser or save zip
 - Chrome as default “Mail” handler cannot attach files — use **Gmail in browser** or **Apple Mail** in the app
 

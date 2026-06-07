@@ -13,3 +13,5 @@ chmod +x vendor/create-dmg
 ```
 
 Background art: `../dmg-background.png` (regenerate with `../generate-dmg-background.py` — needs Pillow).
+
+**DPI:** The 2× PNG must be **144 DPI** so Finder maps 1320×800 px → 660×400 pt. At 72 DPI the background renders at double size and the window looks cropped until the user resizes manually.

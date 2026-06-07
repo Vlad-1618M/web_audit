@@ -49,7 +49,7 @@ Sorted newest first. Run `git fetch --tags` then `git tag -l --sort=-creatordate
 
 | Tag | Date (approx) | Type | Notes |
 |-----|---------------|------|-------|
-| `macos-v0.1.0-beta` | *tag next* | **Mac beta** | `WebAudit-0.1.0-beta-macOS.dmg` — JS default, Playwright bundled, quarantine helper, PRO icon, UI polish |
+| `macos-v0.1.0-beta` | *tag next* | **Mac beta** | `WebAudit-0.1.0-beta-macOS.dmg` — `--js` + `--api` default, Playwright bundled, signing/notarization pipeline, PRO icon, UI polish |
 | `macos-v0.1.0-alpha.1` | 2026-06 | **Mac alpha** | Launch fix (SPM resource bundle); supersedes broken `macos-v0.1.0-alpha` |
 | `macos-v0.1.0-alpha` | 2026-06 | **Mac alpha** | First public DMG — **do not use** (launch crash) |
 

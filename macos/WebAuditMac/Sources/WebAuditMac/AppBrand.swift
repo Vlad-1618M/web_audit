@@ -25,11 +25,11 @@ enum AppBrand {
         static let dockerPullImage = "ghcr.io/vlad-1618m/webaudit:latest"
 
         static let licenseNotice = """
-        Apple Developer ID signing and notarization are in progress for Web Audit Pro. \
-        Thank you for using this early release.
+        Web Audit Pro — beta (unsigned build). Each scan includes JavaScript rendering (--js) \
+        and GraphQL/OpenAPI checks (--api).
 
         If macOS blocks the app on first launch, open Applications, right-click Web Audit, \
-        choose Open, then confirm Open once.
+        choose Open, then confirm Open once. A signed, notarized release will remove this step.
         """
 
         static func openBundledInstallGuide() {

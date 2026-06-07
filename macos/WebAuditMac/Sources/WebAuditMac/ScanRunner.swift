@@ -213,7 +213,7 @@ final class ScanRunner {
         return "\(verdict) · Hygiene \(hygiene) · Exposure \(exposure)"
     }
 
-    /// Process arguments for ``runScan`` — public DMG, dev Docker, and host CLI all pass ``--js`` by default.
+    /// Process arguments for ``runScan`` — public DMG, dev Docker, and host CLI pass ``--js`` and ``--api`` by default.
     static func scanProcessArguments(engineKind: ScanEngineInfo.Kind, url: String) -> [String] {
         switch engineKind {
         case .bundled, .webauditCLI:
@@ -221,6 +221,7 @@ final class ScanRunner {
                 "scan", url,
                 "-v",
                 "--js",
+                "--api",
                 "--open", "none",
                 "-o", outputRoot.path,
             ]
@@ -232,6 +233,7 @@ final class ScanRunner {
                 "scan", url,
                 "-v",
                 "--js",
+                "--api",
             ]
         case .none:
             return []

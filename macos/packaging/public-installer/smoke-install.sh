@@ -36,11 +36,7 @@ install_from_dmg() {
   attach_dmg
   [[ -d "$MOUNT/${APP_NAME}.app" ]] || fail "App not in DMG ($MOUNT)"
   [[ -f "$MOUNT/INSTALL.txt" ]] || fail "INSTALL.txt not in DMG"
-  [[ -f "$MOUNT/Clear-Quarantine.command" ]] || fail "Clear-Quarantine.command not in DMG"
-  [[ -x "$MOUNT/Clear-Quarantine.command" ]] || fail "Clear-Quarantine.command not executable"
-  if ! grep -q 'xattr -cr' "$MOUNT/Clear-Quarantine.command"; then
-    fail "Clear-Quarantine.command missing xattr -cr"
-  fi
+  [[ ! -f "$MOUNT/Clear-Quarantine.command" ]] || fail "Clear-Quarantine.command must not be in public DMG"
   if grep -qiE 'docker desktop|webaudit-docker|docker pull' "$MOUNT/INSTALL.txt"; then
     fail "Public INSTALL.txt must not require Docker setup"
   fi

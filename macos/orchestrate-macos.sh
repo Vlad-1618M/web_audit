@@ -36,7 +36,9 @@ Usage:
   $(basename "$0") dev-dmg           Build dev DMG (Docker/venv engine on host)
   $(basename "$0") dev-smoke         Build + install smoke (dev DMG)
   $(basename "$0") dev-run           Launch Swift app for repo dev (run-dev.sh)
-  $(basename "$0") public-dmg        Build public DMG (bundled Python engine)
+  $(basename "$0") public-dmg        Build public DMG (bundled Python engine, unsigned)
+  $(basename "$0") public-signed-dmg Build + Developer ID sign + public DMG
+  $(basename "$0") public-notarize   Sign + notarize + staple app and DMG (release)
   $(basename "$0") public-smoke      Build + install smoke (public DMG)
   $(basename "$0") public-engine     Bundle Python engine only (no DMG)
   $(basename "$0") swift-test        Run WebAuditMac unit tests (needs full Xcode)
@@ -79,6 +81,15 @@ case "$cmd" in
   public-dmg)
     ensure_packaging_scripts "$PUBLIC" "public-installer"
     "$PUBLIC/build-dmg.sh"
+    ;;
+  public-signed-dmg)
+    ensure_packaging_scripts "$PUBLIC" "public-installer"
+    "$PUBLIC/build-signed-dmg.sh"
+    ;;
+  public-notarize)
+    ensure_packaging_scripts "$PUBLIC" "public-installer"
+    "$PUBLIC/build-signed-dmg.sh"
+    "$PUBLIC/notarize-release.sh"
     ;;
   public-smoke)
     ensure_packaging_scripts "$PUBLIC" "public-installer"

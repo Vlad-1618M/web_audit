@@ -13,6 +13,18 @@ assert_spm_resource_bundle() {
   echo "OK: ${SPM_RESOURCE_BUNDLE_NAME} present (Contents/Resources)"
 }
 
+assert_brand_png_resources() {
+  local app="$1"
+  local res="$app/Contents/Resources"
+  for name in vtool-trademark webaudit; do
+    [[ -f "$res/${name}.png" ]] || {
+      echo "FAIL: missing brand PNG: $res/${name}.png" >&2
+      return 1
+    }
+  done
+  echo "OK: brand PNGs present (Contents/Resources)"
+}
+
 smoke_app_launch() {
   local app="$1"
   local bin="$app/Contents/MacOS/WebAuditMac"
@@ -24,6 +36,7 @@ smoke_app_launch() {
   }
 
   assert_spm_resource_bundle "$app" || return 1
+  assert_brand_png_resources "$app" || return 1
 
   # Headless CI: app should not fatal on Bundle.module during startup.
   "$bin" &

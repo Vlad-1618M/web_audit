@@ -33,7 +33,9 @@ stage_spm_resource_bundle "$APP"
 
 cp "$ROOT/INSTALL.txt" "$APP/Contents/Resources/INSTALL.txt"
 "$ROOT/../_shared/make-icns.sh" "$APP/Contents/Resources/AppIcon.icns"
-cp "$APP_ROOT/Sources/WebAuditMac/Resources/"*.png "$APP/Contents/Resources/" 2>/dev/null || true
+# shellcheck source=../_shared/copy-brand-png-resources.sh
+source "$ROOT/../_shared/copy-brand-png-resources.sh"
+copy_brand_png_resources "$APP" "$APP_ROOT/Sources/WebAuditMac/Resources"
 
 rm -rf "$APP/Contents/Resources/Engine"
 cp -R "$ENGINE_SRC" "$APP/Contents/Resources/Engine"

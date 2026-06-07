@@ -32,11 +32,37 @@ enum AppBrand {
         }
 
         private static func bundledResourceURL(name: String, ext: String) -> URL? {
-            if let url = Bundle.main.url(forResource: name, withExtension: ext) {
+            resourceURL(name: name, ext: ext)
+        }
+    }
+
+    private static let spmResourceBundleName = "WebAuditMac_WebAuditMac"
+
+    /// SPM executable resources ship as a sibling `.bundle` under Contents/Resources/.
+    /// Never use `Bundle.module` — it fatals when that bundle is absent from the .app.
+    private static var spmResourceBundle: Bundle? {
+        guard let url = Bundle.main.url(
+            forResource: spmResourceBundleName,
+            withExtension: "bundle"
+        ) else { return nil }
+        return Bundle(url: url)
+    }
+
+    private static var resourceBundles: [Bundle] {
+        var bundles = [Bundle.main]
+        if let spm = spmResourceBundle {
+            bundles.append(spm)
+        }
+        return bundles
+    }
+
+    private static func resourceURL(name: String, ext: String) -> URL? {
+        for bundle in resourceBundles {
+            if let url = bundle.url(forResource: name, withExtension: ext) {
                 return url
             }
-            return Bundle.module.url(forResource: name, withExtension: ext)
         }
+        return nil
     }
 
     /// Web Audit shell version V1 — bash script for users who prefer Terminal.
@@ -69,7 +95,7 @@ enum AppBrand {
     }
 
     private static func loadImage(named name: String) -> NSImage? {
-        for bundle in [Bundle.main, Bundle.module] {
+        for bundle in resourceBundles {
             if let url = bundle.url(forResource: name, withExtension: "png"),
                let image = NSImage(contentsOf: url) {
                 return image

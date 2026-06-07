@@ -36,14 +36,13 @@ source "$LAYOUT_ENV"
 [[ -x "$CREATE_DMG" ]] || fail "missing create-dmg: $CREATE_DMG"
 [[ -d "$SHARED/vendor/support" ]] || fail "missing create-dmg support/: $SHARED/vendor/support"
 [[ -f "$BACKGROUND" ]] || fail "missing background: $BACKGROUND (run generate-dmg-background.py)"
+
+# 2× backgrounds must be 144 DPI or Finder treats pixels as points and crops the window.
+if command -v sips >/dev/null 2>&1; then
+  sips -s dpiWidth 144 -s dpiHeight 144 "$BACKGROUND" >/dev/null
+fi
 [[ -d "$STAGE/${APP_NAME}.app" ]] || fail "missing app in stage: $STAGE/${APP_NAME}.app"
 [[ -f "$STAGE/INSTALL.txt" ]] || fail "missing INSTALL.txt in stage"
-
-QUARANTINE_SCRIPT="Clear-Quarantine.command"
-DMG_EXTRA_ICONS=()
-if [[ -f "$STAGE/$QUARANTINE_SCRIPT" ]]; then
-  DMG_EXTRA_ICONS+=(--icon "$QUARANTINE_SCRIPT" "$DMG_QUARANTINE_X" "$DMG_QUARANTINE_Y")
-fi
 
 mkdir -p "$(dirname "$DMG_OUT")"
 rm -f "$DMG_OUT"
@@ -51,9 +50,6 @@ rm -f "$DMG_OUT"
 DMG_ARGS=(--volname "$VOLNAME")
 if [[ -n "${ICON_FILE:-}" && -f "${ICON_FILE}" ]]; then
   DMG_ARGS+=(--volicon "$ICON_FILE")
-fi
-if ((${#DMG_EXTRA_ICONS[@]} > 0)); then
-  DMG_ARGS+=("${DMG_EXTRA_ICONS[@]}")
 fi
 
 "$CREATE_DMG" \

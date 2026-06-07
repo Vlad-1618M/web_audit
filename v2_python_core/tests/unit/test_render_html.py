@@ -1,8 +1,10 @@
 """Tests for HTML report rendering."""
+from pathlib import Path
+
 from webaudit.models.finding import Finding, FindingClass, Severity
 from webaudit.models.run import AuditArtifacts, AuditMeta, AuditRun, AuditScores
 from webaudit.render.context import build_report_context
-from webaudit.render.html import render_html
+from webaudit.render.html import render_html, write_html_report
 from tests.url_helpers import assert_html_references_url
 
 def _sample_run() -> AuditRun:
@@ -66,6 +68,39 @@ def test_render_executive_html():
     assert 'report-footer-brand' in html
     assert 'href="https://muzar.io/"' in html
     assert 'Passive external scan only' in html
+
+def test_render_owner_pass_verdict_banner_is_green(tmp_path: Path):
+    """Pass verdict uses green executive-summary banner styling (not default gold)."""
+    run = AuditRun(
+        meta=AuditMeta(
+            target_url='https://example.com',
+            started_at='2026-05-29T12:00:00+00:00',
+            finished_at='2026-05-29T12:00:05+00:00',
+            webaudit_version='2.1.0b4',
+            framework='generic',
+        ),
+        scores=AuditScores(hygiene=91, exposure=100, verdict='PASS'),
+        findings=[
+            Finding.from_check(
+                category='HEADERS',
+                item='Strict-Transport-Security',
+                status='MISSING',
+                severity=Severity.MEDIUM,
+            ),
+        ],
+        artifacts=AuditArtifacts(),
+    )
+    html = render_html(run, variant='owner')
+    assert 'class="verdict-banner pass"' in html
+    assert 'class="score-cell v pass"' in html
+    assert 'No obvious sensitive files were publicly readable' in html
+
+    write_html_report(run, tmp_path, variant='owner')
+    css = (tmp_path / 'report.css').read_text(encoding='utf-8')
+    assert '.verdict-banner.pass' in css
+    assert '.score-cell.v.pass .n' in css
+    assert 'color: var(--lime)' in css
+
 
 def test_render_owner_combined_report():
     """Ensures Render Owner Combined Report."""

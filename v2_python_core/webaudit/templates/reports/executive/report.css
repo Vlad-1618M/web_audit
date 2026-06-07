@@ -292,6 +292,43 @@ header.hero {
   color: #ffe8b8;
 }
 
+.verdict-banner.pass {
+  border-color: rgba(57, 255, 140, 0.45);
+  background: linear-gradient(135deg, rgba(57, 255, 140, 0.14) 0%, rgba(0, 240, 255, 0.06) 100%);
+  box-shadow: 0 0 28px rgba(57, 255, 140, 0.14);
+  color: var(--lime);
+}
+
+.verdict-banner.pass .verdict-icon {
+  filter: drop-shadow(0 0 8px var(--lime));
+}
+
+.verdict-banner.pass strong {
+  color: var(--text);
+}
+
+.verdict-banner.needs-attention {
+  border-color: rgba(255, 193, 77, 0.4);
+  background: linear-gradient(135deg, rgba(255, 193, 77, 0.12) 0%, rgba(255, 51, 85, 0.06) 100%);
+  box-shadow: 0 0 30px rgba(255, 193, 77, 0.15);
+  color: #ffe8b8;
+}
+
+.verdict-banner.needs-attention .verdict-icon {
+  filter: drop-shadow(0 0 8px var(--gold));
+}
+
+.verdict-banner.at-risk {
+  border-color: rgba(255, 51, 85, 0.5);
+  background: linear-gradient(135deg, rgba(255, 51, 85, 0.16) 0%, rgba(255, 0, 128, 0.08) 100%);
+  box-shadow: 0 0 30px rgba(255, 51, 85, 0.18);
+  color: #ffb8c8;
+}
+
+.verdict-banner.at-risk .verdict-icon {
+  filter: drop-shadow(0 0 8px var(--coral));
+}
+
 .verdict-icon {
   font-size: 2rem;
   line-height: 1;

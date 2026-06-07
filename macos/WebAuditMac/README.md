@@ -2,7 +2,7 @@
 
 Native macOS app for site owners — same flow as [designs/swift](../../designs/swift/) mockups.
 
-**Status:** **0.1.0-beta** (unsigned) · **DMG / notarization:** in progress (`Clear-Quarantine.command` + Right-click → Open for now)
+**Status:** **0.1.0-beta** · **DMG:** signed/notarized pipeline (`orchestrate-macos.sh public-notarize`); unsigned: Right-click → Open on first launch
 
 **Architecture & module guide (non-Swift devs):** [SWIFT_APP_GUIDE.md](SWIFT_APP_GUIDE.md) — file-by-file map, libraries, dev build vs `.dmg`, screenshot placeholders, Mermaid diagrams.
 

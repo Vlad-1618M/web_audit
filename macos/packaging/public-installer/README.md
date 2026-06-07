@@ -14,7 +14,7 @@ Downloads a relocatable Python (first run only), installs `webaudit` from `v2_py
 
 `../installers/WebAudit-<version>-macOS.dmg`
 
-The DMG also includes **`Clear-Quarantine.command`** — early adopters double-click it after dragging the app to Applications; Terminal clears download quarantine (`xattr -cr`). Steps are in `INSTALL.txt`.
+DMG contents: **Web Audit.app**, **INSTALL.txt**, and an **Applications** shortcut. First launch on unsigned builds: Right-click → Open (see `INSTALL.txt`).
 
 ## Smoke test
 
@@ -22,4 +22,14 @@ The DMG also includes **`Clear-Quarantine.command`** — early adopters double-c
 ./smoke-install.sh
 ```
 
-Validates DMG install, `Clear-Quarantine.command`, correct `INSTALL.txt` (no Docker setup steps), Playwright bundle, and bundled `Engine/bin/webaudit --help`.
+Validates DMG install (no quarantine script), correct `INSTALL.txt` (no Docker setup steps), Playwright bundle, and bundled `Engine/bin/webaudit --help`.
+
+## Signing & notarization
+
+See [SIGNING.md](SIGNING.md). Release path:
+
+```bash
+cd macos && ./orchestrate-macos.sh public-notarize
+```
+
+Local memo: `~/webaudit-release-tools/MAC_SIGNING_MEMO.txt`

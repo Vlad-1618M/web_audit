@@ -18,7 +18,7 @@
     <div class="n">{{ scores.exposure }}</div>
     <div class="l">Leak protection{% if scores.exposure >= 100 %} · no leaks{% endif %}</div>
   </div>
-  <div class="score-cell v">
+  <div class="score-cell v {{ verdict_banner_class }}">
     <div class="n">{{ scores.verdict.replace('_', ' ') }}</div>
     <div class="l">Verdict</div>
   </div>

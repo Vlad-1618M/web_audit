@@ -41,6 +41,13 @@ Or step-by-step from `packaging/public-installer/`:
 
 ## Troubleshooting
 
+Playwright’s bundled **Google Chrome for Testing** must be signed inside-out: all Mach-O files deepest-first, then every `.framework` and `.app` bundle (including `Google Chrome for Testing Framework.framework`). `sign-app-bundle.sh` does this; if notarization reports *invalid signature* on Chrome, re-run sign and check:
+
+```bash
+codesign --verify --deep --strict --verbose=2 \
+  "build/Web Audit.app/Contents/Resources/Engine/playwright-browsers/chromium-"*/chrome-mac-arm64/Google\ Chrome\ for\ Testing.app
+```
+
 ```bash
 security find-identity -v -p codesigning
 xcrun notarytool history --keychain-profile webaudit-notarize

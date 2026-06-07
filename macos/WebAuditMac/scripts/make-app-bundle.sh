@@ -31,7 +31,9 @@ source "$ROOT/../packaging/_shared/stage-spm-resource-bundle.sh"
 stage_spm_resource_bundle "$APP"
 
 "$ROOT/scripts/make-icns.sh" "$APP/Contents/Resources/AppIcon.icns"
-cp "$ROOT/Sources/WebAuditMac/Resources/"*.png "$APP/Contents/Resources/" 2>/dev/null || true
+# shellcheck source=../../packaging/_shared/copy-brand-png-resources.sh
+source "$ROOT/../packaging/_shared/copy-brand-png-resources.sh"
+copy_brand_png_resources "$APP" "$ROOT/Sources/WebAuditMac/Resources"
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

@@ -38,8 +38,11 @@ Or step-by-step from `packaging/public-installer/`:
 | `SIGN_ID` | Auto: first `Developer ID Application` in Keychain |
 | `NOTARY_PROFILE` | `webaudit-notarize` |
 | `ENTITLEMENTS` | `entitlements.plist` in this directory |
+| `ENGINE_JIT_ENTITLEMENTS` | `engine-jit-entitlements.plist` — Playwright `node` driver + Chromium |
 
 ## Troubleshooting
+
+Playwright’s bundled **node driver** and **Google Chrome for Testing** need JIT entitlements under hardened runtime (`engine-jit-entitlements.plist`). Without them, `--js` scans fail with `PlaywrightContextManager … _playwright`. `sign-app-bundle.sh` re-signs those helpers after the base Engine sign pass.
 
 Playwright’s bundled **Google Chrome for Testing** must be signed inside-out: all Mach-O files deepest-first, then every `.framework` and `.app` bundle (including `Google Chrome for Testing Framework.framework`). `sign-app-bundle.sh` does this; if notarization reports *invalid signature* on Chrome, re-run sign and check:
 

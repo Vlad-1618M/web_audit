@@ -129,6 +129,20 @@ def normalize_js_error(
             fix_steps=install_steps,
         )
 
+    if "_playwright" in lower and "playwrightcontextmanager" in lower:
+        return JsErrorInfo(
+            code="driver_init",
+            message=(
+                "Playwright could not start its browser driver on this machine. "
+                "On the Mac app, reinstall the signed release DMG; if it persists, contact support."
+            ),
+            fix_steps=[
+                "Mac app: quit Web Audit, reinstall from the official GitHub Releases DMG, then scan again.",
+                "CLI/dev: run from the same venv that runs webaudit, then retry with --js.",
+                *install_steps[:2],
+            ],
+        )
+
     short = re.sub(r"^[A-Za-z.]+:\s*", "", text.splitlines()[0])[:200]
     if "/" in short or "\\" in short or "ms-playwright" in short.lower():
         short = f"Playwright could not start {label} on this machine."

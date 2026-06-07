@@ -24,13 +24,7 @@ enum AppBrand {
         )!
         static let dockerPullImage = "ghcr.io/vlad-1618m/webaudit:latest"
 
-        static let licenseNotice = """
-        Web Audit Pro — beta (unsigned build). Each scan includes JavaScript rendering (--js) \
-        and GraphQL/OpenAPI checks (--api).
-
-        If macOS blocks the app on first launch, open Applications, right-click Web Audit, \
-        choose Open, then confirm Open once. A signed, notarized release will remove this step.
-        """
+        static var licenseNotice: String { AppDistribution.licenseNotice }
 
         static func openBundledInstallGuide() {
             guard let url = bundledResourceURL(name: "INSTALL", ext: "txt") else { return }

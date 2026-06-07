@@ -77,6 +77,20 @@ if [[ -z "$(find "$BROWSERS_DIR" -type f 2>/dev/null | head -1)" ]]; then
   exit 1
 fi
 
+echo "==> Smoke: Playwright driver + Chromium launch"
+export PLAYWRIGHT_BROWSERS_PATH="$BROWSERS_DIR"
+if ! "$ENGINE_OUT/python/bin/python3" - <<'PY' >/dev/null 2>&1; then
+from playwright.sync_api import sync_playwright
+
+with sync_playwright() as playwright:
+    browser = playwright.chromium.launch(headless=True)
+    browser.close()
+PY
+  echo "error: Playwright driver smoke test failed (sync_playwright / chromium.launch)" >&2
+  exit 1
+fi
+echo "    Playwright driver OK"
+
 cat > "$ENGINE_OUT/bin/webaudit" <<'WRAP'
 #!/usr/bin/env bash
 set -euo pipefail

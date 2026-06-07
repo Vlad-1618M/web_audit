@@ -64,7 +64,7 @@ cd macos
 ./orchestrate-macos.sh public-notarize   # Developer ID + notarytool + staple
 ```
 
-See [SIGNING.md](SIGNING.md).
+See [SIGNING.md](macos/packaging/public-installer/SIGNING.md).
 
 ---
 

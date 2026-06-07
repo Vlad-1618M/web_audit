@@ -102,6 +102,24 @@ def test_render_owner_pass_verdict_banner_is_green(tmp_path: Path):
     assert 'color: var(--lime)' in css
 
 
+def test_render_owner_dashboard_pass_verdict_tag_is_green():
+    """Dashboard header verdict tag uses pass styling when verdict is PASS."""
+    run = AuditRun(
+        meta=AuditMeta(
+            target_url='https://example.com',
+            started_at='2026-05-29T12:00:00+00:00',
+            finished_at='2026-05-29T12:00:05+00:00',
+            webaudit_version='2.1.0b4',
+            framework='generic',
+        ),
+        scores=AuditScores(hygiene=91, exposure=100, verdict='PASS'),
+        findings=[],
+        artifacts=AuditArtifacts(),
+    )
+    html = render_html(run, variant='owner')
+    assert 'class="tag verdict pass"' in html
+
+
 def test_render_owner_combined_report():
     """Ensures Render Owner Combined Report."""
     html = render_html(_sample_run(), variant='owner')

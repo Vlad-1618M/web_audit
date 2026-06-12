@@ -37,7 +37,8 @@ def test_render_technical_shows_api_not_used():
     html = render_html(_base_run(), variant='technical')
     assert 'id="api-probes"' in html
     assert 'API surface probes not run' in html
-    assert 'webaudit scan https://example.com --api' in html
+    assert 'webaudit-docker scan https://example.com' in html
+    assert '--api' in html
 
 def test_render_technical_shows_api_ran():
     """Ensures Render Technical Shows API Ran."""

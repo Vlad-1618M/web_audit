@@ -21,14 +21,12 @@ A) Docker (recommended for most devs)
 
    One-time Terminal setup for webaudit-docker:
 
-     docker pull ghcr.io/vlad-1618m/webaudit:latest
+     curl -fsSL https://raw.githubusercontent.com/Vlad-1618M/web_audit/v.tools_main/v2_python_core/scripts/install-webaudit-docker.sh | bash
 
-     mkdir -p ~/.local/bin
-     docker run --rm --entrypoint cat ghcr.io/vlad-1618m/webaudit:latest \
-       /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
-     chmod +x ~/.local/bin/webaudit-docker
+   (Pulls image, installs ~/.local/bin/webaudit-docker, adds PATH to your shell profile when needed.)
 
-   Ensure ~/.local/bin is on your PATH.
+   If the command is not found: export PATH="$HOME/.local/bin:$PATH"
+   (or source the profile file the installer printed, or open a new terminal)
 
    Full guide:
    https://github.com/Vlad-1618M/web_audit/blob/v.tools_main/v2_python_core/docs/getting_started_plain.md

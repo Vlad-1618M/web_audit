@@ -4,10 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from webaudit.collectors.js_errors import js_error_from_artifact, playwright_install_steps
+from webaudit.collectors.js_errors import full_scan_enable_steps, js_error_from_artifact
 from webaudit.models.finding import Finding
-
-_DEFAULT_FIX = playwright_install_steps("chromium", include_scan=False)
 
 _STATUS_LABELS = {
     "not_used": "Not run",
@@ -71,8 +69,6 @@ def build_js_section(
     static_links = int(html_inv.get("link_count") or 0)
     js_art = inventory.get("js") or {}
 
-    scan_cmd = f"webaudit scan {target_url.rstrip('/')} --js"
-
     spa_signal = any(
         finding.category == "HTML" and finding.status == "SPA_SIGNAL"
         for finding in (findings or [])
@@ -89,7 +85,7 @@ def build_js_section(
                     "This scan read static homepage HTML only (httpx). "
                     "Client-rendered SPAs may show fewer links and assets than a real browser."
                 ),
-                "fix_steps": _DEFAULT_FIX + [scan_cmd],
+                "fix_steps": full_scan_enable_steps(target_url, js=True),
                 "inventory_rows": [],
                 "spa_signal": spa_signal,
                 "stats": [],
@@ -106,7 +102,7 @@ def build_js_section(
                 "tone": "warn",
                 "headline": "JavaScript render pass skipped",
                 "summary": err.message if err else "Playwright was not available for this scan.",
-                "fix_steps": err.fix_steps if err else _DEFAULT_FIX + [scan_cmd],
+                "fix_steps": err.fix_steps if err else full_scan_enable_steps(target_url, js=True),
                 "inventory_rows": [{"bucket": "JS render (Playwright)", "count": "Skipped"}],
                 "spa_signal": spa_signal,
                 "stats": [],
@@ -122,7 +118,7 @@ def build_js_section(
                 "tone": "warn",
                 "headline": "JavaScript render pass failed",
                 "summary": err.message if err else "Playwright could not render the homepage.",
-                "fix_steps": err.fix_steps if err else _DEFAULT_FIX + [scan_cmd],
+                "fix_steps": err.fix_steps if err else full_scan_enable_steps(target_url, js=True),
                 "inventory_rows": [{"bucket": "JS render (Playwright)", "count": "Error"}],
                 "spa_signal": spa_signal,
                 "stats": [],

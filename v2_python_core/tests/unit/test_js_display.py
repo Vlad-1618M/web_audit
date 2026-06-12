@@ -29,7 +29,8 @@ def test_render_technical_shows_js_not_used():
     html = render_html(_base_run(), variant='technical')
     assert 'id="js-render"' in html
     assert 'JavaScript render pass not run' in html
-    assert 'webaudit scan https://example.com --js' in html
+    assert 'webaudit-docker scan https://example.com' in html
+    assert '--js' in html
     assert '/Users/' not in html
 
 def test_render_technical_shows_js_ran():

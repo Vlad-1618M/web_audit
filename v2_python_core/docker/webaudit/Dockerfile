@@ -2,9 +2,8 @@
 # Build:  docker build -f docker/webaudit/Dockerfile -t webaudit:local .
 # Run:    docker run --rm webaudit:local scan https://example.com --js --open none
 #
-# Pull-only users: extract the host wrapper (mount + browser open on your Mac/Linux):
-#   docker run --rm --entrypoint cat webaudit:local /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
-#   chmod +x ~/.local/bin/webaudit-docker
+# Pull-only users: install host wrapper (pull + PATH + ~/.local/bin/webaudit-docker):
+#   curl -fsSL https://raw.githubusercontent.com/Vlad-1618M/web_audit/v.tools_main/v2_python_core/scripts/install-webaudit-docker.sh | bash
 
 FROM python:3.12-slim-bookworm
 
@@ -22,11 +21,13 @@ WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY webaudit ./webaudit
 COPY scripts/webaudit-docker.sh /usr/share/webaudit/webaudit-docker.sh
+COPY scripts/install-webaudit-docker.sh /usr/share/webaudit/install-webaudit-docker.sh
 
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir ".[js]" \
     && python -m playwright install --with-deps chromium chromium-headless-shell \
-    && chmod 755 /usr/share/webaudit/webaudit-docker.sh
+    && chmod 755 /usr/share/webaudit/webaudit-docker.sh \
+    && chmod 755 /usr/share/webaudit/install-webaudit-docker.sh
 
 ENV WEBAUDIT_OUTPUT_DIR=/work/audit_logs
 WORKDIR /work

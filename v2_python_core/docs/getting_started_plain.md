@@ -20,18 +20,23 @@ You need **Docker Desktop** (Mac/Windows) or Docker on Linux, plus about five mi
 
 ### Step 1 — One-time setup
 
-Open Terminal and run these lines (copy all three):
+Open Terminal and run **one command** (pulls the image, installs the helper, fixes `PATH`):
 
 ```bash
-docker pull ghcr.io/vlad-1618m/webaudit:latest
-
-mkdir -p ~/.local/bin
-docker run --rm --entrypoint cat ghcr.io/vlad-1618m/webaudit:latest \
-  /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
-chmod +x ~/.local/bin/webaudit-docker
+curl -fsSL https://raw.githubusercontent.com/Vlad-1618M/web_audit/v.tools_main/v2_python_core/scripts/install-webaudit-docker.sh | bash
 ```
 
-That installs a small helper called **`webaudit-docker`** on your computer. It talks to Docker for you.
+That installs a small helper called **`webaudit-docker`** in `~/.local/bin` and adds that folder to your `PATH` in your shell profile when needed (zsh, bash, etc.).
+
+If `webaudit-docker` is not found, run:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+For a **new** terminal after install, source the profile file the installer updated (it prints the path), or open a fresh terminal window.
+
+Or from a git clone: `cd v2_python_core && ./scripts/install-webaudit-docker.sh`
 
 ### Step 2 — Scan your site
 
@@ -40,6 +45,8 @@ Replace the URL with **your** website (only sites you own or may test):
 ```bash
 webaudit-docker --output-dir documents scan https://yoursite.com -v --open html
 ```
+
+(`webaudit-docker` adds `--js` and `--api` automatically — same as the Mac app. Use `--shallow` for a quicker static-only scan.)
 
 - Reports are saved under **`~/Documents/WebAudit/`** on your Mac (or Linux equivalent).
 - When the scan finishes, it can **open the HTML report in your browser** automatically.

@@ -304,7 +304,18 @@ If you only `docker pull ghcr.io/vlad-1618m/webaudit`, use the **host wrapper** 
 - Runs the scan in the container with `--open none`
 - Opens `report.html` in **your** browser (or prompts y/N)
 
-**One-time install** (after `docker pull`):
+**One-time install** (recommended — pull, extract wrapper, `PATH`):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Vlad-1618M/web_audit/v.tools_main/v2_python_core/scripts/install-webaudit-docker.sh | bash
+```
+
+From a git clone: `cd v2_python_core && ./scripts/install-webaudit-docker.sh`
+
+Pin a different image: `WEBAUDIT_DOCKER_IMAGE=ghcr.io/vlad-1618m/webaudit:2.1.0b4 ./scripts/install-webaudit-docker.sh`
+
+<details>
+<summary>Manual install (same as the script)</summary>
 
 ```bash
 IMAGE=ghcr.io/vlad-1618m/webaudit:latest   # or :2.1.0b4, :sha-abc1234, etc.
@@ -313,21 +324,32 @@ mkdir -p ~/.local/bin
 docker run --rm --entrypoint cat "$IMAGE" \
   /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
 chmod +x ~/.local/bin/webaudit-docker
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# Optional — persist (pick one line for your shell):
+# echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc        # zsh (macOS default)
+# echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc       # bash (Linux)
+# echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bash_profile # bash (macOS login)
+# then: source that file, or open a new terminal
 ```
 
-Add `~/.local/bin` to `PATH` if needed (`export PATH="$HOME/.local/bin:$PATH"` in `~/.zshrc`).
+</details>
 
-**Every scan:**
+**Every scan** (default adds `--js` + `--api`; `--shallow` for static-only):
 
 ```bash
 # Interactive: scan then y/N to open report.html
 webaudit-docker scan https://example.com
 
 # Verbose + save under ~/Documents/WebAudit + open HTML
-webaudit-docker --output-dir documents scan https://example.com -v --api --open html
+webaudit-docker --output-dir documents scan https://example.com -v --open html
 
 # Pin a specific image tag
 webaudit-docker --image ghcr.io/vlad-1618m/webaudit:sha-989bb7e scan https://example.com -v --open html
+
+webaudit-docker version
+webaudit-docker engine-help
 ```
 
 | Wrapper flag | Purpose |
@@ -348,7 +370,7 @@ chmod +x ~/.local/bin/webaudit-docker
 
 **Common mistake:** `docker run … scan URL --open html` without a volume or wrapper. The CLI detects Docker and prints install hints; reports may stay inside the container. Always use **`webaudit-docker`** or **`--open none`** + a bind mount.
 
-**Note:** `--js` (Playwright) is **not** included in the stock GHCR image — JS pass is skipped. Use a local venv with `pip install -e ".[js]"` for JS scans.
+**Scan depth:** The GHCR image includes Playwright (`.[js]` + Chromium). **`webaudit-docker`** adds **`--js`** and **`--api`** by default (same as the Mac app). Use **`--shallow`** for a static-only scan. Engine version: `webaudit-docker version`; all scan flags: `webaudit-docker engine-help`.
 
 ---
 

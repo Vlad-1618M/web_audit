@@ -48,7 +48,16 @@ Browsers **cannot** open from inside the container. Do **not** use `docker run �
 
 ### Pull only — recommended for site owners
 
-**One-time setup** (install the small host helper from the image you already pulled):
+**One-time setup** (pull image, install `webaudit-docker` on your Mac/Linux, add `~/.local/bin` to `PATH`):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Vlad-1618M/web_audit/v.tools_main/v2_python_core/scripts/install-webaudit-docker.sh | bash
+```
+
+From a git clone: `cd v2_python_core && ./scripts/install-webaudit-docker.sh`
+
+<details>
+<summary>Manual setup (same steps as the install script)</summary>
 
 ```bash
 docker pull ghcr.io/vlad-1618m/webaudit:latest
@@ -57,18 +66,30 @@ mkdir -p ~/.local/bin
 docker run --rm --entrypoint cat ghcr.io/vlad-1618m/webaudit:latest \
   /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
 chmod +x ~/.local/bin/webaudit-docker
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# Optional — persist (pick one line for your shell):
+# echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc        # zsh (macOS default)
+# echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc       # bash (Linux)
+# echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bash_profile # bash (macOS login)
+# then: source that file, or open a new terminal
 ```
 
-Ensure `~/.local/bin` is on your `PATH` (macOS Terminal often includes it; otherwise add to `~/.zshrc`).
+</details>
 
-**Every scan:**
+**Every scan** (`--js` and `--api` are added by default — same depth as the Mac app; use `--shallow` to skip):
 
 ```bash
 # Scan + prompt y/N to open report.html
 webaudit-docker scan https://example.com
 
 # Verbose scan, save under ~/Documents/WebAudit, open HTML when done
-webaudit-docker --output-dir documents scan https://example.com -v --api --open html
+webaudit-docker --output-dir documents scan https://example.com -v --open html
+
+# Engine version and scan flags
+webaudit-docker version
+webaudit-docker engine-help
 ```
 
 Reports stay on **your machine** (`~/Documents/WebAudit`, `./audit_logs`, etc.). Multi-arch image: Intel Mac, Apple Silicon, Linux.

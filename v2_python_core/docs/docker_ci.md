@@ -304,7 +304,18 @@ If you only `docker pull ghcr.io/vlad-1618m/webaudit`, use the **host wrapper** 
 - Runs the scan in the container with `--open none`
 - Opens `report.html` in **your** browser (or prompts y/N)
 
-**One-time install** (after `docker pull`):
+**One-time install** (recommended — pull, extract wrapper, `PATH`):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Vlad-1618M/web_audit/v.tools_main/v2_python_core/scripts/install-webaudit-docker.sh | bash
+```
+
+From a git clone: `cd v2_python_core && ./scripts/install-webaudit-docker.sh`
+
+Pin a different image: `WEBAUDIT_DOCKER_IMAGE=ghcr.io/vlad-1618m/webaudit:2.1.0b4 ./scripts/install-webaudit-docker.sh`
+
+<details>
+<summary>Manual install (same as the script)</summary>
 
 ```bash
 IMAGE=ghcr.io/vlad-1618m/webaudit:latest   # or :2.1.0b4, :sha-abc1234, etc.
@@ -313,9 +324,17 @@ mkdir -p ~/.local/bin
 docker run --rm --entrypoint cat "$IMAGE" \
   /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
 chmod +x ~/.local/bin/webaudit-docker
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# Optional — persist (pick one line for your shell):
+# echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc        # zsh (macOS default)
+# echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc       # bash (Linux)
+# echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bash_profile # bash (macOS login)
+# then: source that file, or open a new terminal
 ```
 
-Add `~/.local/bin` to `PATH` if needed (`export PATH="$HOME/.local/bin:$PATH"` in `~/.zshrc`).
+</details>
 
 **Every scan:**
 

@@ -6,11 +6,8 @@
 #   2. Runs webaudit with --open none in Docker
 #   3. Opens reports on the host (or prompts y/N)
 #
-# Pull-only install (no git clone — run once after docker pull):
-#   mkdir -p ~/.local/bin
-#   docker run --rm --entrypoint cat ghcr.io/vlad-1618m/webaudit:latest \
-#     /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
-#   chmod +x ~/.local/bin/webaudit-docker
+# Pull-only install (no git clone — run once):
+#   curl -fsSL https://raw.githubusercontent.com/Vlad-1618M/web_audit/v.tools_main/v2_python_core/scripts/install-webaudit-docker.sh | bash
 #   webaudit-docker scan https://example.com --open html
 #
 # Repo devs:
@@ -74,9 +71,9 @@ ${BOLD}Examples${NC}
   $(basename "$0") --image webaudit:local scan https://example.com --api
 
 ${BOLD}Notes${NC}
-  ${BOLD}Pull-only (no clone):${NC} install once from the image —
-    ${CYAN}docker run --rm --entrypoint cat ${DEFAULT_IMAGE} /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker${NC}
-    then ${CYAN}chmod +x ~/.local/bin/webaudit-docker${NC}
+  ${BOLD}Pull-only (no clone):${NC} install once —
+    ${CYAN}curl -fsSL https://raw.githubusercontent.com/Vlad-1618M/web_audit/v.tools_main/v2_python_core/scripts/install-webaudit-docker.sh | bash${NC}
+    (or ${CYAN}./scripts/install-webaudit-docker.sh${NC} from a git clone)
   Flags may appear before or after the URL; the wrapper reorders them for Typer (options first, URL last).
   Scan progress uses Rich colors when your terminal is a TTY (wrapper passes ${CYAN}docker run -t${NC}).
   Raw ${CYAN}docker run … --open html${NC} cannot open a browser — use this wrapper or ${CYAN}--open none${NC} + open report.html yourself.

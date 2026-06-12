@@ -28,7 +28,7 @@
 ## B — Docker only (no Mac app)
 
 - **Image:** `ghcr.io/vlad-1618m/webaudit:latest` ([package page](https://github.com/Vlad-1618M/web_audit/pkgs/container/webaudit))
-- **Helper:** `webaudit-docker` on PATH (extract from image — see [root README](README.md#docker--github-packages--v2-audit-pro))
+- **Helper:** `webaudit-docker` on PATH — one-time: `curl -fsSL …/install-webaudit-docker.sh | bash` (see [root README](README.md#docker--github-packages--v2-audit-pro))
 - **Plain English:** [v2_python_core/docs/getting_started_plain.md](v2_python_core/docs/getting_started_plain.md)
 
 ---

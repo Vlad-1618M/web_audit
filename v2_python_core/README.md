@@ -74,13 +74,10 @@ It mounts reports on your Mac/Linux and makes `--open html` work in **your** bro
 **Install once:**
 
 ```bash
-docker pull ghcr.io/vlad-1618m/webaudit:latest
-
-mkdir -p ~/.local/bin
-docker run --rm --entrypoint cat ghcr.io/vlad-1618m/webaudit:latest \
-  /usr/share/webaudit/webaudit-docker.sh > ~/.local/bin/webaudit-docker
-chmod +x ~/.local/bin/webaudit-docker
+curl -fsSL https://raw.githubusercontent.com/Vlad-1618M/web_audit/v.tools_main/v2_python_core/scripts/install-webaudit-docker.sh | bash
 ```
+
+From a git clone: `./scripts/install-webaudit-docker.sh` (adds `~/.local/bin` to `PATH` in your shell profile when needed).
 
 **Scan:**
 

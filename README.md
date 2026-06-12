@@ -78,14 +78,18 @@ export PATH="$HOME/.local/bin:$PATH"
 
 </details>
 
-**Every scan:**
+**Every scan** (`--js` and `--api` are added by default — same depth as the Mac app; use `--shallow` to skip):
 
 ```bash
 # Scan + prompt y/N to open report.html
 webaudit-docker scan https://example.com
 
 # Verbose scan, save under ~/Documents/WebAudit, open HTML when done
-webaudit-docker --output-dir documents scan https://example.com -v --api --open html
+webaudit-docker --output-dir documents scan https://example.com -v --open html
+
+# Engine version and scan flags
+webaudit-docker version
+webaudit-docker engine-help
 ```
 
 Reports stay on **your machine** (`~/Documents/WebAudit`, `./audit_logs`, etc.). Multi-arch image: Intel Mac, Apple Silicon, Linux.

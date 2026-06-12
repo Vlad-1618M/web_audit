@@ -29,6 +29,34 @@ class JsErrorInfo:
     fix_steps: list[str] = field(default_factory=list)
 
 
+def full_scan_enable_steps(
+    target_url: str,
+    *,
+    js: bool = False,
+    api: bool = False,
+) -> list[str]:
+    """Report hints when --js and/or --api were not used — Docker and venv paths."""
+    url = target_url.rstrip("/") or "https://example.com"
+    flags: list[str] = []
+    if js:
+        flags.append("--js")
+    if api:
+        flags.append("--api")
+    flag_str = " ".join(flags)
+    steps: list[str] = []
+    if flag_str:
+        steps.append(
+            f"webaudit-docker scan {url} -v {flag_str}   "
+            "# Docker — Playwright is bundled in the GHCR image; pass --js on the command"
+        )
+        steps.append(f"webaudit scan {url} {flag_str}   # venv / pip install")
+    if js:
+        packages = _INSTALL_PACKAGES["chromium"]
+        steps.append("venv only if Playwright is missing: pip install 'webaudit[js]'")
+        steps.append(f"venv only: python -m playwright install {packages}")
+    return steps
+
+
 def playwright_install_steps(
     browser: JsBrowser = "chromium",
     *,

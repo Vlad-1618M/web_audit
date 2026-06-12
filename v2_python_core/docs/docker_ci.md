@@ -336,17 +336,20 @@ export PATH="$HOME/.local/bin:$PATH"
 
 </details>
 
-**Every scan:**
+**Every scan** (default adds `--js` + `--api`; `--shallow` for static-only):
 
 ```bash
 # Interactive: scan then y/N to open report.html
 webaudit-docker scan https://example.com
 
 # Verbose + save under ~/Documents/WebAudit + open HTML
-webaudit-docker --output-dir documents scan https://example.com -v --api --open html
+webaudit-docker --output-dir documents scan https://example.com -v --open html
 
 # Pin a specific image tag
 webaudit-docker --image ghcr.io/vlad-1618m/webaudit:sha-989bb7e scan https://example.com -v --open html
+
+webaudit-docker version
+webaudit-docker engine-help
 ```
 
 | Wrapper flag | Purpose |
@@ -367,7 +370,7 @@ chmod +x ~/.local/bin/webaudit-docker
 
 **Common mistake:** `docker run … scan URL --open html` without a volume or wrapper. The CLI detects Docker and prints install hints; reports may stay inside the container. Always use **`webaudit-docker`** or **`--open none`** + a bind mount.
 
-**Note:** `--js` (Playwright) is **not** included in the stock GHCR image — JS pass is skipped. Use a local venv with `pip install -e ".[js]"` for JS scans.
+**Scan depth:** The GHCR image includes Playwright (`.[js]` + Chromium). **`webaudit-docker`** adds **`--js`** and **`--api`** by default (same as the Mac app). Use **`--shallow`** for a static-only scan. Engine version: `webaudit-docker version`; all scan flags: `webaudit-docker engine-help`.
 
 ---
 

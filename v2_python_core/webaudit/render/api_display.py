@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from webaudit.collectors.js_errors import full_scan_enable_steps
 from webaudit.models.finding import Finding, FindingClass
 
 _STATUS_LABELS = {
@@ -92,7 +93,6 @@ def build_api_section(
     """Build API probe callout + optional inventory rows for the technical report."""
     inventory = artifacts.get("inventory") or {}
     api_art = inventory.get("api") or {}
-    scan_cmd = f"webaudit scan {target_url.rstrip('/')} --api"
     api_hits = _api_findings(findings)
 
     if not api_art:
@@ -106,7 +106,7 @@ def build_api_section(
                 "This scan did not probe common GraphQL or OpenAPI/Swagger paths. "
                 "Use --api to check whether schema introspection or public API docs are exposed."
             ),
-            "enable_steps": [scan_cmd],
+            "enable_steps": full_scan_enable_steps(target_url, api=True),
             "stats": [],
             "graphql_rows": [],
             "openapi_rows": [],

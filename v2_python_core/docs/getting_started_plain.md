@@ -46,6 +46,8 @@ Replace the URL with **your** website (only sites you own or may test):
 webaudit-docker --output-dir documents scan https://yoursite.com -v --open html
 ```
 
+(`webaudit-docker` adds `--js` and `--api` automatically — same as the Mac app. Use `--shallow` for a quicker static-only scan.)
+
 - Reports are saved under **`~/Documents/WebAudit/`** on your Mac (or Linux equivalent).
 - When the scan finishes, it can **open the HTML report in your browser** automatically.
 - You can email that report to your developer or hosting company.

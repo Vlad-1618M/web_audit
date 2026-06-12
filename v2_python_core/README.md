@@ -79,11 +79,12 @@ curl -fsSL https://raw.githubusercontent.com/Vlad-1618M/web_audit/v.tools_main/v
 
 From a git clone: `./scripts/install-webaudit-docker.sh` (adds `~/.local/bin` to `PATH` in your shell profile when needed).
 
-**Scan:**
+**Scan** (wrapper adds `--js` + `--api` by default; `--shallow` for static-only):
 
 ```bash
 webaudit-docker scan https://example.com
-webaudit-docker --output-dir documents scan https://example.com -v --api --open html
+webaudit-docker --output-dir documents scan https://example.com -v --open html
+webaudit-docker version
 ```
 
 | `--output-dir` | Host folder |
